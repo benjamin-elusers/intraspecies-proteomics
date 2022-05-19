@@ -1,12 +1,111 @@
-# Parts
+# Data processing
 
-You can add parts to organize one or more book chapters together. Parts can be inserted at the top of an .Rmd file, before the first-level chapter heading in that same file. 
+Before normalizing intensities, we first need to discard some hits because they
+are not suitable for analysis:
 
-Add a numbered part: `# (PART) Act one {-}` (followed by `# A chapter`)
+ 1. contaminants (*identifier starts with CON*)
+ 2. reversed sequences (*identifier starts with REV*)
+ 3. multiple hits (*peptides matching several proteins*)
+ 4. not enough unique peptides (*low confidence identification (< 2 peptides)*)
 
-Add an unnumbered part: `# (PART\*) Act one {-}` (followed by `# A chapter`)
+```{r filter-data}
+# Filter hits
+ms1=filter_hits(ms0)
+```
 
-Add an appendix as a special kind of un-numbered part: `# (APPENDIX) Other stuff {-}` (followed by `# A chapter`). Chapters in an appendix are prepended with letters instead of numbers.
+## Processing quantified intensities
+
+Following the aim of this experiment, we wish to compare the variation of protein 
+expression between strains.
+
+First, we compute the average intensities over the replicates.
+
+Then, we discard proteins hits with missing values for XX strains or for YY replicates
+types of media. 
+
+Finally, we normalize the intensities by transforming to log2 and subtracting 
+each sample's median. (cf formula below)
 
 
+**Normalization method = Equalizing medians**
 
+$$ norm.int_{sample} = log2(raw.int_{sample}) - log2(median_{sample}) $$
+We filter out hits that contains missing values for either strains or replicates
+
+```{r process-intensities}
+# Process intensities
+int_raw= ms1 %>% dplyr::select(uniprot=majority_protein_i_ds,starts_with("lfq")) %>% as.data.frame() %>% column_to_rownames('uniprot') %>% 
+            rename_with(everything(),.fn =gsub, pattern='lfq_intensity_', replacement='') 
+
+
+int_norm= normalize_intensities(int_raw) %>% 
+          as.data.frame %>% rownames_to_column('uniprot') %>%
+          as_tibble() %>%
+          rename_with(everything(),.fn =gsub, pattern='lfq_intensity_', replacement='') %>% 
+          rename_with(.fn = str_to_upper)
+         
+# TRYING DIFFERENT NORMALIZATIONS SCHEME (NOT READY)
+#int_med_norm =  normalize_intensities(int_raw) 
+# library(affy)
+# library(missForest)
+#int_raw_noNA = int_raw[complete.cases(int_raw),]
+#int_raw_imp.log10 = missForest(xmis = log10(int_raw),variablewise=T,verbose=T,
+#                         xtrue=log10(int_raw_noNA))
+
+#int_loess_norm = affy::normalize.loess(log10(int_raw),verbose = F,log.it = F)
+#nrow(int_loess_norm) - length(find_na_rows(int_loess_norm,as.indices = T))
+# head(int_loess_norm)
+# int_loess_norm = normalizeBetweenArrays(log10(int_raw),method = 'cyclicloess')
+library(DEP)
+ 
+# int_loess_norm = normalizeCyclicLoess(log2(int_raw))
+# int_med_norm = normalizeMedianAbsValues(log2(int_raw))
+# int_q_norm = normalizeQuantiles(log2(int_raw))
+# int_vsn_norm = normalizeVSN(log2(int_raw))
+# par(mfrow=c(3,2))
+# boxplot(log2(int_raw))
+# boxplot(int_loess_norm)
+# boxplot(int_med_norm)
+# boxplot(int_q_norm)
+# boxplot(int_vsn_norm)
+
+#compare_exp(log2(int_raw),int_loess_norm, all=T)
+
+
+long_int_norm = pivot_longer(int_norm , cols=-UNIPROT, values_to='log10_int',
+                             names_to = c('strain','bioR','techR','day'),
+                             names_pattern = "([^_]+)_([^_]+)_([^_]+)_([^_]+)") %>%
+                group_by(strain,UNIPROT) %>% mutate(na_rep = sum.na(log10_int))
+
+# Intensities across strains  (default is average)
+int_by_strain = pivot_wider(long_int_norm,
+              id_cols=UNIPROT,
+              names_from = 'strain',
+              names_glue = "{strain}",
+              values_from = "log10_int",
+              values_fn=mean_
+              )
+
+na_by_strain = pivot_wider(long_int_norm,
+              id_cols=UNIPROT,
+              names_from = c('strain'),
+              names_glue = "na_rep_{strain}",
+              values_from = "log10_int",
+              values_fn=sum.na
+              )
+
+df_strains= left_join(int_by_strain,na_by_strain) %>% 
+  rowwise %>%
+  mutate( na_strains = sum.na(c_across(cols = starts_with('lfq_int'))) )
+
+int_all = int_norm  %>% column_to_rownames('UNIPROT') %>% as.data.frame()
+
+# Removing hits with missing values for more than one strain (using average intensities over replicates)
+ms2= df_strains %>% filter(na_strains < 1)
+int_filt_strains = ms2 %>% dplyr::select(-starts_with('na')) %>% column_to_rownames('UNIPROT') %>% as.data.frame()
+
+
+# Save processed & normalized intensities data
+write_delim(df_strains,here::here('output','proteomics-normalized-log10_intensities.tsv'),delim='\t')
+
+```

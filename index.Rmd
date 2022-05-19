@@ -90,14 +90,14 @@ knitr::opts_chunk$set(echo = T, collapse = T, cache.lazy = F,autodep = T, warnin
 suppressPackageStartupMessages({
   library(here)
   source("https://raw.githubusercontent.com/benjamin-elusers/yeastomics/main/src/__setup_yeastomics__.r")
-  source(here("../src",'function_proteomics.r'))
+  source(here("src",'function_proteomics.r'))
 })
 # turn off annoying messages from dplyr::summarise
 options(dplyr.summarise.inform = FALSE)
 graphics.off()
 
 # Yeast data
-sc_annofile = here('../data','yeast-annotations.rds')
+sc_annofile = here('data','yeast-annotations.rds')
 sc_annotation = preload(sc_annofile, load.annotation(),doing='loading annotations data for yeast...')
 sc_annotation_orf = dplyr::select(sc_annotation,-c(SGD,GENENAME,ROLE,LOC,COMPLEX,node,nprot,nsp,taxon))
 sc_identifiers = sc_annotation %>% dplyr::select(SGD,ORF,UNIPROT,GENENAME)
@@ -106,22 +106,22 @@ riboseq_strains = c('AMH','BAN','BED','BPL','BTT','CMP','CPI','CQC') # Strains w
 strains.info = load.peter2018.data(1) %>%  # strains info from supp mat of Science paper
                  mutate( has_riboseq = standardized_name %in% riboseq_strains)
 
-yk11_all_snp = left_join(readRDS(here('../data','YK11-SNP_NT.rds')),
-                         readRDS(here('../data','YK11-SNP_AA.rds')), 
+yk11_all_snp = left_join(readRDS(here('data','YK11-SNP_NT.rds')),
+                         readRDS(here('data','YK11-SNP_AA.rds')), 
                          by=c('id', "aa_pos"='ref_pos', 'alt_codon_aa' = 'alt_aa'), 
                          suffix = c("_nt", "_aa") ) %>%
     left_join(sc_identifiers,by=c('id'='ORF'))
 
 
-y8_all_snp = left_join(readRDS(here('../data','Y8-SNP_NT.rds')),
-                       readRDS(here('../data','Y8-SNP_AA.rds')), 
+y8_all_snp = left_join(readRDS(here('data','Y8-SNP_NT.rds')),
+                       readRDS(here('data','Y8-SNP_AA.rds')), 
                        by=c('id', "aa_pos"='ref_pos', 'alt_codon_aa' = 'alt_aa'),
                        suffix = c("_nt", "_aa")) %>% 
   left_join(sc_identifiers,by=c('id'='ORF'))
 
 # Conservation/evolutionary rate
-evo_fungi = read_delim(here('../output','evolution-fungi-protein.tsv'),delim='\t') 
-evo_snp = read_delim(here('../output','evolution-snp-protein.tsv'),delim='\t') 
+evo_fungi = read_delim(here('output','evolution-fungi-protein.tsv'),delim='\t') 
+evo_snp = read_delim(here('output','evolution-snp-protein.tsv'),delim='\t') 
 fungi_rate = evo_fungi %>% dplyr::select(r4s:leisr_local) %>% as.matrix
 strains_rate = evo_snp %>% dplyr::select(r4s:leisr_local) %>% as.matrix
 er_fungi_cor = cor(fungi_rate,use='pairwise.complete',met='spearman')

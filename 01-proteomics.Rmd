@@ -62,9 +62,9 @@ A hit corresponds to the set of peptides that were matched to a single protein g
 
 ```{r read-data, echo=F}
 # Maxquant files
-evidence = here::here('../data','Raw_files','combined/txt','evidence.txt')
-annotation = here::here('../results','keys.txt')
-proteinGroups = here::here('../data','Raw_files','combined/txt','proteinGroups.txt')
+evidence = here::here('data','Raw_files','combined/txt','evidence.txt')
+annotation = here::here('results','keys.txt')
+proteinGroups = here::here('data','Raw_files','combined/txt','proteinGroups.txt')
 
 # Reading maxquant protein data
 ms0=read_maxquant(proteinGroups,zero.to.na = T, int_type = 'LFQ', pep_type = 'Unique peptides')
