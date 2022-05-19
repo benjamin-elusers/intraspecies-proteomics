@@ -2,7 +2,7 @@ bookdown::bs4_book:
   css: style.css
   theme:
     primary: "#096B72"
-  repo: https://benjamin-elusers.github.io/intraspecies-proteomics/
+  repo: https://github.com/benjamin-elusers/intraspecies-proteomics
 bookdown::pdf_book:
   includes:
     in_header: preamble.tex
