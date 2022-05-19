@@ -1,0 +1,8999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 7 Session Info | Intraspecies proteome expression</title>
+<meta name="author" content="Benjamin Dubreuil">
+<meta name="description" content='7.1 Platform info df_platform = devtools::session_info()$platform %&gt;%  unlist(.) %&gt;%  as.data.frame(.) %&gt;%  rownames_to_column(.) kable(  df_platform,  booktabs = T,  align = "l",  caption =...'>
+<meta name="generator" content="bookdown 0.26 with bs4_book()">
+<meta property="og:title" content="Chapter 7 Session Info | Intraspecies proteome expression">
+<meta property="og:type" content="book">
+<meta property="og:description" content='7.1 Platform info df_platform = devtools::session_info()$platform %&gt;%  unlist(.) %&gt;%  as.data.frame(.) %&gt;%  rownames_to_column(.) kable(  df_platform,  booktabs = T,  align = "l",  caption =...'>
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 7 Session Info | Intraspecies proteome expression">
+<meta name="twitter:description" content='7.1 Platform info df_platform = devtools::session_info()$platform %&gt;%  unlist(.) %&gt;%  as.data.frame(.) %&gt;%  rownames_to_column(.) kable(  df_platform,  booktabs = T,  align = "l",  caption =...'>
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.3.1/transition.js"></script><script src="libs/bs3compat-0.3.1/tabs.js"></script><script src="libs/bs3compat-0.3.1/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script><link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+<script src="libs/datatables-binding-0.22/datatables.js"></script><link href="libs/dt-core-1.11.3/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="libs/dt-core-1.11.3/css/jquery.dataTables.extra.css" rel="stylesheet">
+<script src="libs/dt-core-1.11.3/js/jquery.dataTables.min.js"></script><link href="libs/dt-ext-fixedheader-1.11.3/css/fixedHeader.dataTables.min.css" rel="stylesheet">
+<script src="libs/dt-ext-fixedheader-1.11.3/js/dataTables.fixedHeader.min.js"></script><link href="libs/dt-ext-fixedcolumns-1.11.3/css/fixedColumns.dataTables.min.css" rel="stylesheet">
+<script src="libs/dt-ext-fixedcolumns-1.11.3/js/dataTables.fixedColumns.min.js"></script><script src="libs/jszip-1.11.3/jszip.min.js"></script><link href="libs/dt-ext-buttons-1.11.3/css/buttons.dataTables.min.css" rel="stylesheet">
+<script src="libs/dt-ext-buttons-1.11.3/js/dataTables.buttons.min.js"></script><script src="libs/dt-ext-buttons-1.11.3/js/buttons.html5.min.js"></script><script src="libs/dt-ext-buttons-1.11.3/js/buttons.colVis.min.js"></script><script src="libs/dt-ext-buttons-1.11.3/js/buttons.print.min.js"></script><link href="libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet">
+<script src="libs/nouislider-7.0.10/jquery.nouislider.min.js"></script><link href="libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet">
+<script src="libs/selectize-0.12.0/selectize.min.js"></script><link href="libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
+<script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Intraspecies proteome expression</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html"><span class="header-section-number">1</span> Introduction</a></li>
+<li><a class="" href="proteomics-experiment.html"><span class="header-section-number">2</span> Proteomics experiment</a></li>
+<li><a class="" href="data-processing.html"><span class="header-section-number">3</span> Data processing</a></li>
+<li><a class="" href="qc.html"><span class="header-section-number">4</span> Quality control</a></li>
+<li><a class="" href="strains-expression-comparison.html"><span class="header-section-number">5</span> Strains expression comparison</a></li>
+<li><a class="" href="differential-expression.html"><span class="header-section-number">6</span> Differential Expression</a></li>
+<li><a class="active" href="session-info.html"><span class="header-section-number">7</span> Session Info</a></li>
+<li><a class="" href="references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/benjamin-elusers/intraspecies-proteomics">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="session-info" class="section level1 tabset" number="7">
+<h1>
+<span class="header-section-number">7</span> Session Info<a class="anchor" aria-label="anchor" href="#session-info"><i class="fas fa-link"></i></a>
+</h1>
+<div id="platform-info" class="section level2" number="7.1">
+<h2>
+<span class="header-section-number">7.1</span> Platform info<a class="anchor" aria-label="anchor" href="#platform-info"><i class="fas fa-link"></i></a>
+</h2>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">df_platform</span> <span class="op">=</span> <span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://r-lib.github.io/sessioninfo/reference/session_info.html">session_info</a></span><span class="op">(</span><span class="op">)</span><span class="op">$</span><span class="va">platform</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> 
+  <span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> 
+  <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">.</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html">%&gt;%</a></span> 
+  <span class="fu">rownames_to_column</span><span class="op">(</span><span class="va">.</span><span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html">kable</a></span><span class="op">(</span>
+  <span class="va">df_platform</span>,
+  booktabs <span class="op">=</span> <span class="cn">T</span>, 
+  align <span class="op">=</span> <span class="st">"l"</span>,
+  caption <span class="op">=</span> <span class="st">"(Reproducibility - platform info)"</span>, <span class="co"># complete caption for main document</span>
+  caption.short <span class="op">=</span> <span class="st">" "</span> <span class="co"># </span>
+<span class="op">)</span></code></pre></div>
+<div class="inline-table"><table class="table table-sm">
+<caption>
+<span id="tab:platform">Table 7.1: </span>(Reproducibility - platform info)
+</caption>
+<thead><tr>
+<th style="text-align:left;">
+rowname
+</th>
+<th style="text-align:left;">
+.
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+version
+</td>
+<td style="text-align:left;">
+R version 4.1.2 (2021-11-01)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+os
+</td>
+<td style="text-align:left;">
+Linux Mint 20.3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+system
+</td>
+<td style="text-align:left;">
+x86_64, linux-gnu
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ui
+</td>
+<td style="text-align:left;">
+X11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+language
+</td>
+<td style="text-align:left;">
+en_IL:en
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+collate
+</td>
+<td style="text-align:left;">
+en_IL.UTF-8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ctype
+</td>
+<td style="text-align:left;">
+en_IL.UTF-8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+tz
+</td>
+<td style="text-align:left;">
+Asia/Jerusalem
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+date
+</td>
+<td style="text-align:left;">
+2022-05-19
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pandoc
+</td>
+<td style="text-align:left;">
+2.14.0.3 @ /usr/lib/rstudio/bin/pandoc/ (via rmarkdown)
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<div id="packages-loaded-and-used-i.e.-attached-to-the-workspace" class="section level2" number="7.2">
+<h2>
+<span class="header-section-number">7.2</span> Packages loaded and used (i.e. attached to the workspace)<a class="anchor" aria-label="anchor" href="#packages-loaded-and-used-i.e.-attached-to-the-workspace"><i class="fas fa-link"></i></a>
+</h2>
+<div class="inline-table"><table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+<span id="tab:loaded-packages">Table 7.2: </span>(Reproducibility - loaded packages)
+</caption>
+<thead><tr>
+<th style="text-align:left;">
+Package
+</th>
+<th style="text-align:left;">
+Loaded version
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+BiocGenerics
+</td>
+<td style="text-align:left;">
+0.40.0
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BiocManager
+</td>
+<td style="text-align:left;">
+1.30.16
+</td>
+<td style="text-align:left;">
+2021-06-15
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biostrings
+</td>
+<td style="text-align:left;">
+2.62.0
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+corrr
+</td>
+<td style="text-align:left;">
+0.4.3
+</td>
+<td style="text-align:left;">
+2020-11-24
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cowplot
+</td>
+<td style="text-align:left;">
+1.1.1
+</td>
+<td style="text-align:left;">
+2020-12-30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+d3Tree
+</td>
+<td style="text-align:left;">
+0.2.2
+</td>
+<td style="text-align:left;">
+2020-12-10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DEP
+</td>
+<td style="text-align:left;">
+1.16.0
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+dplyr
+</td>
+<td style="text-align:left;">
+1.0.9
+</td>
+<td style="text-align:left;">
+2022-04-28
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DT
+</td>
+<td style="text-align:left;">
+0.22
+</td>
+<td style="text-align:left;">
+2022-03-28
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+forcats
+</td>
+<td style="text-align:left;">
+0.5.1
+</td>
+<td style="text-align:left;">
+2021-01-27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+formattable
+</td>
+<td style="text-align:left;">
+0.2.1
+</td>
+<td style="text-align:left;">
+2021-01-07
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GenomeInfoDb
+</td>
+<td style="text-align:left;">
+1.30.1
+</td>
+<td style="text-align:left;">
+2022-01-30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GGally
+</td>
+<td style="text-align:left;">
+2.1.2
+</td>
+<td style="text-align:left;">
+2021-06-21
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggcorrplot
+</td>
+<td style="text-align:left;">
+0.1.3
+</td>
+<td style="text-align:left;">
+2019-05-19
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggplot2
+</td>
+<td style="text-align:left;">
+3.3.5
+</td>
+<td style="text-align:left;">
+2021-06-25
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggplotify
+</td>
+<td style="text-align:left;">
+0.1.0
+</td>
+<td style="text-align:left;">
+2021-09-02
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggpubr
+</td>
+<td style="text-align:left;">
+0.4.0
+</td>
+<td style="text-align:left;">
+2020-06-27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggrepel
+</td>
+<td style="text-align:left;">
+0.9.1
+</td>
+<td style="text-align:left;">
+2021-01-15
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggsci
+</td>
+<td style="text-align:left;">
+2.9
+</td>
+<td style="text-align:left;">
+2018-05-14
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggtext
+</td>
+<td style="text-align:left;">
+0.1.1
+</td>
+<td style="text-align:left;">
+2020-12-17
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggthemes
+</td>
+<td style="text-align:left;">
+4.2.4
+</td>
+<td style="text-align:left;">
+2021-01-20
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gridExtra
+</td>
+<td style="text-align:left;">
+2.3
+</td>
+<td style="text-align:left;">
+2017-09-09
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+hablar
+</td>
+<td style="text-align:left;">
+0.3.0
+</td>
+<td style="text-align:left;">
+2020-03-19
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+here
+</td>
+<td style="text-align:left;">
+1.0.1
+</td>
+<td style="text-align:left;">
+2020-12-13
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+hrbrthemes
+</td>
+<td style="text-align:left;">
+0.8.0
+</td>
+<td style="text-align:left;">
+2020-03-06
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+hutils
+</td>
+<td style="text-align:left;">
+1.7.1
+</td>
+<td style="text-align:left;">
+2021-07-22
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IRanges
+</td>
+<td style="text-align:left;">
+2.28.0
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+janitor
+</td>
+<td style="text-align:left;">
+2.1.0
+</td>
+<td style="text-align:left;">
+2021-01-05
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+kableExtra
+</td>
+<td style="text-align:left;">
+1.3.4
+</td>
+<td style="text-align:left;">
+2021-02-20
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+limma
+</td>
+<td style="text-align:left;">
+3.50.3
+</td>
+<td style="text-align:left;">
+2022-04-07
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+openxlsx
+</td>
+<td style="text-align:left;">
+4.2.5
+</td>
+<td style="text-align:left;">
+2021-12-14
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plotly
+</td>
+<td style="text-align:left;">
+4.10.0
+</td>
+<td style="text-align:left;">
+2021-10-09
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+purrr
+</td>
+<td style="text-align:left;">
+0.3.4
+</td>
+<td style="text-align:left;">
+2020-04-17
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+RColorBrewer
+</td>
+<td style="text-align:left;">
+1.1-3
+</td>
+<td style="text-align:left;">
+2022-04-03
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+RCurl
+</td>
+<td style="text-align:left;">
+1.98-1.5
+</td>
+<td style="text-align:left;">
+2021-09-17
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+readr
+</td>
+<td style="text-align:left;">
+2.1.1
+</td>
+<td style="text-align:left;">
+2021-11-30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rio
+</td>
+<td style="text-align:left;">
+0.5.29
+</td>
+<td style="text-align:left;">
+2021-11-22
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+S4Vectors
+</td>
+<td style="text-align:left;">
+0.32.3
+</td>
+<td style="text-align:left;">
+2021-11-21
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+see
+</td>
+<td style="text-align:left;">
+0.6.8
+</td>
+<td style="text-align:left;">
+2021-10-03
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sessioninfo
+</td>
+<td style="text-align:left;">
+1.2.2
+</td>
+<td style="text-align:left;">
+2021-12-06
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+stringr
+</td>
+<td style="text-align:left;">
+1.4.0
+</td>
+<td style="text-align:left;">
+2019-02-10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+tibble
+</td>
+<td style="text-align:left;">
+3.1.6
+</td>
+<td style="text-align:left;">
+2021-11-07
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+tictoc
+</td>
+<td style="text-align:left;">
+1.0.1
+</td>
+<td style="text-align:left;">
+2021-04-19
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+tidyr
+</td>
+<td style="text-align:left;">
+1.2.0
+</td>
+<td style="text-align:left;">
+2022-02-01
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+tidyverse
+</td>
+<td style="text-align:left;">
+1.3.1
+</td>
+<td style="text-align:left;">
+2021-04-15
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+treemap
+</td>
+<td style="text-align:left;">
+2.4-3
+</td>
+<td style="text-align:left;">
+2021-08-22
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+xfun
+</td>
+<td style="text-align:left;">
+0.31
+</td>
+<td style="text-align:left;">
+2022-05-10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+XVector
+</td>
+<td style="text-align:left;">
+0.34.0
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+</tr>
+</tbody>
+</table></div>
+<p>To reproduce this Rmarkdown document, you may need to run the following lines
+for loading/installing the necessary packages:</p>
+<p>Copy paste the code below to your rsession:</p>
+<p>install.packages(‘xfun’)</p>
+<p>xfun::pkg_load2(c(“BiocGenerics,” “BiocManager,” “Biostrings,” “corrr,” “cowplot,” “d3Tree,” “DEP,” “dplyr,” “DT,” “forcats,” “formattable,” “GenomeInfoDb,” “GGally,” “ggcorrplot,” “ggplot2,” “ggplotify,” “ggpubr,” “ggrepel,” “ggsci,” “ggtext,” “ggthemes,” “gridExtra,” “hablar,” “here,” “hrbrthemes,” “hutils,” “IRanges,” “janitor,” “kableExtra,” “limma,” “openxlsx,” “plotly,” “purrr,” “RColorBrewer,” “RCurl,” “readr,” “rio,” “S4Vectors,” “see,” “sessioninfo,” “stringr,” “tibble,” “tictoc,” “tidyr,” “tidyverse,” “treemap,” “xfun,” “XVector”))</p>
+<p>Pay attention to the error message you might get.</p>
+<p>Common errors could be due to:</p>
+<ul>
+<li>Not having admin privileges to write in the home R directory</li>
+<li>Some package installation requires prior linux libraries to be installed</li>
+<li>Some packages might not be available for older R version</li>
+<li>Some packages are not obtained from CRAN but from Bioconductor (it may require to use the function BiocManager::install())</li>
+</ul>
+</div>
+<div id="all-packages-required-i.e.-including-dependencies" class="section level2" number="7.3">
+<h2>
+<span class="header-section-number">7.3</span> All packages required (i.e. including dependencies)<a class="anchor" aria-label="anchor" href="#all-packages-required-i.e.-including-dependencies"><i class="fas fa-link"></i></a>
+</h2>
+<div class="inline-table"><table class="table table-sm">
+<caption>
+<span id="tab:all-packages">Table 7.3: </span>all packages used (include dependencies)
+</caption>
+<thead><tr>
+<th style="text-align:left;">
+</th>
+<th style="text-align:left;">
+package
+</th>
+<th style="text-align:left;">
+ondiskversion
+</th>
+<th style="text-align:left;">
+loadedversion
+</th>
+<th style="text-align:left;">
+path
+</th>
+<th style="text-align:left;">
+loadedpath
+</th>
+<th style="text-align:left;">
+attached
+</th>
+<th style="text-align:left;">
+is_base
+</th>
+<th style="text-align:left;">
+date
+</th>
+<th style="text-align:left;">
+source
+</th>
+<th style="text-align:left;">
+md5ok
+</th>
+<th style="text-align:left;">
+library
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+abind
+</td>
+<td style="text-align:left;">
+abind
+</td>
+<td style="text-align:left;">
+1.4.5
+</td>
+<td style="text-align:left;">
+1.4-5
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/abind
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/abind
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2016-07-21
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+affy
+</td>
+<td style="text-align:left;">
+affy
+</td>
+<td style="text-align:left;">
+1.72.0
+</td>
+<td style="text-align:left;">
+1.72.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/affy
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/affy
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+affyio
+</td>
+<td style="text-align:left;">
+affyio
+</td>
+<td style="text-align:left;">
+1.64.0
+</td>
+<td style="text-align:left;">
+1.64.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/affyio
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/affyio
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+assertthat
+</td>
+<td style="text-align:left;">
+assertthat
+</td>
+<td style="text-align:left;">
+0.2.1
+</td>
+<td style="text-align:left;">
+0.2.1
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/assertthat
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/assertthat
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2019-03-21
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+backports
+</td>
+<td style="text-align:left;">
+backports
+</td>
+<td style="text-align:left;">
+1.4.1
+</td>
+<td style="text-align:left;">
+1.4.1
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/backports
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/backports
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-12-13
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+beeswarm
+</td>
+<td style="text-align:left;">
+beeswarm
+</td>
+<td style="text-align:left;">
+0.4.0
+</td>
+<td style="text-align:left;">
+0.4.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/beeswarm
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/beeswarm
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-06-01
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biobase
+</td>
+<td style="text-align:left;">
+Biobase
+</td>
+<td style="text-align:left;">
+2.54.0
+</td>
+<td style="text-align:left;">
+2.54.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/Biobase
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/Biobase
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BiocGenerics
+</td>
+<td style="text-align:left;">
+BiocGenerics
+</td>
+<td style="text-align:left;">
+0.40.0
+</td>
+<td style="text-align:left;">
+0.40.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/BiocGenerics
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/BiocGenerics
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BiocManager
+</td>
+<td style="text-align:left;">
+BiocManager
+</td>
+<td style="text-align:left;">
+1.30.16
+</td>
+<td style="text-align:left;">
+1.30.16
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/BiocManager
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/BiocManager
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-06-15
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BiocParallel
+</td>
+<td style="text-align:left;">
+BiocParallel
+</td>
+<td style="text-align:left;">
+1.28.3
+</td>
+<td style="text-align:left;">
+1.28.3
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/BiocParallel
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/BiocParallel
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-12-09
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biostrings
+</td>
+<td style="text-align:left;">
+Biostrings
+</td>
+<td style="text-align:left;">
+2.62.0
+</td>
+<td style="text-align:left;">
+2.62.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/Biostrings
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/Biostrings
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+bit
+</td>
+<td style="text-align:left;">
+bit
+</td>
+<td style="text-align:left;">
+4.0.4
+</td>
+<td style="text-align:left;">
+4.0.4
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/bit
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/bit
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-08-04
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+bit64
+</td>
+<td style="text-align:left;">
+bit64
+</td>
+<td style="text-align:left;">
+4.0.5
+</td>
+<td style="text-align:left;">
+4.0.5
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/bit64
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/bit64
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-08-30
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+bitops
+</td>
+<td style="text-align:left;">
+bitops
+</td>
+<td style="text-align:left;">
+1.0.7
+</td>
+<td style="text-align:left;">
+1.0-7
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/bitops
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/bitops
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-04-24
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+bookdown
+</td>
+<td style="text-align:left;">
+bookdown
+</td>
+<td style="text-align:left;">
+0.26
+</td>
+<td style="text-align:left;">
+0.26
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/bookdown
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/bookdown
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-04-15
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+brio
+</td>
+<td style="text-align:left;">
+brio
+</td>
+<td style="text-align:left;">
+1.1.3
+</td>
+<td style="text-align:left;">
+1.1.3
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/brio
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/brio
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-11-30
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+broom
+</td>
+<td style="text-align:left;">
+broom
+</td>
+<td style="text-align:left;">
+0.7.11
+</td>
+<td style="text-align:left;">
+0.7.11
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/broom
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/broom
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-01-03
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+bslib
+</td>
+<td style="text-align:left;">
+bslib
+</td>
+<td style="text-align:left;">
+0.3.1
+</td>
+<td style="text-align:left;">
+0.3.1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/bslib
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/bslib
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-06
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cachem
+</td>
+<td style="text-align:left;">
+cachem
+</td>
+<td style="text-align:left;">
+1.0.6
+</td>
+<td style="text-align:left;">
+1.0.6
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/cachem
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/cachem
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-08-19
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+callr
+</td>
+<td style="text-align:left;">
+callr
+</td>
+<td style="text-align:left;">
+3.7.0
+</td>
+<td style="text-align:left;">
+3.7.0
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/callr
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/callr
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-04-20
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.5)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+car
+</td>
+<td style="text-align:left;">
+car
+</td>
+<td style="text-align:left;">
+3.0.12
+</td>
+<td style="text-align:left;">
+3.0-12
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/car
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/car
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-11-06
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+carData
+</td>
+<td style="text-align:left;">
+carData
+</td>
+<td style="text-align:left;">
+3.0.5
+</td>
+<td style="text-align:left;">
+3.0-5
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/carData
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/carData
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-01-06
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cellranger
+</td>
+<td style="text-align:left;">
+cellranger
+</td>
+<td style="text-align:left;">
+1.1.0
+</td>
+<td style="text-align:left;">
+1.1.0
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/cellranger
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/cellranger
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2016-07-27
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+circlize
+</td>
+<td style="text-align:left;">
+circlize
+</td>
+<td style="text-align:left;">
+0.4.14
+</td>
+<td style="text-align:left;">
+0.4.14
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/circlize
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/circlize
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-02-11
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cli
+</td>
+<td style="text-align:left;">
+cli
+</td>
+<td style="text-align:left;">
+3.3.0
+</td>
+<td style="text-align:left;">
+3.3.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/cli
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/cli
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-04-25
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+clue
+</td>
+<td style="text-align:left;">
+clue
+</td>
+<td style="text-align:left;">
+0.3.60
+</td>
+<td style="text-align:left;">
+0.3-60
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/clue
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/clue
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-11
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cluster
+</td>
+<td style="text-align:left;">
+cluster
+</td>
+<td style="text-align:left;">
+2.1.2
+</td>
+<td style="text-align:left;">
+2.1.2
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/cluster
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/cluster
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-04-17
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.5)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+codetools
+</td>
+<td style="text-align:left;">
+codetools
+</td>
+<td style="text-align:left;">
+0.2.18
+</td>
+<td style="text-align:left;">
+0.2-18
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/codetools
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/codetools
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-11-04
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.3)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+colorspace
+</td>
+<td style="text-align:left;">
+colorspace
+</td>
+<td style="text-align:left;">
+2.0.3
+</td>
+<td style="text-align:left;">
+2.0-3
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/colorspace
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/colorspace
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-02-21
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ComplexHeatmap
+</td>
+<td style="text-align:left;">
+ComplexHeatmap
+</td>
+<td style="text-align:left;">
+2.10.0
+</td>
+<td style="text-align:left;">
+2.10.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ComplexHeatmap
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ComplexHeatmap
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ComplexUpset
+</td>
+<td style="text-align:left;">
+ComplexUpset
+</td>
+<td style="text-align:left;">
+1.3.3
+</td>
+<td style="text-align:left;">
+1.3.3
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ComplexUpset
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ComplexUpset
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-12-11
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+corrr
+</td>
+<td style="text-align:left;">
+corrr
+</td>
+<td style="text-align:left;">
+0.4.3
+</td>
+<td style="text-align:left;">
+0.4.3
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/corrr
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/corrr
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-11-24
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+cowplot
+</td>
+<td style="text-align:left;">
+cowplot
+</td>
+<td style="text-align:left;">
+1.1.1
+</td>
+<td style="text-align:left;">
+1.1.1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/cowplot
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/cowplot
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-12-30
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+crayon
+</td>
+<td style="text-align:left;">
+crayon
+</td>
+<td style="text-align:left;">
+1.5.1
+</td>
+<td style="text-align:left;">
+1.5.1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/crayon
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/crayon
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-03-26
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+crosstalk
+</td>
+<td style="text-align:left;">
+crosstalk
+</td>
+<td style="text-align:left;">
+1.2.0
+</td>
+<td style="text-align:left;">
+1.2.0
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/crosstalk
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/crosstalk
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-11-04
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+curl
+</td>
+<td style="text-align:left;">
+curl
+</td>
+<td style="text-align:left;">
+4.3.2
+</td>
+<td style="text-align:left;">
+4.3.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/curl
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/curl
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-06-23
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+d3Tree
+</td>
+<td style="text-align:left;">
+d3Tree
+</td>
+<td style="text-align:left;">
+0.2.2
+</td>
+<td style="text-align:left;">
+0.2.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/d3Tree
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/d3Tree
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-12-10
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+data.table
+</td>
+<td style="text-align:left;">
+data.table
+</td>
+<td style="text-align:left;">
+1.14.2
+</td>
+<td style="text-align:left;">
+1.14.2
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/data.table
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/data.table
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-09-27
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.1)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DBI
+</td>
+<td style="text-align:left;">
+DBI
+</td>
+<td style="text-align:left;">
+1.1.2
+</td>
+<td style="text-align:left;">
+1.1.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/DBI
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/DBI
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-12-20
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+dbplyr
+</td>
+<td style="text-align:left;">
+dbplyr
+</td>
+<td style="text-align:left;">
+2.1.1
+</td>
+<td style="text-align:left;">
+2.1.1
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/dbplyr
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/dbplyr
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-04-06
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.5)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DelayedArray
+</td>
+<td style="text-align:left;">
+DelayedArray
+</td>
+<td style="text-align:left;">
+0.20.0
+</td>
+<td style="text-align:left;">
+0.20.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/DelayedArray
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/DelayedArray
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DEP
+</td>
+<td style="text-align:left;">
+DEP
+</td>
+<td style="text-align:left;">
+1.16.0
+</td>
+<td style="text-align:left;">
+1.16.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/DEP
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/DEP
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+desc
+</td>
+<td style="text-align:left;">
+desc
+</td>
+<td style="text-align:left;">
+1.4.1
+</td>
+<td style="text-align:left;">
+1.4.1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/desc
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/desc
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-03-06
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+devtools
+</td>
+<td style="text-align:left;">
+devtools
+</td>
+<td style="text-align:left;">
+2.4.3
+</td>
+<td style="text-align:left;">
+2.4.3
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/devtools
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/devtools
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-11-30
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+digest
+</td>
+<td style="text-align:left;">
+digest
+</td>
+<td style="text-align:left;">
+0.6.29
+</td>
+<td style="text-align:left;">
+0.6.29
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/digest
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/digest
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-12-01
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+doParallel
+</td>
+<td style="text-align:left;">
+doParallel
+</td>
+<td style="text-align:left;">
+1.0.17
+</td>
+<td style="text-align:left;">
+1.0.17
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/doParallel
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/doParallel
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-02-07
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+downlit
+</td>
+<td style="text-align:left;">
+downlit
+</td>
+<td style="text-align:left;">
+0.4.0
+</td>
+<td style="text-align:left;">
+0.4.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/downlit
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/downlit
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-29
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+dplyr
+</td>
+<td style="text-align:left;">
+dplyr
+</td>
+<td style="text-align:left;">
+1.0.9
+</td>
+<td style="text-align:left;">
+1.0.9
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/dplyr
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/dplyr
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-04-28
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DT
+</td>
+<td style="text-align:left;">
+DT
+</td>
+<td style="text-align:left;">
+0.22
+</td>
+<td style="text-align:left;">
+0.22
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/DT
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/DT
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-03-28
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ellipsis
+</td>
+<td style="text-align:left;">
+ellipsis
+</td>
+<td style="text-align:left;">
+0.3.2
+</td>
+<td style="text-align:left;">
+0.3.2
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/ellipsis
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/ellipsis
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-04-29
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.5)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+evaluate
+</td>
+<td style="text-align:left;">
+evaluate
+</td>
+<td style="text-align:left;">
+0.14
+</td>
+<td style="text-align:left;">
+0.14
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/evaluate
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/evaluate
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2019-05-28
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+extrafont
+</td>
+<td style="text-align:left;">
+extrafont
+</td>
+<td style="text-align:left;">
+0.17
+</td>
+<td style="text-align:left;">
+0.17
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/extrafont
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/extrafont
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2014-12-08
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+extrafontdb
+</td>
+<td style="text-align:left;">
+extrafontdb
+</td>
+<td style="text-align:left;">
+1.0
+</td>
+<td style="text-align:left;">
+1.0
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/extrafontdb
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/extrafontdb
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2012-06-11
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fansi
+</td>
+<td style="text-align:left;">
+fansi
+</td>
+<td style="text-align:left;">
+1.0.3
+</td>
+<td style="text-align:left;">
+1.0.3
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/fansi
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/fansi
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-03-24
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+farver
+</td>
+<td style="text-align:left;">
+farver
+</td>
+<td style="text-align:left;">
+2.1.0
+</td>
+<td style="text-align:left;">
+2.1.0
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/farver
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/farver
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-02-28
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.4)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fastmap
+</td>
+<td style="text-align:left;">
+fastmap
+</td>
+<td style="text-align:left;">
+1.1.0
+</td>
+<td style="text-align:left;">
+1.1.0
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/fastmap
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/fastmap
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-01-25
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.3)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fastmatch
+</td>
+<td style="text-align:left;">
+fastmatch
+</td>
+<td style="text-align:left;">
+1.1.3
+</td>
+<td style="text-align:left;">
+1.1-3
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/fastmatch
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/fastmatch
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-07-23
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+forcats
+</td>
+<td style="text-align:left;">
+forcats
+</td>
+<td style="text-align:left;">
+0.5.1
+</td>
+<td style="text-align:left;">
+0.5.1
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/forcats
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/forcats
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-01-27
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.3)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foreach
+</td>
+<td style="text-align:left;">
+foreach
+</td>
+<td style="text-align:left;">
+1.5.2
+</td>
+<td style="text-align:left;">
+1.5.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/foreach
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/foreach
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-02-02
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+foreign
+</td>
+<td style="text-align:left;">
+foreign
+</td>
+<td style="text-align:left;">
+0.8.82
+</td>
+<td style="text-align:left;">
+0.8-82
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/foreign
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/foreign
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-01-13
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+formattable
+</td>
+<td style="text-align:left;">
+formattable
+</td>
+<td style="text-align:left;">
+0.2.1
+</td>
+<td style="text-align:left;">
+0.2.1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/formattable
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/formattable
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-01-07
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+fs
+</td>
+<td style="text-align:left;">
+fs
+</td>
+<td style="text-align:left;">
+1.5.2
+</td>
+<td style="text-align:left;">
+1.5.2
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/fs
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/fs
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-12-08
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gdtools
+</td>
+<td style="text-align:left;">
+gdtools
+</td>
+<td style="text-align:left;">
+0.2.3
+</td>
+<td style="text-align:left;">
+0.2.3
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/gdtools
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/gdtools
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-01-06
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+generics
+</td>
+<td style="text-align:left;">
+generics
+</td>
+<td style="text-align:left;">
+0.1.2
+</td>
+<td style="text-align:left;">
+0.1.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/generics
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/generics
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-01-31
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GenomeInfoDb
+</td>
+<td style="text-align:left;">
+GenomeInfoDb
+</td>
+<td style="text-align:left;">
+1.30.1
+</td>
+<td style="text-align:left;">
+1.30.1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/GenomeInfoDb
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/GenomeInfoDb
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-01-30
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GenomeInfoDbData
+</td>
+<td style="text-align:left;">
+GenomeInfoDbData
+</td>
+<td style="text-align:left;">
+1.2.7
+</td>
+<td style="text-align:left;">
+1.2.7
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/GenomeInfoDbData
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/GenomeInfoDbData
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-01-25
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GenomicRanges
+</td>
+<td style="text-align:left;">
+GenomicRanges
+</td>
+<td style="text-align:left;">
+1.46.1
+</td>
+<td style="text-align:left;">
+1.46.1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/GenomicRanges
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/GenomicRanges
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-11-18
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GetoptLong
+</td>
+<td style="text-align:left;">
+GetoptLong
+</td>
+<td style="text-align:left;">
+1.0.5
+</td>
+<td style="text-align:left;">
+1.0.5
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/GetoptLong
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/GetoptLong
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-12-15
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GGally
+</td>
+<td style="text-align:left;">
+GGally
+</td>
+<td style="text-align:left;">
+2.1.2
+</td>
+<td style="text-align:left;">
+2.1.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/GGally
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/GGally
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-06-21
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggbeeswarm
+</td>
+<td style="text-align:left;">
+ggbeeswarm
+</td>
+<td style="text-align:left;">
+0.6.0
+</td>
+<td style="text-align:left;">
+0.6.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ggbeeswarm
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ggbeeswarm
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2017-08-07
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggcorrplot
+</td>
+<td style="text-align:left;">
+ggcorrplot
+</td>
+<td style="text-align:left;">
+0.1.3
+</td>
+<td style="text-align:left;">
+0.1.3
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ggcorrplot
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ggcorrplot
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2019-05-19
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggplot2
+</td>
+<td style="text-align:left;">
+ggplot2
+</td>
+<td style="text-align:left;">
+3.3.5
+</td>
+<td style="text-align:left;">
+3.3.5
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/ggplot2
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/ggplot2
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-06-25
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggplotify
+</td>
+<td style="text-align:left;">
+ggplotify
+</td>
+<td style="text-align:left;">
+0.1.0
+</td>
+<td style="text-align:left;">
+0.1.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ggplotify
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ggplotify
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-09-02
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggpubr
+</td>
+<td style="text-align:left;">
+ggpubr
+</td>
+<td style="text-align:left;">
+0.4.0
+</td>
+<td style="text-align:left;">
+0.4.0
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/ggpubr
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/ggpubr
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-06-27
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggrepel
+</td>
+<td style="text-align:left;">
+ggrepel
+</td>
+<td style="text-align:left;">
+0.9.1
+</td>
+<td style="text-align:left;">
+0.9.1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ggrepel
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ggrepel
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-01-15
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggsci
+</td>
+<td style="text-align:left;">
+ggsci
+</td>
+<td style="text-align:left;">
+2.9
+</td>
+<td style="text-align:left;">
+2.9
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/ggsci
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/ggsci
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2018-05-14
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggsignif
+</td>
+<td style="text-align:left;">
+ggsignif
+</td>
+<td style="text-align:left;">
+0.6.3
+</td>
+<td style="text-align:left;">
+0.6.3
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/ggsignif
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/ggsignif
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-09-09
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggtext
+</td>
+<td style="text-align:left;">
+ggtext
+</td>
+<td style="text-align:left;">
+0.1.1
+</td>
+<td style="text-align:left;">
+0.1.1
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/ggtext
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/ggtext
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-12-17
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ggthemes
+</td>
+<td style="text-align:left;">
+ggthemes
+</td>
+<td style="text-align:left;">
+4.2.4
+</td>
+<td style="text-align:left;">
+4.2.4
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/ggthemes
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/ggthemes
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-01-20
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+GlobalOptions
+</td>
+<td style="text-align:left;">
+GlobalOptions
+</td>
+<td style="text-align:left;">
+0.1.2
+</td>
+<td style="text-align:left;">
+0.1.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/GlobalOptions
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/GlobalOptions
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-06-10
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+glue
+</td>
+<td style="text-align:left;">
+glue
+</td>
+<td style="text-align:left;">
+1.6.2
+</td>
+<td style="text-align:left;">
+1.6.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/glue
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/glue
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-02-24
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gmm
+</td>
+<td style="text-align:left;">
+gmm
+</td>
+<td style="text-align:left;">
+1.6.6
+</td>
+<td style="text-align:left;">
+1.6-6
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/gmm
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/gmm
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-03-05
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gridBase
+</td>
+<td style="text-align:left;">
+gridBase
+</td>
+<td style="text-align:left;">
+0.4.7
+</td>
+<td style="text-align:left;">
+0.4-7
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/gridBase
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/gridBase
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2014-02-24
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gridExtra
+</td>
+<td style="text-align:left;">
+gridExtra
+</td>
+<td style="text-align:left;">
+2.3
+</td>
+<td style="text-align:left;">
+2.3
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/gridExtra
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/gridExtra
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2017-09-09
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gridGraphics
+</td>
+<td style="text-align:left;">
+gridGraphics
+</td>
+<td style="text-align:left;">
+0.5.1
+</td>
+<td style="text-align:left;">
+0.5-1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/gridGraphics
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/gridGraphics
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-12-13
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gridtext
+</td>
+<td style="text-align:left;">
+gridtext
+</td>
+<td style="text-align:left;">
+0.1.4
+</td>
+<td style="text-align:left;">
+0.1.4
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/gridtext
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/gridtext
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-12-10
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+gtable
+</td>
+<td style="text-align:left;">
+gtable
+</td>
+<td style="text-align:left;">
+0.3.0
+</td>
+<td style="text-align:left;">
+0.3.0
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/gtable
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/gtable
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2019-03-25
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+hablar
+</td>
+<td style="text-align:left;">
+hablar
+</td>
+<td style="text-align:left;">
+0.3.0
+</td>
+<td style="text-align:left;">
+0.3.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/hablar
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/hablar
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-03-19
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+haven
+</td>
+<td style="text-align:left;">
+haven
+</td>
+<td style="text-align:left;">
+2.4.3
+</td>
+<td style="text-align:left;">
+2.4.3
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/haven
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/haven
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-08-04
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+here
+</td>
+<td style="text-align:left;">
+here
+</td>
+<td style="text-align:left;">
+1.0.1
+</td>
+<td style="text-align:left;">
+1.0.1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/here
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/here
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-12-13
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+highr
+</td>
+<td style="text-align:left;">
+highr
+</td>
+<td style="text-align:left;">
+0.9
+</td>
+<td style="text-align:left;">
+0.9
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/highr
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/highr
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-04-16
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.5)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+hms
+</td>
+<td style="text-align:left;">
+hms
+</td>
+<td style="text-align:left;">
+1.1.1
+</td>
+<td style="text-align:left;">
+1.1.1
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/hms
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/hms
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-09-26
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.1)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+hrbrthemes
+</td>
+<td style="text-align:left;">
+hrbrthemes
+</td>
+<td style="text-align:left;">
+0.8.0
+</td>
+<td style="text-align:left;">
+0.8.0
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/hrbrthemes
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/hrbrthemes
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-03-06
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+htmltools
+</td>
+<td style="text-align:left;">
+htmltools
+</td>
+<td style="text-align:left;">
+0.5.2
+</td>
+<td style="text-align:left;">
+0.5.2
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/htmltools
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/htmltools
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-08-25
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.1)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+htmlwidgets
+</td>
+<td style="text-align:left;">
+htmlwidgets
+</td>
+<td style="text-align:left;">
+1.5.4
+</td>
+<td style="text-align:left;">
+1.5.4
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/htmlwidgets
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/htmlwidgets
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-09-08
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+httpuv
+</td>
+<td style="text-align:left;">
+httpuv
+</td>
+<td style="text-align:left;">
+1.6.5
+</td>
+<td style="text-align:left;">
+1.6.5
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/httpuv
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/httpuv
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-01-05
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+httr
+</td>
+<td style="text-align:left;">
+httr
+</td>
+<td style="text-align:left;">
+1.4.2
+</td>
+<td style="text-align:left;">
+1.4.2
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/httr
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/httr
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-07-20
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+hutils
+</td>
+<td style="text-align:left;">
+hutils
+</td>
+<td style="text-align:left;">
+1.7.1
+</td>
+<td style="text-align:left;">
+1.7.1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/hutils
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/hutils
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-07-22
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+igraph
+</td>
+<td style="text-align:left;">
+igraph
+</td>
+<td style="text-align:left;">
+1.2.11
+</td>
+<td style="text-align:left;">
+1.2.11
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/igraph
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/igraph
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-01-04
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+impute
+</td>
+<td style="text-align:left;">
+impute
+</td>
+<td style="text-align:left;">
+1.68.0
+</td>
+<td style="text-align:left;">
+1.68.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/impute
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/impute
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+imputeLCMD
+</td>
+<td style="text-align:left;">
+imputeLCMD
+</td>
+<td style="text-align:left;">
+2.0
+</td>
+<td style="text-align:left;">
+2.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/imputeLCMD
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/imputeLCMD
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2015-01-19
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+IRanges
+</td>
+<td style="text-align:left;">
+IRanges
+</td>
+<td style="text-align:left;">
+2.28.0
+</td>
+<td style="text-align:left;">
+2.28.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/IRanges
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/IRanges
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+iterators
+</td>
+<td style="text-align:left;">
+iterators
+</td>
+<td style="text-align:left;">
+1.0.14
+</td>
+<td style="text-align:left;">
+1.0.14
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/iterators
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/iterators
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-02-05
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+janitor
+</td>
+<td style="text-align:left;">
+janitor
+</td>
+<td style="text-align:left;">
+2.1.0
+</td>
+<td style="text-align:left;">
+2.1.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/janitor
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/janitor
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-01-05
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+jquerylib
+</td>
+<td style="text-align:left;">
+jquerylib
+</td>
+<td style="text-align:left;">
+0.1.4
+</td>
+<td style="text-align:left;">
+0.1.4
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/jquerylib
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/jquerylib
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-04-26
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.5)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+jsonlite
+</td>
+<td style="text-align:left;">
+jsonlite
+</td>
+<td style="text-align:left;">
+1.8.0
+</td>
+<td style="text-align:left;">
+1.8.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/jsonlite
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/jsonlite
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-02-22
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+kableExtra
+</td>
+<td style="text-align:left;">
+kableExtra
+</td>
+<td style="text-align:left;">
+1.3.4
+</td>
+<td style="text-align:left;">
+1.3.4
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/kableExtra
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/kableExtra
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-02-20
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+knitr
+</td>
+<td style="text-align:left;">
+knitr
+</td>
+<td style="text-align:left;">
+1.37
+</td>
+<td style="text-align:left;">
+1.37
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/knitr
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/knitr
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-12-16
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+labeling
+</td>
+<td style="text-align:left;">
+labeling
+</td>
+<td style="text-align:left;">
+0.4.2
+</td>
+<td style="text-align:left;">
+0.4.2
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/labeling
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/labeling
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-10-20
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.3)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+later
+</td>
+<td style="text-align:left;">
+later
+</td>
+<td style="text-align:left;">
+1.3.0
+</td>
+<td style="text-align:left;">
+1.3.0
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/later
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/later
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-08-18
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+lattice
+</td>
+<td style="text-align:left;">
+lattice
+</td>
+<td style="text-align:left;">
+0.20.45
+</td>
+<td style="text-align:left;">
+0.20-45
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/lattice
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/lattice
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-09-22
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.1)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+lazyeval
+</td>
+<td style="text-align:left;">
+lazyeval
+</td>
+<td style="text-align:left;">
+0.2.2
+</td>
+<td style="text-align:left;">
+0.2.2
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/lazyeval
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/lazyeval
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2019-03-15
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+lifecycle
+</td>
+<td style="text-align:left;">
+lifecycle
+</td>
+<td style="text-align:left;">
+1.0.1
+</td>
+<td style="text-align:left;">
+1.0.1
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/lifecycle
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/lifecycle
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-09-24
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.1)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+limma
+</td>
+<td style="text-align:left;">
+limma
+</td>
+<td style="text-align:left;">
+3.50.3
+</td>
+<td style="text-align:left;">
+3.50.3
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/limma
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/limma
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-04-07
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+lubridate
+</td>
+<td style="text-align:left;">
+lubridate
+</td>
+<td style="text-align:left;">
+1.8.0
+</td>
+<td style="text-align:left;">
+1.8.0
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/lubridate
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/lubridate
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-07
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.1)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+magrittr
+</td>
+<td style="text-align:left;">
+magrittr
+</td>
+<td style="text-align:left;">
+2.0.3
+</td>
+<td style="text-align:left;">
+2.0.3
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/magrittr
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/magrittr
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-03-30
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MALDIquant
+</td>
+<td style="text-align:left;">
+MALDIquant
+</td>
+<td style="text-align:left;">
+1.21
+</td>
+<td style="text-align:left;">
+1.21
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/MALDIquant
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/MALDIquant
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-12-23
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MASS
+</td>
+<td style="text-align:left;">
+MASS
+</td>
+<td style="text-align:left;">
+7.3.55
+</td>
+<td style="text-align:left;">
+7.3-55
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/MASS
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/MASS
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-01-13
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Matrix
+</td>
+<td style="text-align:left;">
+Matrix
+</td>
+<td style="text-align:left;">
+1.4.0
+</td>
+<td style="text-align:left;">
+1.4-0
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/Matrix
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/Matrix
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-12-08
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MatrixGenerics
+</td>
+<td style="text-align:left;">
+MatrixGenerics
+</td>
+<td style="text-align:left;">
+1.6.0
+</td>
+<td style="text-align:left;">
+1.6.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/MatrixGenerics
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/MatrixGenerics
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+matrixStats
+</td>
+<td style="text-align:left;">
+matrixStats
+</td>
+<td style="text-align:left;">
+0.61.0
+</td>
+<td style="text-align:left;">
+0.61.0
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/matrixStats
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/matrixStats
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-09-17
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+memoise
+</td>
+<td style="text-align:left;">
+memoise
+</td>
+<td style="text-align:left;">
+2.0.1
+</td>
+<td style="text-align:left;">
+2.0.1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/memoise
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/memoise
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-11-26
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mgcv
+</td>
+<td style="text-align:left;">
+mgcv
+</td>
+<td style="text-align:left;">
+1.8.38
+</td>
+<td style="text-align:left;">
+1.8-38
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/mgcv
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/mgcv
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-06
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.1)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mime
+</td>
+<td style="text-align:left;">
+mime
+</td>
+<td style="text-align:left;">
+0.12
+</td>
+<td style="text-align:left;">
+0.12
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/mime
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/mime
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-09-28
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.1)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+modelr
+</td>
+<td style="text-align:left;">
+modelr
+</td>
+<td style="text-align:left;">
+0.1.8
+</td>
+<td style="text-align:left;">
+0.1.8
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/modelr
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/modelr
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-05-19
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MsCoreUtils
+</td>
+<td style="text-align:left;">
+MsCoreUtils
+</td>
+<td style="text-align:left;">
+1.6.2
+</td>
+<td style="text-align:left;">
+1.6.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/MsCoreUtils
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/MsCoreUtils
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-02-24
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+MSnbase
+</td>
+<td style="text-align:left;">
+MSnbase
+</td>
+<td style="text-align:left;">
+2.20.4
+</td>
+<td style="text-align:left;">
+2.20.4
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/MSnbase
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/MSnbase
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-01-16
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+munsell
+</td>
+<td style="text-align:left;">
+munsell
+</td>
+<td style="text-align:left;">
+0.5.0
+</td>
+<td style="text-align:left;">
+0.5.0
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/munsell
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/munsell
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2018-06-12
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mvtnorm
+</td>
+<td style="text-align:left;">
+mvtnorm
+</td>
+<td style="text-align:left;">
+1.1.3
+</td>
+<td style="text-align:left;">
+1.1-3
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/mvtnorm
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/mvtnorm
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-08
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mzID
+</td>
+<td style="text-align:left;">
+mzID
+</td>
+<td style="text-align:left;">
+1.32.0
+</td>
+<td style="text-align:left;">
+1.32.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/mzID
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/mzID
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mzR
+</td>
+<td style="text-align:left;">
+mzR
+</td>
+<td style="text-align:left;">
+2.28.0
+</td>
+<td style="text-align:left;">
+2.28.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/mzR
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/mzR
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ncdf4
+</td>
+<td style="text-align:left;">
+ncdf4
+</td>
+<td style="text-align:left;">
+1.19
+</td>
+<td style="text-align:left;">
+1.19
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ncdf4
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ncdf4
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-12-15
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+nlme
+</td>
+<td style="text-align:left;">
+nlme
+</td>
+<td style="text-align:left;">
+3.1.155
+</td>
+<td style="text-align:left;">
+3.1-155
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/nlme
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library/nlme
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-01-13
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+norm
+</td>
+<td style="text-align:left;">
+norm
+</td>
+<td style="text-align:left;">
+1.0.10.0
+</td>
+<td style="text-align:left;">
+1.0-10.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/norm
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/norm
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-04-03
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+openxlsx
+</td>
+<td style="text-align:left;">
+openxlsx
+</td>
+<td style="text-align:left;">
+4.2.5
+</td>
+<td style="text-align:left;">
+4.2.5
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/openxlsx
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/openxlsx
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-12-14
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+patchwork
+</td>
+<td style="text-align:left;">
+patchwork
+</td>
+<td style="text-align:left;">
+1.1.1
+</td>
+<td style="text-align:left;">
+1.1.1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/patchwork
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/patchwork
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-12-17
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pcaMethods
+</td>
+<td style="text-align:left;">
+pcaMethods
+</td>
+<td style="text-align:left;">
+1.86.0
+</td>
+<td style="text-align:left;">
+1.86.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/pcaMethods
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/pcaMethods
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pheatmap
+</td>
+<td style="text-align:left;">
+pheatmap
+</td>
+<td style="text-align:left;">
+1.0.12
+</td>
+<td style="text-align:left;">
+1.0.12
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/pheatmap
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/pheatmap
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2019-01-04
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pillar
+</td>
+<td style="text-align:left;">
+pillar
+</td>
+<td style="text-align:left;">
+1.7.0
+</td>
+<td style="text-align:left;">
+1.7.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/pillar
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/pillar
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-02-01
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pkgbuild
+</td>
+<td style="text-align:left;">
+pkgbuild
+</td>
+<td style="text-align:left;">
+1.3.1
+</td>
+<td style="text-align:left;">
+1.3.1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/pkgbuild
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/pkgbuild
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-12-20
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pkgconfig
+</td>
+<td style="text-align:left;">
+pkgconfig
+</td>
+<td style="text-align:left;">
+2.0.3
+</td>
+<td style="text-align:left;">
+2.0.3
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/pkgconfig
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/pkgconfig
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2019-09-22
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+pkgload
+</td>
+<td style="text-align:left;">
+pkgload
+</td>
+<td style="text-align:left;">
+1.2.4
+</td>
+<td style="text-align:left;">
+1.2.4
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/pkgload
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/pkgload
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-11-30
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plotly
+</td>
+<td style="text-align:left;">
+plotly
+</td>
+<td style="text-align:left;">
+4.10.0
+</td>
+<td style="text-align:left;">
+4.10.0
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/plotly
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/plotly
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-09
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+plyr
+</td>
+<td style="text-align:left;">
+plyr
+</td>
+<td style="text-align:left;">
+1.8.6
+</td>
+<td style="text-align:left;">
+1.8.6
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/plyr
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/plyr
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-03-03
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+png
+</td>
+<td style="text-align:left;">
+png
+</td>
+<td style="text-align:left;">
+0.1.7
+</td>
+<td style="text-align:left;">
+0.1-7
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/png
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/png
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2013-12-03
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+preprocessCore
+</td>
+<td style="text-align:left;">
+preprocessCore
+</td>
+<td style="text-align:left;">
+1.56.0
+</td>
+<td style="text-align:left;">
+1.56.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/preprocessCore
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/preprocessCore
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+prettyunits
+</td>
+<td style="text-align:left;">
+prettyunits
+</td>
+<td style="text-align:left;">
+1.1.1
+</td>
+<td style="text-align:left;">
+1.1.1
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/prettyunits
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/prettyunits
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-01-24
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+processx
+</td>
+<td style="text-align:left;">
+processx
+</td>
+<td style="text-align:left;">
+3.5.2
+</td>
+<td style="text-align:left;">
+3.5.2
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/processx
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/processx
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-04-30
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.5)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+promises
+</td>
+<td style="text-align:left;">
+promises
+</td>
+<td style="text-align:left;">
+1.2.0.1
+</td>
+<td style="text-align:left;">
+1.2.0.1
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/promises
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/promises
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-02-11
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ProtGenerics
+</td>
+<td style="text-align:left;">
+ProtGenerics
+</td>
+<td style="text-align:left;">
+1.26.0
+</td>
+<td style="text-align:left;">
+1.26.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ProtGenerics
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/ProtGenerics
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ps
+</td>
+<td style="text-align:left;">
+ps
+</td>
+<td style="text-align:left;">
+1.6.0
+</td>
+<td style="text-align:left;">
+1.6.0
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/ps
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/ps
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-02-28
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.4)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+purrr
+</td>
+<td style="text-align:left;">
+purrr
+</td>
+<td style="text-align:left;">
+0.3.4
+</td>
+<td style="text-align:left;">
+0.3.4
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/purrr
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/purrr
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-04-17
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+R6
+</td>
+<td style="text-align:left;">
+R6
+</td>
+<td style="text-align:left;">
+2.5.1
+</td>
+<td style="text-align:left;">
+2.5.1
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/R6
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/R6
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-08-19
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.1)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+RColorBrewer
+</td>
+<td style="text-align:left;">
+RColorBrewer
+</td>
+<td style="text-align:left;">
+1.1.3
+</td>
+<td style="text-align:left;">
+1.1-3
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/RColorBrewer
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/RColorBrewer
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-04-03
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rcpp
+</td>
+<td style="text-align:left;">
+Rcpp
+</td>
+<td style="text-align:left;">
+1.0.8
+</td>
+<td style="text-align:left;">
+1.0.8
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/Rcpp
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/Rcpp
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-01-13
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+RCurl
+</td>
+<td style="text-align:left;">
+RCurl
+</td>
+<td style="text-align:left;">
+1.98.1.5
+</td>
+<td style="text-align:left;">
+1.98-1.5
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/RCurl
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/RCurl
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-09-17
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.1)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+readr
+</td>
+<td style="text-align:left;">
+readr
+</td>
+<td style="text-align:left;">
+2.1.1
+</td>
+<td style="text-align:left;">
+2.1.1
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/readr
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/readr
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-11-30
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+readxl
+</td>
+<td style="text-align:left;">
+readxl
+</td>
+<td style="text-align:left;">
+1.3.1
+</td>
+<td style="text-align:left;">
+1.3.1
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/readxl
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/readxl
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2019-03-13
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+remotes
+</td>
+<td style="text-align:left;">
+remotes
+</td>
+<td style="text-align:left;">
+2.4.2
+</td>
+<td style="text-align:left;">
+2.4.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/remotes
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/remotes
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-11-30
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+reprex
+</td>
+<td style="text-align:left;">
+reprex
+</td>
+<td style="text-align:left;">
+2.0.1
+</td>
+<td style="text-align:left;">
+2.0.1
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/reprex
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/reprex
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-08-05
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+reshape
+</td>
+<td style="text-align:left;">
+reshape
+</td>
+<td style="text-align:left;">
+0.8.8
+</td>
+<td style="text-align:left;">
+0.8.8
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/reshape
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/reshape
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2018-10-23
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+reshape2
+</td>
+<td style="text-align:left;">
+reshape2
+</td>
+<td style="text-align:left;">
+1.4.4
+</td>
+<td style="text-align:left;">
+1.4.4
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/reshape2
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/reshape2
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-04-09
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rio
+</td>
+<td style="text-align:left;">
+rio
+</td>
+<td style="text-align:left;">
+0.5.29
+</td>
+<td style="text-align:left;">
+0.5.29
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/rio
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/rio
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-11-22
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rjson
+</td>
+<td style="text-align:left;">
+rjson
+</td>
+<td style="text-align:left;">
+0.2.21
+</td>
+<td style="text-align:left;">
+0.2.21
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/rjson
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/rjson
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-01-09
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rlang
+</td>
+<td style="text-align:left;">
+rlang
+</td>
+<td style="text-align:left;">
+1.0.2
+</td>
+<td style="text-align:left;">
+1.0.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/rlang
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/rlang
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-03-04
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rmarkdown
+</td>
+<td style="text-align:left;">
+rmarkdown
+</td>
+<td style="text-align:left;">
+2.14
+</td>
+<td style="text-align:left;">
+2.14
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/rmarkdown
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/rmarkdown
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-04-25
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rprojroot
+</td>
+<td style="text-align:left;">
+rprojroot
+</td>
+<td style="text-align:left;">
+2.0.2
+</td>
+<td style="text-align:left;">
+2.0.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/rprojroot
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/rprojroot
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-11-15
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rstatix
+</td>
+<td style="text-align:left;">
+rstatix
+</td>
+<td style="text-align:left;">
+0.7.0
+</td>
+<td style="text-align:left;">
+0.7.0
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/rstatix
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/rstatix
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-02-13
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rstudioapi
+</td>
+<td style="text-align:left;">
+rstudioapi
+</td>
+<td style="text-align:left;">
+0.13
+</td>
+<td style="text-align:left;">
+0.13
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/rstudioapi
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/rstudioapi
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-11-12
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.3)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rttf2pt1
+</td>
+<td style="text-align:left;">
+Rttf2pt1
+</td>
+<td style="text-align:left;">
+1.3.8
+</td>
+<td style="text-align:left;">
+1.3.8
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/Rttf2pt1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/Rttf2pt1
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-01-10
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+rvest
+</td>
+<td style="text-align:left;">
+rvest
+</td>
+<td style="text-align:left;">
+1.0.2
+</td>
+<td style="text-align:left;">
+1.0.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/rvest
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/rvest
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-16
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+S4Vectors
+</td>
+<td style="text-align:left;">
+S4Vectors
+</td>
+<td style="text-align:left;">
+0.32.3
+</td>
+<td style="text-align:left;">
+0.32.3
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/S4Vectors
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/S4Vectors
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-11-21
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sandwich
+</td>
+<td style="text-align:left;">
+sandwich
+</td>
+<td style="text-align:left;">
+3.0.1
+</td>
+<td style="text-align:left;">
+3.0-1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/sandwich
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/sandwich
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-05-18
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sass
+</td>
+<td style="text-align:left;">
+sass
+</td>
+<td style="text-align:left;">
+0.4.0
+</td>
+<td style="text-align:left;">
+0.4.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/sass
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/sass
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-05-12
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+scales
+</td>
+<td style="text-align:left;">
+scales
+</td>
+<td style="text-align:left;">
+1.2.0
+</td>
+<td style="text-align:left;">
+1.2.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/scales
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/scales
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-04-13
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+see
+</td>
+<td style="text-align:left;">
+see
+</td>
+<td style="text-align:left;">
+0.6.8
+</td>
+<td style="text-align:left;">
+0.6.8
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/see
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/see
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-03
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+sessioninfo
+</td>
+<td style="text-align:left;">
+sessioninfo
+</td>
+<td style="text-align:left;">
+1.2.2
+</td>
+<td style="text-align:left;">
+1.2.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/sessioninfo
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/sessioninfo
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-12-06
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+shape
+</td>
+<td style="text-align:left;">
+shape
+</td>
+<td style="text-align:left;">
+1.4.6
+</td>
+<td style="text-align:left;">
+1.4.6
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/shape
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/shape
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-05-19
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+shiny
+</td>
+<td style="text-align:left;">
+shiny
+</td>
+<td style="text-align:left;">
+1.7.1
+</td>
+<td style="text-align:left;">
+1.7.1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/shiny
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/shiny
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-02
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+shinydashboard
+</td>
+<td style="text-align:left;">
+shinydashboard
+</td>
+<td style="text-align:left;">
+0.7.2
+</td>
+<td style="text-align:left;">
+0.7.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/shinydashboard
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/shinydashboard
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-09-30
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+snakecase
+</td>
+<td style="text-align:left;">
+snakecase
+</td>
+<td style="text-align:left;">
+0.11.0
+</td>
+<td style="text-align:left;">
+0.11.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/snakecase
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/snakecase
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2019-05-25
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+stringi
+</td>
+<td style="text-align:left;">
+stringi
+</td>
+<td style="text-align:left;">
+1.7.6
+</td>
+<td style="text-align:left;">
+1.7.6
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/stringi
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/stringi
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-11-29
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+stringr
+</td>
+<td style="text-align:left;">
+stringr
+</td>
+<td style="text-align:left;">
+1.4.0
+</td>
+<td style="text-align:left;">
+1.4.0
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/stringr
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/stringr
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2019-02-10
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SummarizedExperiment
+</td>
+<td style="text-align:left;">
+SummarizedExperiment
+</td>
+<td style="text-align:left;">
+1.24.0
+</td>
+<td style="text-align:left;">
+1.24.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/SummarizedExperiment
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/SummarizedExperiment
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+svglite
+</td>
+<td style="text-align:left;">
+svglite
+</td>
+<td style="text-align:left;">
+2.0.0
+</td>
+<td style="text-align:left;">
+2.0.0
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/svglite
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/svglite
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-02-20
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.4)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+systemfonts
+</td>
+<td style="text-align:left;">
+systemfonts
+</td>
+<td style="text-align:left;">
+1.0.3
+</td>
+<td style="text-align:left;">
+1.0.3
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/systemfonts
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/systemfonts
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-13
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.1)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+testthat
+</td>
+<td style="text-align:left;">
+testthat
+</td>
+<td style="text-align:left;">
+3.1.2
+</td>
+<td style="text-align:left;">
+3.1.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/testthat
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/testthat
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-01-20
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+tibble
+</td>
+<td style="text-align:left;">
+tibble
+</td>
+<td style="text-align:left;">
+3.1.6
+</td>
+<td style="text-align:left;">
+3.1.6
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/tibble
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/tibble
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-11-07
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+tictoc
+</td>
+<td style="text-align:left;">
+tictoc
+</td>
+<td style="text-align:left;">
+1.0.1
+</td>
+<td style="text-align:left;">
+1.0.1
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/tictoc
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library/tictoc
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-04-19
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/local/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+tidyr
+</td>
+<td style="text-align:left;">
+tidyr
+</td>
+<td style="text-align:left;">
+1.2.0
+</td>
+<td style="text-align:left;">
+1.2.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/tidyr
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/tidyr
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-02-01
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+tidyselect
+</td>
+<td style="text-align:left;">
+tidyselect
+</td>
+<td style="text-align:left;">
+1.1.2
+</td>
+<td style="text-align:left;">
+1.1.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/tidyselect
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/tidyselect
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-02-21
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+tidyverse
+</td>
+<td style="text-align:left;">
+tidyverse
+</td>
+<td style="text-align:left;">
+1.3.1
+</td>
+<td style="text-align:left;">
+1.3.1
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/tidyverse
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/tidyverse
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-04-15
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.5)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+tmvtnorm
+</td>
+<td style="text-align:left;">
+tmvtnorm
+</td>
+<td style="text-align:left;">
+1.5
+</td>
+<td style="text-align:left;">
+1.5
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/tmvtnorm
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/tmvtnorm
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-03-22
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+treemap
+</td>
+<td style="text-align:left;">
+treemap
+</td>
+<td style="text-align:left;">
+2.4.3
+</td>
+<td style="text-align:left;">
+2.4-3
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/treemap
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/treemap
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-08-22
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+tzdb
+</td>
+<td style="text-align:left;">
+tzdb
+</td>
+<td style="text-align:left;">
+0.2.0
+</td>
+<td style="text-align:left;">
+0.2.0
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/tzdb
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/tzdb
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-27
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.1)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+usethis
+</td>
+<td style="text-align:left;">
+usethis
+</td>
+<td style="text-align:left;">
+2.1.5
+</td>
+<td style="text-align:left;">
+2.1.5
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/usethis
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/usethis
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-12-09
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+utf8
+</td>
+<td style="text-align:left;">
+utf8
+</td>
+<td style="text-align:left;">
+1.2.2
+</td>
+<td style="text-align:left;">
+1.2.2
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/utf8
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/utf8
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-07-24
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+vctrs
+</td>
+<td style="text-align:left;">
+vctrs
+</td>
+<td style="text-align:left;">
+0.4.1
+</td>
+<td style="text-align:left;">
+0.4.1
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/vctrs
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/vctrs
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-04-13
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+vipor
+</td>
+<td style="text-align:left;">
+vipor
+</td>
+<td style="text-align:left;">
+0.4.5
+</td>
+<td style="text-align:left;">
+0.4.5
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/vipor
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/vipor
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2017-03-22
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+viridisLite
+</td>
+<td style="text-align:left;">
+viridisLite
+</td>
+<td style="text-align:left;">
+0.4.0
+</td>
+<td style="text-align:left;">
+0.4.0
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/viridisLite
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/viridisLite
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-04-13
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.5)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+vroom
+</td>
+<td style="text-align:left;">
+vroom
+</td>
+<td style="text-align:left;">
+1.5.7
+</td>
+<td style="text-align:left;">
+1.5.7
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/vroom
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/vroom
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-11-30
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+vsn
+</td>
+<td style="text-align:left;">
+vsn
+</td>
+<td style="text-align:left;">
+3.62.0
+</td>
+<td style="text-align:left;">
+3.62.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/vsn
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/vsn
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+webshot
+</td>
+<td style="text-align:left;">
+webshot
+</td>
+<td style="text-align:left;">
+0.5.2
+</td>
+<td style="text-align:left;">
+0.5.2
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/webshot
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/webshot
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2019-11-22
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+withr
+</td>
+<td style="text-align:left;">
+withr
+</td>
+<td style="text-align:left;">
+2.5.0
+</td>
+<td style="text-align:left;">
+2.5.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/withr
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/withr
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-03-03
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+xfun
+</td>
+<td style="text-align:left;">
+xfun
+</td>
+<td style="text-align:left;">
+0.31
+</td>
+<td style="text-align:left;">
+0.31
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/xfun
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/xfun
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-05-10
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+XML
+</td>
+<td style="text-align:left;">
+XML
+</td>
+<td style="text-align:left;">
+3.99.0.8
+</td>
+<td style="text-align:left;">
+3.99-0.8
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/XML
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/XML
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-09-17
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.1)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+xml2
+</td>
+<td style="text-align:left;">
+xml2
+</td>
+<td style="text-align:left;">
+1.3.3
+</td>
+<td style="text-align:left;">
+1.3.3
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/xml2
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/xml2
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-11-30
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+xtable
+</td>
+<td style="text-align:left;">
+xtable
+</td>
+<td style="text-align:left;">
+1.8.4
+</td>
+<td style="text-align:left;">
+1.8-4
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/xtable
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/xtable
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2019-04-21
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+XVector
+</td>
+<td style="text-align:left;">
+XVector
+</td>
+<td style="text-align:left;">
+0.34.0
+</td>
+<td style="text-align:left;">
+0.34.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/XVector
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/XVector
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+yaml
+</td>
+<td style="text-align:left;">
+yaml
+</td>
+<td style="text-align:left;">
+2.2.1
+</td>
+<td style="text-align:left;">
+2.2.1
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/yaml
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library/yaml
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2020-02-01
+</td>
+<td style="text-align:left;">
+CRAN (R 4.0.0)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/usr/lib/R/site-library
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+yulab.utils
+</td>
+<td style="text-align:left;">
+yulab.utils
+</td>
+<td style="text-align:left;">
+0.0.4
+</td>
+<td style="text-align:left;">
+0.0.4
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/yulab.utils
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/yulab.utils
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-09
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+zip
+</td>
+<td style="text-align:left;">
+zip
+</td>
+<td style="text-align:left;">
+2.2.0
+</td>
+<td style="text-align:left;">
+2.2.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/zip
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/zip
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-05-31
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+zlibbioc
+</td>
+<td style="text-align:left;">
+zlibbioc
+</td>
+<td style="text-align:left;">
+1.40.0
+</td>
+<td style="text-align:left;">
+1.40.0
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/zlibbioc
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/zlibbioc
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2021-10-26
+</td>
+<td style="text-align:left;">
+Bioconductor
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+zoo
+</td>
+<td style="text-align:left;">
+zoo
+</td>
+<td style="text-align:left;">
+1.8.10
+</td>
+<td style="text-align:left;">
+1.8-10
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/zoo
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/zoo
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-04-15
+</td>
+<td style="text-align:left;">
+CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="differential-expression.html"><span class="header-section-number">6</span> Differential Expression</a></div>
+<div class="next"><a href="references.html">References</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#session-info"><span class="header-section-number">7</span> Session Info</a></li>
+<li><a class="nav-link" href="#platform-info"><span class="header-section-number">7.1</span> Platform info</a></li>
+<li><a class="nav-link" href="#packages-loaded-and-used-i.e.-attached-to-the-workspace"><span class="header-section-number">7.2</span> Packages loaded and used (i.e. attached to the workspace)</a></li>
+<li><a class="nav-link" href="#all-packages-required-i.e.-including-dependencies"><span class="header-section-number">7.3</span> All packages required (i.e. including dependencies)</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/benjamin-elusers/intraspecies-proteomics/blob/master/06-session-info.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/benjamin-elusers/intraspecies-proteomics/edit/master/06-session-info.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil. It was last built on 19-May-2022 18:15.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

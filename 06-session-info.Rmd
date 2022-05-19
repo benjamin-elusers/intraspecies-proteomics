@@ -1,7 +1,7 @@
 # Session Info {.tabset}
 
 ## Platform info 
-```{r }
+```{r platform, out.width='100%',}
 df_platform = devtools::session_info()$platform %>% 
   unlist(.) %>% 
   as.data.frame(.) %>% 

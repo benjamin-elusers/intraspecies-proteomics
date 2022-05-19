@@ -4,7 +4,7 @@
 
 Initially, we can look at the scatterplots of intensities all-versus-all samples.
 
-```{r scatterplot-strains, fig.path='plot/', fig.show='hold', warning=F}
+```{r scatterplot-strains, fig.path='plot/', fig.show='hold', out.width='100%',warning=F}
 # scatterplots between strains
 scmat_strains=draw_scatterplots(datain=int_filt_strains)
 print(scmat_strains)

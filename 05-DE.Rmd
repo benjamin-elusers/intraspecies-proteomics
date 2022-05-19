@@ -1,6 +1,6 @@
 # Differential Expression
 
-```{r dfe, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, fig.height=15,fig.width=15}
+```{r dfe, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%',}
 volcano_data =  get_volcano_data(input_data=int_norm, which='both',
                             min_lfc=2, min_pval=0.01, topn = 20)
 
@@ -84,7 +84,7 @@ ft_dt
 
 ## Functional map for diffentially expressed genes
 
-```{r treemap-bioprocess, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, fig.height=15,fig.width=15}
+```{r treemap-bioprocess, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%',}
 library(treemap)
 library(d3Tree)
 
