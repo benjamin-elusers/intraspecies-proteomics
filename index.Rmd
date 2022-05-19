@@ -6,8 +6,8 @@ github: "benjamin-elusers"
 mail: "benjamin.dubreuil@weizmann.ac.il"
 created: "24/04/2022"
 date: "`r format(Sys.time(), '%d-%b-%Y %R %p')`"
-home: ""
 site: bookdown::bookdown_site
+# output: bookdown::gitbook
 documentclass: book
 bibliography:
 - book.bib
