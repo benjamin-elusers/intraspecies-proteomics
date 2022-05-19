@@ -1,0 +1,78 @@
+# Session Info {.tabset}
+
+## Platform info 
+```{r }
+df_platform = devtools::session_info()$platform %>% 
+  unlist(.) %>% 
+  as.data.frame(.) %>% 
+  rownames_to_column(.)
+
+kable(
+  df_platform,
+  booktabs = T, 
+  align = "l",
+  caption = "(Reproducibility - platform info)", # complete caption for main document
+  caption.short = " " # 
+)
+
+```
+
+## Packages loaded and used (i.e. attached to the workspace)
+
+```{r loaded-packages, echo=FALSE, message=FALSE, warning=FALSE, fig.align="center", out.width='100%', results='asis'}
+library(sessioninfo)
+df_session_packages <- devtools::session_info()$packages %>% 
+  as.data.frame(.) %>% 
+  filter(attached == TRUE) %>% 
+  dplyr::select(loadedversion, date) %>% 
+  rownames_to_column
+colnames(df_session_packages) <- c("Package", "Loaded version", "Date")
+
+kable(
+  df_session_packages, 
+  booktabs = T, 
+  align = "l",
+  caption = "(Reproducibility - loaded packages)", # complete caption for main document
+  caption.short = " " # 
+) %>% 
+  kable_styling(full_width = F,
+                latex_options = c(
+                  "hold_position" # stop table floating
+                ) 
+  ) 
+
+pkgs=capture.output(dput(df_session_packages$Package)) %>% paste(collapse='')
+
+cmd_xfun_install="install.packages('xfun')\n"
+cmd_pkg_load=sprintf("xfun::pkg_load2(%s)",pkgs)
+
+```
+
+To reproduce this Rmarkdown document, you may need to run the following lines
+for loading/installing the necessary packages:
+
+Copy paste the code below to your rsession:
+
+`r cmd_xfun_install`
+
+`r cmd_pkg_load`
+
+Pay attention to the error message you might get.
+
+Common errors could be due to:
+
+* Not having admin privileges to write in the home R directory
+* Some package installation requires prior linux libraries to be installed
+* Some packages might not be available for older R version
+* Some packages are not obtained from CRAN but from Bioconductor (it may require to use the function BiocManager::install())
+
+## All packages required (i.e. including dependencies)
+
+```{r all-packages, echo=FALSE, message=FALSE, warning=FALSE, fig.align="center", out.width='100%', results='asis'}
+df_all_packages= devtools::session_info()$packages %>% as.data.frame() %>% pull(package)
+
+kable(devtools::session_info()$packages,
+      row.names = T,
+      caption='all packages used (include dependencies)')
+```
+

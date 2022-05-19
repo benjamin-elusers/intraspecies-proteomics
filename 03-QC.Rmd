@@ -126,3 +126,46 @@ ComplexUpset::upset(data=as.data.frame(1-na_int[,-1]),intersect=samples,
 
 
 ```
+
+
+
+## Compare all-vs-all expression
+
+### Scatterplots
+
+```{r scatterplot-all, fig.path='plot/', fig.show='hold', warning=F, fig.height=20, fig.width=20}
+# scatterplots between all samples
+scmat_all=draw_scatterplots(datain=int_all)
+print(scmat_all)
+
+```
+
+### Heatmap correlation 
+
+```{r heatmap-all, fig.path='plot/', fig.show='hold', warning=F, fig.height=20,fig.width=20}
+# heatmap correlation
+cs_all=compute_samples_correlation(int_all)
+COR_RANGE = range( cs_all[row(cs_all) == (col(cs_all) - 1)] )
+
+by_sample = df.group %>% column_to_rownames("sample")
+hm_all=draw_heatmap_samples(mcor = cs_all,df.group=by_sample,col.group = col.group)
+```
+
+
+The heatmap correlations of all samples show the high correlation of expression 
+between replicates and between most strains:
+`r sprintf("[%.3f - %.3f]",COR_RANGE[1],COR_RANGE[2])`
+
+The expression from the 1st biological replicates of strains CQC and CMP seem
+slighlty less correlated to the other samples.
+
+### Principle Component Analysis
+
+Finally, the PCA  reveals the distance between each sample.
+
+```{r pca-all, fig.path='plot/', fig.show='hold', warning=F, fig.height=7,fig.width=7}
+int_all_scaled = scale(int_all,center=T, scale = T)
+make_pca(na.omit(int_all_scaled), with_labels=T,col_by_group=1:4)
+```
+
+

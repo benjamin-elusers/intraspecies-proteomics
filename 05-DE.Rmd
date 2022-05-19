@@ -1,0 +1,93 @@
+# Differential Expression
+
+```{r dfe, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, fig.height=15,fig.width=15}
+volcano_data =  get_volcano_data(input_data=int_norm, which='both',
+                            min_lfc=2, min_pval=0.01, topn = 20)
+
+df_limma = bind_rows(volcano_data) %>% as_tibble()
+volcPlot(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20)
+
+dfe = subset(df_limma,sig!='Non significant')
+
+down = dfe %>% group_by(ID) %>% dplyr::filter(sig=='Downregulated') %>%
+       summarize( strains_down = paste0(comparison,collapse=' '),
+                  down_AMH = str_count(strains_down,'AMH-'),
+                  down_BAN = str_count(strains_down,'BAN-'),
+                  down_BED = str_count(strains_down,'BED-'),
+                  down_BPL = str_count(strains_down,'BPL-'),
+                  down_BTT = str_count(strains_down,'BTT-'),
+                  down_CMP = str_count(strains_down,'CMP-'),
+                  down_CPI = str_count(strains_down,'CPI-'),
+                  down_CQC = str_count(strains_down,'CQC-'))
+up = dfe %>% group_by(ID) %>% dplyr::filter(sig=='Upregulated') %>%  
+      summarize( strains_up = paste0(comparison,collapse=' '),
+                  up_AMH = str_count(strains_up,'AMH-'),
+                  up_BAN = str_count(strains_up,'BAN-'),
+                  up_BED = str_count(strains_up,'BED-'),
+                  up_BPL = str_count(strains_up,'BPL-'),
+                  up_BTT = str_count(strains_up,'BTT-'),
+                  up_CMP = str_count(strains_up,'CMP-'),
+                  up_CPI = str_count(strains_up,'CPI-'),
+                  up_CQC = str_count(strains_up,'CQC-'))
+
+# Number of times a hit is differentially expressed
+df_dfe = dfe %>% left_join(janitor::tabyl(dfe,ID,sig)) %>%
+         left_join(down) %>% left_join(up) %>%
+         rename(uniprot=ID) %>% 
+         group_by(uniprot,comparison) %>% 
+        mutate( n_strains_up = sum(c_across(starts_with('up_')) !=0 ),
+                n_strains_down = sum(c_across(starts_with('down_'))!=0)) %>%
+        replace_na(list(n_strains_up=0,n_strains_down=0)) %>%
+        left_join(evo_yeast, by=c('uniprot'='UNIPROT')) 
+  
+
+df_dfe_annot = df_dfe %>%
+          left_join(sc_annotation_orf,by=c('uniprot'='UNIPROT')) %>%
+  mutate(uniprot_link = paste0("<a href='https://www.uniprot.org/uniprot/",uniprot,"'>",uniprot,"</a>"),
+         sgd_link = paste0("<a href='https://www.yeastgenome.org/locus/",SGD,"'>",SGD,"</a>"),
+         regulated = Downregulated+Upregulated) %>% 
+  dplyr::relocate(uniprot,uniprot_link,sgd_link,regulated,Downregulated,Upregulated, 
+                  GENENAME,ORF,PNAME,'FUNCTION','BIOPROCESS_all','ORTHO','OTHER')
+
+library(kableExtra)
+library(formattable)
+library(DT)
+
+ft_dt = df_dfe_annot %>% 
+  formattable(
+    list(
+      `Downregulated` = color_tile("white", "red"),
+      `Upregulated` = color_tile("white", "blue"),
+      `regulated` = color_tile("white", "gray")
+    )
+) %>% as.datatable(
+        options = list(
+            fixedHeader=T,
+            paging = TRUE, pageLength = 20,  ## paginate the output and #rows for each page
+            scrollY = TRUE,   ## enable scrolling on X/Y axis
+            #autoWidth = TRUE, ## use smart column width handling
+            server = FALSE,   ## use client-side processing
+            dom = 'Bfrtip', buttons = list('csv', 'excel', list(extend = 'colvis')),
+            fixedColumns = list(leftColumns = 2),
+            columnDefs = list(list(visible=FALSE, targets=c(42:48)))
+          ),
+  extensions = c('FixedHeader','FixedColumns','Buttons'),
+  selection = 'single',           ## enable selection of a single row
+  filter = 'bottom',              ## include column filters at the bottom
+  rownames = FALSE                ## don't show row numbers/names
+) %>% 
+   formatStyle(columns = 1:30, target= 'row',lineHeight='100%', `font-size` = '12px')
+
+ft_dt
+
+```
+
+## Functional map for diffentially expressed genes
+
+```{r treemap-bioprocess, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, fig.height=15,fig.width=15}
+library(treemap)
+library(d3Tree)
+
+treemap(df_dfe_annot, index=c("BIOPROCESS_all", "comparison"), vSize='regulated', vColor="EffectSize", type="value") 
+treemap(df_dfe_annot, index=c("BIOPROCESS_all", "GENENAME"), vSize="regulated", vColor="EffectSize", type="value",)
+```

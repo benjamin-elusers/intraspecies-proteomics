@@ -1,0 +1,36 @@
+# Strains expression comparison
+
+## Scatterplots 
+
+Initially, we can look at the scatterplots of intensities all-versus-all samples.
+
+```{r scatterplot-strains, fig.path='plot/', fig.show='hold', warning=F}
+# scatterplots between strains
+scmat_strains=draw_scatterplots(datain=int_filt_strains)
+print(scmat_strains)
+```
+
+## Heatmap Correlation
+
+We then compute spearman rank correlations of intensities between all samples.
+
+```{r heatmap-strains}
+# heatmap correlation
+cs_strains=compute_samples_correlation(int_filt_strains)
+COR_RANGE = range( cs_strains[row(cs_strains) == (col(cs_strains) - 1)] )
+
+hm_strains=draw_heatmap_samples(mcor = cs_strains,df.group=c(),col.group = col.group)
+```
+
+The heatmap correlations show the high correlation of expression between strains:
+`r sprintf("[%.3f - %.3f]",COR_RANGE[1],COR_RANGE[2])`
+
+
+## Principle Component Analysis
+
+Finally, the PCA  reveals the distance between each sample.
+
+```{r pca-strains}
+int_scaled_strains = scale(int_filt_strains,center=T, scale = T)
+make_pca(na.omit(int_scaled_strains), with_labels=F,col_by_group=1:2)
+```
