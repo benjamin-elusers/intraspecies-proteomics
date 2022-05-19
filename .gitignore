@@ -11,3 +11,5 @@ data/Raw_files/combined/txt/allPeptides.txt
 data/Raw_files/combined/txt/evidence.txt
 data/Raw_files/combined/txt/msms.txt
 data/Raw_files/combined/txt/msmsScans.txt
+output/evolution-fungi-residue.tsv
+output/evolution-snp-residue.tsv
