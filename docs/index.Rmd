@@ -7,7 +7,7 @@ mail: "benjamin.dubreuil@weizmann.ac.il"
 created: "24/04/2022"
 date: "`r format(Sys.time(), '%d-%b-%Y %R %p')`"
 home: ""
-site: https://benjamin-elusers.github.io/intraspecies-proteomics/
+site: bookdown::bookdown_site
 documentclass: book
 bibliography:
 - book.bib
