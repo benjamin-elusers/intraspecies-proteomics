@@ -5,7 +5,7 @@ author: "Benjamin Dubreuil"
 github: "benjamin-elusers"
 mail: "benjamin.dubreuil@weizmann.ac.il"
 created: "24/04/2022"
-date: "19-May-2022 15:31 "
+date: "19-May-2022 15:09 "
 home: ""
 site: bookdown::bookdown_site
 documentclass: book
@@ -74,8 +74,5 @@ abundance) versus function place on protein evolution.
 <img src="images/Fungi-SpeciesTree-v7.png" alt="Integrating timescales in protein evolution from distant species to populations" width="100%" />
 <p class="caption">(\#fig:project-goal)Integrating timescales in protein evolution from distant species to populations</p>
 </div>
-
-
-
 
 

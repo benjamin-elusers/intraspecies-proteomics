@@ -1,0 +1,131 @@
+# Proteomics experiment
+
+## Experiment design
+
+For this experiment, we selected eight strains from a population
+of 1,011 *S. cerevisiae* isolates, representing the overall ecological, geographical
+and genetic diversity (Figure \@ref(fig:phylo-8-strain). 
+
+The eight strains were grown on synthetic defined media (SD). We carefully monitored
+the strains growth to harvest cells close to the mid-log phase (OD ~ 0.5). Then,
+we proceed to wash the samples in PBS and flash-freeze cell pellets for a 
+whole-lysate proteomics profiling.
+
+For each strains, we prepared  biological replicates that originated from two
+distinct colonies which and two technical replicates.
+
+```{r phylo-8-strain, fig.cap='Phylogenetic tree of 1011 *cerevisiae* isolates highlighting the 8 strains used for RNASeq/RiboSeq/proteomics exepriment', out.width='40%', fig.align='center',echo=F}
+knitr::include_graphics("images/phylogenetic-tree-8-strains.png")
+```
+
+Altogether there were 32 samples of yeast cell pellets including 4 replicates 
+(two biological and two technical) that we sent to the Weizmann proteomics unit.
+([INPCM](https://g-incpm.weizmann.ac.il/units/deBottonProteinProfiling/how-does-it-work%3F)).
+
+The samples submitted correspond to 4mL cultures with OD ranging from 0.4-0.8. 
+
+**OD of samples (table)**
+
+
+## Sample preparation
+
+The cell pellets were subjected to lysis and in solution tryptic digestion using
+the S-Trap method (by Protifi) followed by a solid phase extraction cleaning step (Oasis HLB).
+
+## Liquid chromatography mass spectrometry
+
+The resulting peptides were analyzed using nanoflow liquid chromatography 
+(nanoAcquity) coupled to high resolution, high mass accuracy mass spectrometry 
+(Thermo Exploris 480). Each sample was analyzed on the instrument separately in 
+a random order in discovery mode.
+
+## Peptide identification and quantification
+
+Raw data was processed with MaxQuant v1.6.6.0. The data were searched with the 
+Andromeda search engine against a database containing protein sequences of 
+*Saccharomyces cerevisiae* as downloaded from Uniprot.org, and appended with
+common lab protein contaminants. 
+
+The following modifications were defined for the search: 
+Fixed modification- cysteine carbamidomethylation. 
+Variable modifications- methionine oxidation and protein N-terminal acetylation. 
+
+The quantitative comparisons were calculated using Perseus v1.6.0.7. 
+Decoy hits were filtered out and only proteins that were detected
+in at least two replicates of at least one experimental group were kept.
+
+## Loading Mass Spectrometry Results
+
+First, we read the MaxQuant output file (CSV/XLSX format) containing all the hits.
+A hit corresponds to the set of peptides that were matched to a single protein group.
+*Note: protein groups may contain one or multiple identified proteins (including contaminants)*
+
+```{r read-data, echo=F}
+# Maxquant files
+evidence = here::here('../data','Raw_files','combined/txt','evidence.txt')
+annotation = here::here('../results','keys.txt')
+proteinGroups = here::here('../data','Raw_files','combined/txt','proteinGroups.txt')
+
+# Reading maxquant protein data
+ms0=read_maxquant(proteinGroups,zero.to.na = T, int_type = 'LFQ', pep_type = 'Unique peptides')
+keys_cols = c('majority_protein_i_ds','gene_names')
+
+# get sample_names
+samples = str_subset(colnames(ms0),'lfq_intensity') %>% str_replace('lfq_intensity_',"")
+nsamples=n_distinct(samples)
+
+# define groups based on sample names
+df.group = tibble(sample=toupper(samples)) %>%
+            separate(col=sample, into= c('strain','biorep','techrep','dayrun'), sep = '_', remove = F) %>%
+            mutate( biorep = paste0("R",biorep), techrep = paste0("r",techrep),dayrun=paste0(dayrun,"_04_22"))
+
+all_strains = unique(df.group$strain)
+nstrains = n_distinct(all_strains)
+nreplicates = df.group %>% count(strain) %>% pull(n) %>% unique
+
+# associate a palette of colors for each group
+col.group = list(
+  # spectral palette
+  # strain = c('AMH'="#D53E4F", 'BAN'="#F46D43", 'BED'="#FDAE61", 'BPL'="#FEE08B",
+              # 'BTT'="#E6F598", 'CMP'="#ABDDA4", 'CPI'="#66C2A5", 'CQC'="#3288BD"),
+  # Set1 palette
+  strain = c('AMH'="#E41A1C", 'BAN'="#377EB8", 'BED'="#4DAF4A", 'BPL'="#984EA3",
+             'BTT'="#FF7F00", 'CMP'="#FFFF33", 'CPI'="#A65628", 'CQC'="#F781BF"),
+  biorep = c('R1'="#002BDC",'R2'="#00A6E7"),
+  techrep = c('r1'="#1C7947",'r2'="#39A388"),
+  dayrun = c('10_04_22'='white','12_04_22'='black') 
+  )
+```
+
+Statistics of proteomics hits:
+
+```{r hit-stats,echo=F}
+# Total number of hits
+NHITS = n_distinct(ms0$protein_i_ds)
+# Contaminants
+is_contaminant = str_detect(ms0$protein_i_ds,"CON__")
+NCON = n_distinct(ms0$protein_i_ds[is_contaminant])
+# Reversed sequences (REV reversed sequences used by MaxQuant to estimate the FDR)
+is_reversed = str_detect(ms0$protein_i_ds,"REV__")
+NREV = n_distinct(ms0$protein_i_ds[is_reversed])
+# Proteins
+is_protein_group = !is_contaminant & !is_reversed
+NPROT = n_distinct(ms0$protein_i_ds[is_protein_group])
+
+# Multiple proteins matched
+NSINGLE = sum(ms0$number_of_proteins==1 & is_protein_group)
+NMULTI = sum(ms0$number_of_proteins > 1 & is_protein_group)
+NDUP = sum(ms0$number_of_proteins==2 & is_protein_group)
+```
+
+**`r NHITS`** total hits
+
+ - **`r NCON`** contaminants
+ - **`r NREV`** reversed sequences
+ - **`r NPROT`** proteins identified:
+   - **`r NSINGLE`** unique proteins
+   - **`r NMULTI`** multiple proteins (with `r NMULTI` duplicated pairs)
+
+**In this proteomics experiment, a large number of proteins were identified and quantified.
+The quantified cellular proteome roughly amounts to half of the reference proteome sequences
+of the yeast *S. cerevisiae* S288C**

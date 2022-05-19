@@ -1,0 +1,13 @@
+`r if (knitr::is_html_output()) '
+# References {-}
+
+1.	Drummond, D. A., Raval, A. & Wilke, C. O. A single determinant dominates the rate of yeast protein evolution. Mol. Biol. Evol. 23, 327–337 (2006).
+2.	Drummond, D. A. & Wilke, C. O. Mistranslation-induced protein misfolding as a dominant constraint on coding-sequence evolution. Cell 134, 341–352 (2008).
+3.	Drummond, D. A., Bloom, J. D., Adami, C., Wilke, C. O. & Arnold, F. H. Why highly expressed proteins evolve slowly. Proc. Natl. Acad. Sci. U. S. A. 102, 14338–14343 (2005).
+4.	Pal, C., Papp, B. & Hurst, L. D. Highly expressed genes in yeast evolve slowly. Genetics 158, 927–931 (2001).
+5.	Jimenez, M. J., Arenas, M. & Bastolla, U. Substitution rates predicted by stability-constrained models of protein evolution are not consistent with empirical data. Mol. Biol. Evol. (2017). doi:10.1093/molbev/msx327
+6.	Schavemaker, P. E., Śmigiel, W. M. & Poolman, B. Ribosome surface properties may impose limits on the nature of the cytoplasmic proteome. Elife 6, (2017).
+7.	Yang, J. R., Liao, B. Y., Zhuang, S. M. & Zhang, J. Z. Protein misinteraction avoidance causes highly expressed proteins to evolve slowly. Proc. Natl. Acad. Sci. U. S. A. 109, E831–E840 (2012).
+8.	Plata, G. & Vitkup, D. Avoidance of toxic misfolding and protein stability do not explain the sequence constraints of highly expressed proteins. Mol. Biol. Evol. (2017). doi:10.1093/molbev/msx323
+
+'`

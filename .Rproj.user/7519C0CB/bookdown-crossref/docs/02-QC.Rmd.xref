@@ -1,0 +1,6 @@
+h1:qc Quality control
+h2:boxplot-of-sample-raw-intensities Boxplot of sample raw intensities
+fig:missing-hit Distribution of expression for hits not detected in all strains
+h2:number-of-missing-values-in-samples Number of missing values in samples
+fig:na-samples Number of quantified intensities across samples
+
