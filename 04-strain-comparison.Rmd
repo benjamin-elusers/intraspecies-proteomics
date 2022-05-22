@@ -1,3 +1,7 @@
+```{r 03-data, echo=F}
+#load(here('output','03-quality-control.rdata'))
+```
+
 # Strains expression comparison
 
 ## Scatterplots 
@@ -33,4 +37,9 @@ Finally, the PCA  reveals the distance between each sample.
 ```{r pca-strains}
 int_scaled_strains = scale(int_filt_strains,center=T, scale = T)
 make_pca(na.omit(int_scaled_strains), with_labels=F,col_by_group=1:2)
+```
+
+
+```{r 04-data, echo=F}
+save.image(here('output','04-strain-comparison.rdata'))
 ```

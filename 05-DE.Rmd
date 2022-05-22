@@ -1,3 +1,7 @@
+```{r 04-data, echo=F}
+#load(here('output','04-strain-comparison.rdata'))
+```
+
 # Differential Expression
 
 ```{r dfe, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%',}
@@ -92,7 +96,7 @@ treemap(df_dfe_annot, index=c("BIOPROCESS_all", "comparison"), vSize='regulated'
 treemap(df_dfe_annot, index=c("BIOPROCESS_all", "GENENAME"), vSize="regulated", vColor="EffectSize", type="value",)
 ```
 
-## INteractive tree map
+## Interactive tree map
 ```{r interactive-treemap, echo = FALSE}
 # Interactive treemap
 shinyAppDir(
@@ -104,4 +108,8 @@ shinyAppDir(
     width="100%", height=550
   )
 )
+```
+
+```{r 05-data, echo=F}
+save.image(here('output','05-differential-expression.rdata'))
 ```

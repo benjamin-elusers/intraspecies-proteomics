@@ -74,5 +74,9 @@ df_all_packages= devtools::session_info()$packages %>% as.data.frame() %>% pull(
 kable(devtools::session_info()$packages,
       row.names = T,
       caption='all packages used (include dependencies)')
+
 ```
 
+```{r session-info}
+sessioninfo::session_info()
+```

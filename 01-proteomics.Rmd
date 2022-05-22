@@ -1,3 +1,6 @@
+```{r 00-index, echo=F}
+load(here::here('output','00-input-data.rdata'))
+```
 # Proteomics experiment
 
 ## Experiment design
@@ -62,12 +65,13 @@ A hit corresponds to the set of peptides that were matched to a single protein g
 
 ```{r read-data, echo=F}
 # Maxquant files
-evidence = here::here('data','Raw_files','combined/txt','evidence.txt')
-annotation = here::here('results','keys.txt')
-proteinGroups = here::here('data','Raw_files','combined/txt','proteinGroups.txt')
-
+MAXQUANT.files = list(
+  evidence = here::here('data','Raw_files','combined/txt','evidence.txt'),
+  annotation = here::here('results','keys.txt'),
+  proteinGroups = here::here('data','Raw_files','combined/txt','proteinGroups.txt')
+)
 # Reading maxquant protein data
-ms0=read_maxquant(proteinGroups,zero.to.na = T, int_type = 'LFQ', pep_type = 'Unique peptides')
+ms0=read_maxquant(MAXQUANT.files$proteinGroups, zero.to.na = T, int_type = 'LFQ', pep_type = 'Unique peptides')
 keys_cols = c('majority_protein_i_ds','gene_names')
 
 # get sample_names
@@ -95,6 +99,10 @@ col.group = list(
   techrep = c('r1'="#1C7947",'r2'="#39A388"),
   dayrun = c('10_04_22'='white','12_04_22'='black') 
   )
+
+#write_rds(ms0,here('output','01-expression.rds'))
+#write_rds(df.group,here('output','01-samples-group.rds'))
+#write_rds(col.group,here('output','01-samples-colors.rds'))
 ```
 
 Statistics of proteomics hits:
@@ -129,3 +137,8 @@ NDUP = sum(ms0$number_of_proteins==2 & is_protein_group)
 **In this proteomics experiment, a large number of proteins were identified and quantified.
 The quantified cellular proteome roughly amounts to half of the reference proteome sequences
 of the yeast *S. cerevisiae* S288C**
+
+
+```{r 01-data, echo=F}
+save.image(here('output','01-proteomics.rdata'))
+```

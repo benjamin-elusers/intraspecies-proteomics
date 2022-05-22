@@ -1,3 +1,7 @@
+```{r load-01, echo=F}
+#load(here('output','01-proteomics.rdata'))
+```
+
 # Data processing
 
 Before normalizing intensities, we first need to discard some hits because they
@@ -36,7 +40,6 @@ We filter out hits that contains missing values for either strains or replicates
 # Process intensities
 int_raw= ms1 %>% dplyr::select(uniprot=majority_protein_i_ds,starts_with("lfq")) %>% as.data.frame() %>% column_to_rownames('uniprot') %>% 
             rename_with(everything(),.fn =gsub, pattern='lfq_intensity_', replacement='') 
-
 
 int_norm= center_intensities(int_raw, center='median', tolog2=T) %>% 
           as.data.frame %>% rownames_to_column('uniprot') %>%
@@ -108,4 +111,9 @@ int_filt_strains = ms2 %>% dplyr::select(-starts_with('na')) %>% column_to_rowna
 # Save processed & normalized intensities data
 write_delim(df_strains,here::here('output','proteomics-normalized-log10_intensities.tsv'),delim='\t')
 
+```
+
+
+```{r 02-data, echo=F}
+save.image(here('output','02-processed-data.rdata'))
 ```
