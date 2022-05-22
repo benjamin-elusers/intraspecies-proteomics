@@ -38,7 +38,7 @@ int_raw= ms1 %>% dplyr::select(uniprot=majority_protein_i_ds,starts_with("lfq"))
             rename_with(everything(),.fn =gsub, pattern='lfq_intensity_', replacement='') 
 
 
-int_norm= normalize_intensities(int_raw) %>% 
+int_norm= center_intensities(int_raw, center='median', tolog2=T) %>% 
           as.data.frame %>% rownames_to_column('uniprot') %>%
           as_tibble() %>%
           rename_with(everything(),.fn =gsub, pattern='lfq_intensity_', replacement='') %>% 

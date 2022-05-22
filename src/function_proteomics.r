@@ -278,21 +278,57 @@ remove_NA_rows = function(INT,ns=3,nm=2){
 #int=remove_NA_rows(int_all,ns=3,nm=2)
 
 ## 2 Normalize intensities --------------------------------------------------------------
-normalize_intensities = function(int.raw){
-  cat("Normalize intensities to the median...\n")
-  # transform positive intensities to fold-change (log2)
-  int.log2 = log2(int.raw+1) %>% as.matrix
-  int.log2[!is.finite(int.log2)] = NA
+
+center_intensities = function(int.raw, center='median', tolog2=T ){
+
+  if( tolog2 ){
+    cat("Normalize log2-transformed intensities to the ",center,"...\n")
+    # Transform positive intensities to fold-change (log2)
+    cat("Transform to log2 intensities...\n")
+    INT = log2(int.raw+1) %>% as.matrix
+    INT[!is.finite(INT)] = NA
+  }else{
+    cat("Normalize raw intensities to the ",center,"...\n")
+    INT = int.raw  
+  }
 
   # center each sample on median
-  md.int = apply(int.log2,2,hablar::median_)
-  int.norm = sweep(int.log2,MARGIN=2,STATS=md.int,FUN='-')
+  if(center == 'median'){  
+    center.int = apply(INT,2,hablar::median_)
+  }else if(center == 'mean'){  
+    center.int = apply(INT,2,hablar::mean_)
+  }
+  
+  int.norm = sweep(INT,MARGIN=2,STATS=center.int,FUN='-')
   min.int = min_(int.norm)
   int.pos = int.norm+abs(min.int)
   
   return(int.pos)
 }
-#int.norm=normalize_intensities(int)
+#int.norm=center_intensities(int, tolog2=T, center='median')
+
+normalize_intensities = function(int.raw,design){
+  library(NormalyzerDE)
+  
+  expmat_file = here('output','raw-lfq-8-strains.tsv')
+  #write_delim(int_raw,file = expmat_file, delim = '\t')
+
+  design_file = here::here('output','design-8-strains.tsv')
+  design = df.group %>% summarize(across(everything(),str_to_lower))
+  write_delim(design,file = design_file, delim = '\t')
+
+library(limma)
+source("https://raw.githubusercontent.com/ByrumLab/proteiNorm/master/normFunctions.R")
+
+experimentObj <- setupRawDataObject(expmat_file, design_file, "default", TRUE, "sample", "strain")
+normObj <- getVerifiedNormalyzerObject('normalized_data', experimentObj)
+normResults <- normMethods(normObj)
+normResultsWithEval <- analyzeNormalizations(normResults)
+jobDir <- setupJobDir("normalized_data", here('output'))
+#writeNormalizedDatasets(normResultsWithEval, jobDir)
+generatePlots(normResultsWithEval,jobDir)
+
+
 
 ## 3 Correlation of intensities ----------------------------------------------------------
 compute_samples_correlation = function(datain=int.norm,as.df=F){
@@ -369,34 +405,37 @@ draw_scatterplots = function(datain=ms2){
   return(p2)
 }
 
-compare_normalization = function(rawexp, normalization = c()){
+
+
+
+compare_normalization = function(rawexp){
   
-  library(limma)
-  limma::normalizeCyclicLoess()
-  limma::normalizeMedianAbsValues()
-
-  if(all){
-    n = ncol(rawexp)/2
-    s1 = colnames(rawexp)
-    s2 = colnames(rawexp)
-  }else{
-    stopifnot("requires even number of samples!"=is.even(length(paired)))
-    n = length(paired)/2
-    s1 = odds(paired) 
-    s2 = evens(paired)
-  }
+  
+  norm_loess = limma::normalizeCyclicLoess(rawexp)
+  norm_median = limma::normalizeMedianAbsValues(rawexp)
+  norm_quantile = limma::normalizeQuantiles(rawexp)
+  
+  n = ncol(rawexp)/2
+  s = colnames(rawexp)
+  
   par(pch=19,cex.lab=1.4,cex.axis=1.2)
-  if(!onebyone){ graphics::layout(n) }
-
+  cols = c( raw=rgb(0,0,0,0.5), loess=rgb(1,0,0,0.5), median=rgb(0,1,0,0.5), quantile=rgb(0,0,1,0.5))
   for( i in 1:n){
-    exp_unit= "(log2)-intensity"
-    plot( rawexp[,s1[i]], rawexp[,s2[i]], xlab=paste(s1[i],exp_unit) ,ylab=paste(s2[i],exp_unit), col=rgb(0,0,0,0.5), cex=0.6)
-    points(normexp[,s1[i]], normexp[,s2[i]],col=rgb(1,0,0,0.5), cex=0.6)
-    legend('topleft',title='protein expression',legend = c('raw','norm'), 
-           col = 1:2, pch = 19, border = NA, bty='n')
-    if(n>1 & onebyone){ invisible(readline(prompt="Press [enter] to continue")) }
+    for( j in 1:n){
+      exp_unit= "(log2)-intensity"
+      plot( rawexp[,s[i]], rawexp[,s[j]], xlab='', ylab='',col=cols['raw'], cex=0.6)
+      points(norm_loess[,s[i]], norm_loess[,s[j]],col=cols['loess'], cex=0.6)
+      points(norm_median[,s[i]], norm_median[,s[j]],col=cols['median'], cex=0.6)
+      points(norm_quantile[,s[i]], norm_quantile[,s[j]],col=cols['quantile'], cex=0.6)
+      
+      legend('topleft',title=NULL,legend = names(cols), col = cols, pch = 19, border = NA, bty='n')
+      title(main="Raw vs Normalized protein expression:",
+            xlab=paste(s[i],exp_unit) ,ylab=paste(s[j],exp_unit))
+    }
   }
+  #  if(n>1 & onebyone){ invisible(readline(prompt="Press [enter] to continue")) }
 }
+
 
 # 5 Principal component analysis ------------------------------------------
 make_pca = function(x,with_labels=F,col_by_group=2){
