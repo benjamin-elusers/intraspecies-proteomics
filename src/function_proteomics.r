@@ -307,28 +307,29 @@ center_intensities = function(int.raw, center='median', tolog2=T ){
 }
 #int.norm=center_intensities(int, tolog2=T, center='median')
 
-normalize_intensities = function(int.raw,design){
+normalize_intensities = function(int,design){
+
   library(NormalyzerDE)
-  
-  expmat_file = here('output','raw-lfq-8-strains.tsv')
+  experiment <- SummarizedExperiment::SummarizedExperiment(
+    assays=list(raw=as.matrix(log2(int))),
+    colData=design,
+    metadata = list(sample='sample',group='strain')
+  )  
+  #expmat_file = here('output','raw-lfq-8-strains.tsv')
   #write_delim(int_raw,file = expmat_file, delim = '\t')
 
-  design_file = here::here('output','design-8-strains.tsv')
-  design = df.group %>% summarize(across(everything(),str_to_lower))
-  write_delim(design,file = design_file, delim = '\t')
+  #design_file = here::here('output','design-8-strains.tsv')
+  #design = df.group %>% summarize(across(everything(),str_to_lower))
+  #write_delim(design,file = design_file, delim = '\t')
+  #source("https://raw.githubusercontent.com/ByrumLab/proteiNorm/master/normFunctions.R")
+  input <- getVerifiedNormalyzerObject('normalized_data', summarizedExp = experiment)
+  normResults <- normMethods(noLogTransform = T,input)
+  normResultsWithEval <- analyzeNormalizations(normResults)
+  jobDir <- setupJobDir("normalized_data", here('output'))
+  #writeNormalizedDatasets(normResultsWithEval, jobDir)
+  generatePlots(normResultsWithEval,jobDir)
 
-library(limma)
-source("https://raw.githubusercontent.com/ByrumLab/proteiNorm/master/normFunctions.R")
-
-experimentObj <- setupRawDataObject(expmat_file, design_file, "default", TRUE, "sample", "strain")
-normObj <- getVerifiedNormalyzerObject('normalized_data', experimentObj)
-normResults <- normMethods(normObj)
-normResultsWithEval <- analyzeNormalizations(normResults)
-jobDir <- setupJobDir("normalized_data", here('output'))
-#writeNormalizedDatasets(normResultsWithEval, jobDir)
-generatePlots(normResultsWithEval,jobDir)
-
-
+}
 
 ## 3 Correlation of intensities ----------------------------------------------------------
 compute_samples_correlation = function(datain=int.norm,as.df=F){
@@ -410,7 +411,7 @@ draw_scatterplots = function(datain=ms2){
 
 compare_normalization = function(rawexp){
   
-  
+  library(limma)
   norm_loess = limma::normalizeCyclicLoess(rawexp)
   norm_median = limma::normalizeMedianAbsValues(rawexp)
   norm_quantile = limma::normalizeQuantiles(rawexp)
@@ -602,4 +603,32 @@ volcPlot = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN
   # } 
   return(plotList)
 }
+
+draw_umap_DE = function(EXP,DE){
   
+  library(umap)
+  set.seed(142)
+  umap_fit <- EXP %>%
+    select(where(is.numeric)) %>%
+    column_to_rownames("ID") %>%
+    scale() %>% 
+    umap()
+  
+  umap_df <- umap_fit$layout %>%
+    as.data.frame()%>%
+    rename(UMAP1="V1", UMAP2="V2") %>%
+    mutate(ID=row_number()) #%>%
+    #inner_join(penguins_meta, by="ID")
+  
+  U = umap_df %>%
+    ggplot(aes(x = UMAP1, 
+               y = UMAP2,
+               color = species)) +
+    geom_point(size=3, alpha=0.5)+
+    #facet_wrap(~island)+
+    labs(x = "UMAP1", y = "UMAP2", subtitle="UMAP plot")+
+    theme(legend.position="bottom")
+    #ggsave("UMAP_plot_example2.png")
+  #plot(U)
+  return(U)
+}
