@@ -1,4 +1,4 @@
-```{r 02-data, echo=F}
+```{r 02-load-data, echo=F}
 #load(here('output','02-processed-data.rdata'))
 ```
 
@@ -172,6 +172,6 @@ make_pca(na.omit(int_all_scaled), with_labels=T,col_by_group=1:4)
 ```
 
 
-```{r 03-data, echo=F}
+```{r 03-save-data, echo=F}
 save.image(here('output','03-quality-control.rdata'))
 ```

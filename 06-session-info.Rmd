@@ -77,6 +77,8 @@ kable(devtools::session_info()$packages,
 
 ```
 
+## Session info 
+
 ```{r session-info}
 sessioninfo::session_info()
 ```

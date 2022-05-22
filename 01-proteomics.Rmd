@@ -1,4 +1,4 @@
-```{r 00-index, echo=F}
+```{r 00-load-data, echo=F}
 load(here::here('output','00-input-data.rdata'))
 ```
 # Proteomics experiment
@@ -139,6 +139,6 @@ The quantified cellular proteome roughly amounts to half of the reference proteo
 of the yeast *S. cerevisiae* S288C**
 
 
-```{r 01-data, echo=F}
+```{r 01-save-data, echo=F}
 save.image(here('output','01-proteomics.rdata'))
 ```

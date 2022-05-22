@@ -1,4 +1,4 @@
-```{r load-01, echo=F}
+```{r 01-load-data, echo=F}
 #load(here('output','01-proteomics.rdata'))
 ```
 
@@ -114,6 +114,6 @@ write_delim(df_strains,here::here('output','proteomics-normalized-log10_intensit
 ```
 
 
-```{r 02-data, echo=F}
+```{r 02-save-data, echo=F}
 save.image(here('output','02-processed-data.rdata'))
 ```

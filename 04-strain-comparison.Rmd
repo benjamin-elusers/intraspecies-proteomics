@@ -1,4 +1,4 @@
-```{r 03-data, echo=F}
+```{r 03-load-data, echo=F}
 #load(here('output','03-quality-control.rdata'))
 ```
 
@@ -40,6 +40,6 @@ make_pca(na.omit(int_scaled_strains), with_labels=F,col_by_group=1:2)
 ```
 
 
-```{r 04-data, echo=F}
+```{r 04-save-data, echo=F}
 save.image(here('output','04-strain-comparison.rdata'))
 ```
