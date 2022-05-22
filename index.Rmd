@@ -149,6 +149,6 @@ evo_yeast = left_join(evo_snp,evo_fungi, by=c('id','len_ref'),suffix=c('.yk11','
 # ggcorrplot(test_cor,type='upper',method='circle',lab = T,lab_size = 3, title='')
 ```
 
-```{r 00-index, echo=F}
+```{r 00-save-index, echo=F}
 save.image(here::here('output','00-input-data.rdata'))
 ```
