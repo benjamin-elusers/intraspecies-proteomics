@@ -21,29 +21,30 @@ long_intensities = long_int_all %>%
   filter(ratio_na_rep<1) %>% # At least one peptide in one replicate from a each strain
   group_by(strain) %>% mutate(nprot = n_distinct(uniprot)) %>% 
   hablar::convert(n_na_rep=int(n_na_rep)) %>% 
-  arrange(n_na_rep)
+  arrange(n_na_rep) %>% 
+  mutate(int2use = log10_int)
 
 # Get median expression and # proteins per strain as a function of NAs in replicates
 stats_per_strain=long_intensities %>% 
   group_by(strain=toupper(strain),n_na_rep=factor(n_na_rep)) %>% 
-  summarize(nprot=n_distinct(uniprot), MED=median_(log10_int)) %>% 
-  mutate( YMAX = 12.5 - 0.25*as.numeric(n_na_rep))
+  summarize(nprot=n_distinct(uniprot),  MAX=max(int2use), MED=median_(int2use)) %>% 
+  mutate( YMAX = MAX - 0.25*as.numeric(n_na_rep))
 
 # Compare intensities of ubiquitous hits between strains
-bp=ggplot(data=long_intensities,mapping=aes(y=log10_int,x=toupper(strain))) +
+bp=ggplot(data=long_intensities,mapping=aes(y=int2use,x=toupper(strain))) +
   ggbeeswarm::geom_quasirandom(mapping = aes(group=n_na_rep,color=as.factor(nreplicates-n_na_rep)), na.rm=TRUE) +
   geom_violin(alpha=0.2, na.rm=TRUE,draw_quantiles = c(0.25,0.5,0.75)) + 
   geom_text(data=stats_per_strain,aes(label=nprot,color=nreplicates-n_na_rep,x=strain,y=YMAX),show.legend = F) +
-  ylim(5,12.5) +
+  ylim(5,max_(stats_per_strain$MAX)) +
   ylab('Peptides intensities (log10)') + labs(x='Strains', colour='expressed in # replicates') +
   theme_pubclean() + grids(axis = 'y') + theme(axis.text = element_text(size=12)) +
   scale_color_canva(palette = "Pool party",limits=rev)
 plot(bp)
 
 BY_STRAINS = group_by(long_intensities,strain=toupper(strain)) %>% 
-             summarize(median_exp=median_(log10_int))
+             summarize(median_exp=median_(int2use))
 BY_REP = group_by(long_intensities, n_replicates=as.integer(4-n_na_rep)) %>% 
-  summarize(median_exp=median_(log10_int)) 
+  summarize(median_exp=median_(int2use)) 
 
 library(kableExtra)
 TAB_STRAINS_EXP = kbl( transpose(BY_STRAINS) ,digits = 2) %>%
@@ -75,7 +76,7 @@ hit_missing = pep_missing$uniprot
 
 bp_miss= long_int_all %>% arrange(n_na_strains) %>% 
          dplyr::filter(has_missing_strains) %>%
-  ggplot(mapping=aes(y=log10_int,x=8-n_na_strains)) +
+  ggplot(mapping=aes(y=int2use,x=8-n_na_strains)) +
   geom_violin(mapping=aes(fill=factor(n_na_strains)),
               alpha=0.2, na.rm=TRUE,draw_quantiles = c(0.25,0.5,0.75),color='black',show.legend = F) +
   geom_text(aes(label=nprot_miss),y=12,check_overlap = T,col='red') + ylim(5,12) +
@@ -128,7 +129,6 @@ ComplexUpset::upset(data=as.data.frame(1-na_int[,-1]),intersect=samples,
          ),
 )
 
-
 ```
 
 
@@ -136,7 +136,7 @@ ComplexUpset::upset(data=as.data.frame(1-na_int[,-1]),intersect=samples,
 
 ### Scatterplots
 
-```{r scatterplot-all, fig.path='plot/', fig.show='hold', warning=F, out.width='100%'}
+```{r scatterplot-all, fig.path='plot/', fig.show='hold', warning=F, fig.height=15, fig.width=15, out.width='100%'}
 # scatterplots between all samples
 scmat_all=draw_scatterplots(datain=int_all)
 print(scmat_all)
@@ -145,7 +145,7 @@ print(scmat_all)
 
 ### Heatmap correlation 
 
-```{r heatmap-all, fig.path='plot/', fig.show='hold', warning=F, out.width='100%' }
+```{r heatmap-all, fig.path='plot/', fig.show='hold', warning=F, fig.height=15, fig.width=15, out.width='100%' }
 # heatmap correlation
 cs_all=compute_samples_correlation(int_all)
 COR_RANGE = range( cs_all[row(cs_all) == (col(cs_all) - 1)] )

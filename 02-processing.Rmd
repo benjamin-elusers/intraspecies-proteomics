@@ -1,5 +1,5 @@
 ```{r 01-load-data, echo=F}
-#load(here('output','01-proteomics.rdata'))
+load(here('output','01-proteomics.rdata'))
 ```
 
 # Data processing
@@ -38,54 +38,37 @@ We filter out hits that contains missing values for either strains or replicates
 
 ```{r process-intensities}
 # Process intensities
-int_raw= ms1 %>% dplyr::select(uniprot=majority_protein_i_ds,starts_with("lfq")) %>% as.data.frame() %>% column_to_rownames('uniprot') %>% 
-            rename_with(everything(),.fn =gsub, pattern='lfq_intensity_', replacement='') 
+is.integer64 <- function(x) inherits(x, "integer64")
 
-int_norm= center_intensities(int_raw, center='median', tolog2=T) %>% 
+int_raw = ms1 %>% dplyr::select(uniprot=majority_protein_i_ds,starts_with("lfq")) %>% 
+            #mutate(across(where(is.integer64), ~as.integer(.))) %>% # make sure to use numeric and not integer
+            as.data.frame() %>% column_to_rownames('uniprot') %>%
+            rename_with(everything(),.fn=gsub, pattern='lfq_intensity_', replacement='') %>%
+            rename_with(.fn = str_to_upper)
+            
+
+int_md_norm = center_intensities(int_raw, center='median', tolog2=T) %>% 
           as.data.frame %>% rownames_to_column('uniprot') %>%
           as_tibble() %>%
           rename_with(everything(),.fn =gsub, pattern='lfq_intensity_', replacement='') %>% 
           rename_with(.fn = str_to_upper)
          
 # TRYING DIFFERENT NORMALIZATIONS SCHEME (NOT READY)
-#int_med_norm =  normalize_intensities(int_raw) 
-# library(affy)
-# library(missForest)
-#int_raw_noNA = int_raw[complete.cases(int_raw),]
-#int_raw_imp.log10 = missForest(xmis = log10(int_raw),variablewise=T,verbose=T,
-#                         xtrue=log10(int_raw_noNA))
-
-#int_loess_norm = affy::normalize.loess(log10(int_raw),verbose = F,log.it = F)
-#nrow(int_loess_norm) - length(find_na_rows(int_loess_norm,as.indices = T))
-# head(int_loess_norm)
-# int_loess_norm = normalizeBetweenArrays(log10(int_raw),method = 'cyclicloess')
-library(DEP)
- 
-# int_loess_norm = normalizeCyclicLoess(log2(int_raw))
-# int_med_norm = normalizeMedianAbsValues(log2(int_raw))
-# int_q_norm = normalizeQuantiles(log2(int_raw))
-# int_vsn_norm = normalizeVSN(log2(int_raw))
-# par(mfrow=c(3,2))
-# boxplot(log2(int_raw))
-# boxplot(int_loess_norm)
-# boxplot(int_med_norm)
-# boxplot(int_q_norm)
-# boxplot(int_vsn_norm)
-
+INT_NORM = normalize_intensities(int_raw,df.group)
+int_norm = int_md_norm 
 #compare_exp(log2(int_raw),int_loess_norm, all=T)
 
-
-long_int_norm = pivot_longer(int_norm , cols=-UNIPROT, values_to='log10_int',
+long_int_norm = pivot_longer(int_norm  , cols=-UNIPROT, values_to='int2use',
                              names_to = c('strain','bioR','techR','day'),
                              names_pattern = "([^_]+)_([^_]+)_([^_]+)_([^_]+)") %>%
-                group_by(strain,UNIPROT) %>% mutate(na_rep = sum.na(log10_int))
+                group_by(strain,UNIPROT) %>% mutate(na_rep = sum.na(int2use))
 
 # Intensities across strains  (default is average)
-int_by_strain = pivot_wider(long_int_norm,
+int_by_strain = pivot_wider(long_int_norm ,
               id_cols=UNIPROT,
               names_from = 'strain',
               names_glue = "{strain}",
-              values_from = "log10_int",
+              values_from = "int2use",
               values_fn=mean_
               )
 
@@ -93,7 +76,7 @@ na_by_strain = pivot_wider(long_int_norm,
               id_cols=UNIPROT,
               names_from = c('strain'),
               names_glue = "na_rep_{strain}",
-              values_from = "log10_int",
+              values_from = "int2use",
               values_fn=sum.na
               )
 
@@ -101,16 +84,14 @@ df_strains= left_join(int_by_strain,na_by_strain) %>%
   rowwise %>%
   mutate( na_strains = sum.na(c_across(cols = starts_with('lfq_int'))) )
 
-int_all = int_norm  %>% column_to_rownames('UNIPROT') %>% as.data.frame()
+int_all = int_norm   %>% column_to_rownames('UNIPROT') %>% as.data.frame()
 
 # Removing hits with missing values for more than one strain (using average intensities over replicates)
 ms2= df_strains %>% filter(na_strains < 1)
 int_filt_strains = ms2 %>% dplyr::select(-starts_with('na')) %>% column_to_rownames('UNIPROT') %>% as.data.frame()
 
-
 # Save processed & normalized intensities data
-write_delim(df_strains,here::here('output','proteomics-normalized-log10_intensities.tsv'),delim='\t')
-
+write_rds(df_strains,here::here('output','02-normalized-intensities.rds'))
 ```
 
 
