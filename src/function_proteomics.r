@@ -191,12 +191,12 @@ get_intensities = function(MS){
 }
 #int_all = get_intensities(ms1)
 
-get_long_intensities = function(intensities,int.col='lfq_intensity_'){
+get_long_intensities = function(intensities,int.col='lfq_intensity_',use_log10=T){
 
   long_int_all = intensities %>% 
     pivot_longer(cols=-uniprot,names_to=c('strain','bio','tech'), 
                  names_prefix = int.col, names_sep = '_',values_to = 'int') %>% 
-    group_by(uniprot,strain) %>% 
+    group_by(uniprot,strain) %>%
     # Calculate number of missing values across replicates
     mutate(log10_int = log10(int), log2_int = log2(int), n_na_rep=sum(is.na(int)),
            ratio_na_rep=mean(is.na(int)) ) %>%
