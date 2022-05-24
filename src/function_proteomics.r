@@ -91,11 +91,13 @@ transpose = function(df){
 
 #### 0 Read data ----------------------------------------------------------
 read_proteomics_results = function(datain=ms.resfile,zero.to.na=T){
-  MS = import(datain)
+  library(rio)
+  library(tidyverse)
+  MS = rio::import(datain)
   cat(sprintf("Total number of proteins hits: %s\n",nrow(MS)))
   
-  col.ratios = str_subset( colnames(MS), "Ratio") %>% str_replace("Ratio ","") %>% str_replace_all("/ ","/")
-  col.samples = str_subset( colnames(MS), "Intensity") %>% str_replace("Intensity ","int_")
+  col.ratios = stringr::str_subset( colnames(MS), "Ratio") %>% str_replace("Ratio ","") %>% str_replace_all("/ ","/")
+  col.samples = stringr::str_subset( colnames(MS), "Intensity") %>% str_replace("Intensity ","int_")
   cat("Sample names:\n",sprintf("%2s. %s\n",seq_along(col.samples),col.samples))
   colnames(MS) = c('uniprot','major_uniprot','protein_names','gene_names','fasta_header','pep','upep',
                    col.ratios, col.samples,
@@ -109,7 +111,7 @@ read_proteomics_results = function(datain=ms.resfile,zero.to.na=T){
 }
 
 read_maxquant = function(datain,zero.to.na=T, int_type='LFQ',pep_type='Peptides', sample_pattern="(wt|BTT[12]-[SL]L|(25|58))"){
-  MAXQ = import(datain,showProgress=T)
+  MAXQ = rio::import(datain,showProgress=T)
   cat(sprintf("Total number of proteins hits: %s\n",nrow(MAXQ)))
   COLS = colnames(MAXQ)
   KEYS = c("Protein IDs","Majority protein IDs","Gene names","Number of proteins","Peptides","Razor + unique peptides","Unique peptides")
@@ -122,20 +124,20 @@ read_maxquant = function(datain,zero.to.na=T, int_type='LFQ',pep_type='Peptides'
   
   # LFQ: 
   # iBAQ: Σ intensity/#theoretical peptides
-  sample_names =  str_subset( COLS, "^Identification type") %>% str_replace('Identification type ' ,"")
-  col_int = str_subset( COLS, paste0("^",int_type))
-  col_pep = str_subset( COLS, paste0(peptide_type," "))
+  sample_names =  stringr::str_subset( COLS, "^Identification type") %>% str_replace('Identification type ' ,"")
+  col_int = stringr::str_subset( COLS, paste0("^",int_type))
+  col_pep = stringr::str_subset( COLS, paste0(peptide_type," "))
 
-  nsel = sum( str_count(sample_names,sample_pattern) )
-  selected = str_detect(sample_names,sample_pattern)
+  nsel = sum( stringr::str_count(sample_names,sample_pattern) )
+  selected = stringr::str_detect(sample_names,sample_pattern)
   sample_names[selected] = paste0(sample_names[selected], " (x)")
   cat("Sample names:\n",
       ifelse(nsel>0,sprintf("...selecting %s samples (x)...\n",nsel),""),
       sprintf("%2s. %s\n",seq_along(sample_names),sample_names))
   
   if(nsel>0){
-    col_int = str_subset(col_int,sample_pattern)
-    col_pep = str_subset(col_pep,sample_pattern)
+    col_int = stringr::str_subset(col_int,sample_pattern)
+    col_pep = stringr::str_subset(col_pep,sample_pattern)
   }
 #  colnames(MS) = c('uniprot','major_uniprot','protein_names','gene_names','fasta_header','pep','upep',
 #                   col.ratios, col.samples,
@@ -149,7 +151,7 @@ read_maxquant = function(datain,zero.to.na=T, int_type='LFQ',pep_type='Peptides'
   maxq = MAXQ %>% 
           dplyr::select(all_of(c(KEYS,col_int,col_pep))) %>% 
           janitor::clean_names(case="snake",parsing_option=1) %>% 
-          rename_with(.fn = tolower)
+          dplyr::rename_with(.fn = tolower)
   
   return(maxq)
 }
@@ -159,14 +161,14 @@ read_maxquant = function(datain,zero.to.na=T, int_type='LFQ',pep_type='Peptides'
 ## 1 Filter data ----------------------------------------------------------
 filter_hits = function(MS0=ms0,id='majority_protein_i_ds',np=2){
   # Mark contaminants
-  MS0$is_contaminated = str_detect(MS0[[id]],"CON")
+  MS0$is_contaminated = stringr::str_detect(MS0[[id]],"CON")
   # Mark reverse sequenced
-  MS0$is_reversed= str_detect(MS0[[id]],"REV")
+  MS0$is_reversed= stringr::str_detect(MS0[[id]],"REV")
   
   # Mark proteins with at least 2 unique peptides
   MS0$has_upep = !is.na(MS0$unique_peptides) & MS0$unique_peptides >= np
   # Mark proteins that are not distinguished
-  MS0$has_many = str_detect(MS0[[id]],";")
+  MS0$has_many = stringr::str_detect(MS0[[id]],";")
   MS1 = MS0 %>% 
     dplyr::filter(!is_contaminated & !is_reversed & has_upep & !has_many)
   cat("Discarding problematic hits...\n")
@@ -196,7 +198,7 @@ get_long_intensities = function(intensities,int.col='lfq_intensity_'){
                  names_prefix = int.col, names_sep = '_',values_to = 'int') %>% 
     group_by(uniprot,strain) %>% 
     # Calculate number of missing values across replicates
-    mutate(log10_int = log10(int), n_na_rep=sum(is.na(int)),
+    mutate(log10_int = log10(int), log2_int = log2(int), n_na_rep=sum(is.na(int)),
            ratio_na_rep=mean(is.na(int)) ) %>%
     # Calculate number of strains with missing value for each hit
     group_by(uniprot) %>%
@@ -282,13 +284,12 @@ remove_NA_rows = function(INT,ns=3,nm=2){
 center_intensities = function(int.raw, center='median', tolog2=T ){
 
   if( tolog2 ){
-    cat("Normalize log2-transformed intensities to the ",center,"...\n")
+    cat("Normalize log2-transformed intensities by the samples ",center,"...\n")
     # Transform positive intensities to fold-change (log2)
-    cat("Transform to log2 intensities...\n")
     INT = log2(int.raw+1) %>% as.matrix
     INT[!is.finite(INT)] = NA
   }else{
-    cat("Normalize raw intensities to the ",center,"...\n")
+    cat("Normalize raw intensities to the samples ",center,"...\n")
     INT = int.raw  
   }
 
@@ -307,28 +308,29 @@ center_intensities = function(int.raw, center='median', tolog2=T ){
 }
 #int.norm=center_intensities(int, tolog2=T, center='median')
 
-normalize_intensities = function(int,design){
+normalize_intensities = function(int,design=df.group){
 
   library(NormalyzerDE)
+  m.int = int %>% mutate(across(everything(),as.numeric)) %>% as.matrix()
   experiment <- SummarizedExperiment::SummarizedExperiment(
-    assays=list(raw=as.matrix(log2(int))),
-    colData=design,
+    assays=list(raw = m.int ),
+    colData = design,
     metadata = list(sample='sample',group='strain')
   )  
-  #expmat_file = here('output','raw-lfq-8-strains.tsv')
-  #write_delim(int_raw,file = expmat_file, delim = '\t')
-
-  #design_file = here::here('output','design-8-strains.tsv')
-  #design = df.group %>% summarize(across(everything(),str_to_lower))
-  #write_delim(design,file = design_file, delim = '\t')
   #source("https://raw.githubusercontent.com/ByrumLab/proteiNorm/master/normFunctions.R")
-  input <- getVerifiedNormalyzerObject('normalized_data', summarizedExp = experiment)
-  normResults <- normMethods(noLogTransform = T,input)
-  normResultsWithEval <- analyzeNormalizations(normResults)
-  jobDir <- setupJobDir("normalized_data", here('output'))
-  #writeNormalizedDatasets(normResultsWithEval, jobDir)
-  generatePlots(normResultsWithEval,jobDir)
-
+  
+  norm <- getVerifiedNormalyzerObject('normalized_data', experiment)
+  norm_res <- normMethods(norm)
+  norm_res_eval <- analyzeNormalizations(norm_res)
+  #generatePlots(normperf)
+  #exp_normloess =SummarizedExperiment::SummarizedExperiment(assays = list(norm=NORM@normalizations$CycLoess), colData=df.group, metadata=list(sample='sample',group='strain'))
+  #input <- getVerifiedNormalyzerObject('loess_normalized', summarizedExp = exp_normloess)
+  # nst <- NormalyzerStatistics(experiment, logTrans=FALSE)
+  # combination <- pairwise_condition(conditions = df.group$strain) %>% mutate( comparison=paste0(cond1,"-",cond2))
+  # nst <- calculateContrasts(nst, combination$comparison, condCol="strain", leastRepCount=2)
+  # annotDf <- generateAnnotatedMatrix(nst)
+  # generateStatsReport(nst,jobDir = '.',jobName = 'loess_strain')
+  return(norm_res_eval)
 }
 
 ## 3 Correlation of intensities ----------------------------------------------------------
@@ -408,9 +410,30 @@ draw_scatterplots = function(datain=ms2){
 
 
 
-
-compare_normalization = function(rawexp){
+norm_barplot = function(nr=NORM){
   
+  library(NormalyzerDE)
+  if(missing(nr)){
+    stop("run first normalize_intensities(INT,DESIGN)")
+  }
+  nds <- nds(nr)
+
+  methodlist <- normalizations(nr)
+  filterED <- sampleReplicateGroups(nds)
+  filterrawdata <- filterrawdata(nds)
+  
+}
+
+
+compare_normalization = function(INT = int_raw, DESIGN = df.group){
+  
+  NORM = normalize_intensities(INT,DESIGN)
+  boxplot(NORM@ner@avgcvmem)
+  boxplot(NORM@ner@avgmadmem)
+  boxplot(NORM@ner@avgvarmem)
+  
+  plot(log2(INT[,1]),log2(INT[,2]))
+  points(NORM@normalizations$GI[,1],NORM@normalizations$GI[,2],col='red')
   library(limma)
   norm_loess = limma::normalizeCyclicLoess(rawexp)
   norm_median = limma::normalizeMedianAbsValues(rawexp)
