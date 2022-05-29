@@ -322,6 +322,7 @@ normalize_intensities = function(int,design=df.group){
   norm <- getVerifiedNormalyzerObject('normalized_data', experiment)
   norm_res <- normMethods(norm)
   norm_res_eval <- analyzeNormalizations(norm_res)
+  
   #generatePlots(normperf)
   #exp_normloess =SummarizedExperiment::SummarizedExperiment(assays = list(norm=NORM@normalizations$CycLoess), colData=df.group, metadata=list(sample='sample',group='strain'))
   #input <- getVerifiedNormalyzerObject('loess_normalized', summarizedExp = exp_normloess)
@@ -432,12 +433,30 @@ compare_normalization = function(INT = int_raw, DESIGN = df.group){
   boxplot(NORM@ner@avgmadmem)
   boxplot(NORM@ner@avgvarmem)
   
+  norm_methods = names(NORM@normalizations)
+  NORM@normalizations[[n]]$normalization = n
+  
+  df_raw = pivot_longer(data = as_tibble(int_raw), cols = everything(), 
+                        names_to = 'sample', values_to ='raw_int')
+
+  norm_list = list()
+  for(n in norm_methods ){
+    norm_list[[n]] = pivot_longer(data = as_tibble(NORM@normalizations[[n]]),  
+                                  cols = everything(),
+                                  names_to = 'sample', values_to ='norm_int') %>% 
+                     mutate(norm = n )
+  }
+  df_norm = bind_rows(norm_list) %>% left_join(DESIGN) %>% left_join(df_raw)
+  ggplot(df_norm,aes(x=norm_int)) + 
+    geom_density(aes(col=strain),show.legend = T) + 
+    geom_density(aes(col=strain),show.legend = T) + 
+    facet_wrap(~norm,nrow=2,ncol =4) 
+  
+  
   plot(log2(INT[,1]),log2(INT[,2]))
-  points(NORM@normalizations$GI[,1],NORM@normalizations$GI[,2],col='red')
+  points(NORM@normalizations$Quantile[,1],NORM@normalizations$Quantile[,2],col='red')
+  
   library(limma)
-  norm_loess = limma::normalizeCyclicLoess(rawexp)
-  norm_median = limma::normalizeMedianAbsValues(rawexp)
-  norm_quantile = limma::normalizeQuantiles(rawexp)
   
   n = ncol(rawexp)/2
   s = colnames(rawexp)
@@ -515,7 +534,7 @@ compare_conditions = function(input, id_col = "UNIPROT",
 
   cont.matrix <- makeContrasts(contrasts = apply(comparison,1,paste0,collapse='-'), levels = design)
   fit2 <- contrasts.fit(fit, cont.matrix)
-  fit3 <- eBayes(fit2)
+  fit3 <- eBayes(fit2,trend=T,robust=T,lfc=2)
   return(fit3)
 }
 
