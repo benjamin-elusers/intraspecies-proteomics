@@ -1,5 +1,6 @@
-```{r 01-load-data, echo=F}
-load(here('output','01-proteomics.rdata'))
+```{r load-data-proteomics, echo=F}
+chap_cur=3
+load(here('output',sprintf('%02d-proteomics.rdata',chap_cur-1)))
 ```
 
 # Data processing
@@ -91,10 +92,10 @@ ms2= df_strains %>% filter(na_strains < 1)
 int_filt_strains = ms2 %>% dplyr::select(-starts_with('na')) %>% column_to_rownames('UNIPROT') %>% as.data.frame()
 
 # Save processed & normalized intensities data
-write_rds(df_strains,here::here('output','02-normalized-intensities.rds'))
+write_rds(df_strains,here::here('output',sprintf("%02d-normalized-intensities.rds",chap_cur)))
 ```
 
 
 ```{r 02-save-data, echo=F}
-save.image(here('output','02-processed-data.rdata'))
+save.image(here('output',sprintf("%02d-processed-data.rdata",chap_cur)))
 ```

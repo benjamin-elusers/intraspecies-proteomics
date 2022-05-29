@@ -1,5 +1,6 @@
-```{r 00-load-data, echo=F}
-load(here::here('output','00-input-data.rdata'))
+```{r load-data-yeast, echo=F}
+chap_cur=02
+load(here::here('output',sprintf("%02d-yeast-data.rdata",chap_cur-2)))
 ```
 # Proteomics experiment
 
@@ -140,5 +141,5 @@ of the yeast *S. cerevisiae* S288C**
 
 
 ```{r 01-save-data, echo=F}
-save.image(here('output','01-proteomics.rdata'))
+save.image(here('output',sprintf("%02d-proteomics.rdata",chap_cur)))
 ```

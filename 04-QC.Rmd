@@ -1,5 +1,6 @@
-```{r 02-load-data, echo=F}
-#load(here('output','02-processed-data.rdata'))
+```{r load-data-processed, echo=F}
+chap_cur=04
+#load(here('output',sprintf("%02d-processed-data.rdata",chap_cur-1)))
 ```
 
 # Quality control {#qc}
@@ -14,15 +15,15 @@ In addition, we will also observe in how many replicates each hit was quantified
 intensities = ms0 %>% dplyr::select(uniprot=majority_protein_i_ds,starts_with("lfq")) 
 
 # Convert intensities to long format 
-long_int_all = get_long_intensities(intensities)
+long_int_all = get_long_intensities(intensities) %>% mutate(int2use = log10_int)
+
 
 # Get intensities for ubiquitously detected hits between strains
 long_intensities = long_int_all %>% 
   filter(ratio_na_rep<1) %>% # At least one peptide in one replicate from a each strain
   group_by(strain) %>% mutate(nprot = n_distinct(uniprot)) %>% 
   hablar::convert(n_na_rep=int(n_na_rep)) %>% 
-  arrange(n_na_rep) %>% 
-  mutate(int2use = log10_int)
+  arrange(n_na_rep)
 
 # Get median expression and # proteins per strain as a function of NAs in replicates
 stats_per_strain=long_intensities %>% 
@@ -172,6 +173,6 @@ make_pca(na.omit(int_all_scaled), with_labels=T,col_by_group=1:4)
 ```
 
 
-```{r 03-save-data, echo=F}
-save.image(here('output','03-quality-control.rdata'))
+```{r save-data-qc, echo=F}
+save.image(here('output',sprintf("%02d-quality-control.rdata",chap_cur)))
 ```

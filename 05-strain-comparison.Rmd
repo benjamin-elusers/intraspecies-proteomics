@@ -1,5 +1,6 @@
-```{r 03-load-data, echo=F}
-#load(here('output','03-quality-control.rdata'))
+```{r load-data-qc, echo=F}
+chap_cur=05
+#load(here('output',sprintf("%02d-quality-control.rdata",chap_cur-1)))
 ```
 
 # Strains expression comparison
@@ -40,6 +41,6 @@ make_pca(na.omit(int_scaled_strains), with_labels=F,col_by_group=1:2)
 ```
 
 
-```{r 04-save-data, echo=F}
-save.image(here('output','04-strain-comparison.rdata'))
+```{r save-data-comparison, echo=F}
+save.image(here('output',sprintf("%02d-strain-comparison.rdata",chap_cur)))
 ```

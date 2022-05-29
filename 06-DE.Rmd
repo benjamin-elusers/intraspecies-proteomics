@@ -1,5 +1,6 @@
-```{r 04-load-data, echo=F}
-#load(here('output','04-strain-comparison.rdata'))
+```{r load-data-comparison, echo=F}
+chap_cur=06
+#load(here('output',sprintf("%02d-strain-comparison.rdata",chap_cur-1)))
 ```
 
 # Differential Expression
@@ -96,20 +97,6 @@ treemap(df_dfe_annot, index=c("BIOPROCESS_all", "comparison"), vSize='regulated'
 treemap(df_dfe_annot, index=c("BIOPROCESS_all", "GENENAME"), vSize="regulated", vColor="EffectSize", type="value",)
 ```
 
-## Interactive tree map
-```{r interactive-treemap, echo = FALSE}
-# Interactive treemap
-shinyAppDir(
-  itreemap(df_dfe_annot,
-         index=c("BIOPROCESS_all", "GENENAME"),
-         vSize="regulated", vColor="EffectSize",
-         type="value"),
-    options=list(
-    width="100%", height=550
-  )
-)
-```
-
 ```{r 05-save-data, echo=F}
-save.image(here('output','05-differential-expression.rdata'))
+save.image(here('output',sprintf("%02d-differential-expression.rdata",chap_cur)))
 ```
