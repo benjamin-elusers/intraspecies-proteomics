@@ -66,6 +66,8 @@ ft_dt = df_dfe_annot %>%
       `regulated` = color_tile("white", "gray")
     )
 ) %>% as.datatable(
+        width = NULL, height = NULL,
+        rownames = FALSE, caption = NULL,
         options = list(
             fixedHeader=T,
             paging = TRUE, pageLength = 20,  ## paginate the output and #rows for each page
