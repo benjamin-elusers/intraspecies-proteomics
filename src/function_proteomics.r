@@ -80,14 +80,14 @@ get_group = function(sample_names,sep="_",grp_num=1){
   }
   return(group)
 }
-
-transpose = function(df){ 
-  t_df = as.matrix(df) %>% as_tibble() %>%
-    rownames_to_column() %>%
-    pivot_longer(-rowname, 'variable', 'value') %>%
-    pivot_wider(names_from = variable, rowname)
-  return(t_df)
-}
+# 
+# transpose = function(df){ 
+#   t_df = as.matrix(df) %>% as_tibble() %>%
+#     rownames_to_column() %>%
+#     pivot_longer(-rowname, 'variable', 'value') %>%
+#     pivot_wider(names_from = c(variable,value), rowname)
+#   return(t_df)
+# }
 
 #### 0 Read data ----------------------------------------------------------
 read_proteomics_results = function(datain=ms.resfile,zero.to.na=T){
@@ -534,7 +534,7 @@ compare_conditions = function(input, id_col = "UNIPROT",
 
   cont.matrix <- makeContrasts(contrasts = apply(comparison,1,paste0,collapse='-'), levels = design)
   fit2 <- contrasts.fit(fit, cont.matrix)
-  fit3 <- eBayes(fit2,trend=T,robust=T,lfc=2)
+  fit3 <- eBayes(fit2,trend=T,robust=T)
   return(fit3)
 }
 
