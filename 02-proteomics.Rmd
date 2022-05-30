@@ -1,5 +1,6 @@
 ```{r load-data-yeast, echo=F}
 chap_cur=02
+chap_num = sprintf("%02d-",chap_cur)
 load(here::here('output',sprintf("%02d-yeast-data.rdata",chap_cur-2)))
 ```
 # Proteomics experiment
@@ -135,11 +136,13 @@ NDUP = sum(ms0$number_of_proteins==2 & is_protein_group)
    - **`r NSINGLE`** unique proteins
    - **`r NMULTI`** multiple proteins (with `r NMULTI` duplicated pairs)
 
-**In this proteomics experiment, a large number of proteins were identified and quantified.
-The quantified cellular proteome roughly amounts to half of the reference proteome sequences
-of the yeast *S. cerevisiae* S288C**
+**In this proteomics experiment, a large number of proteins were identified and quantified.**
+
+_The quantified cellular proteome roughly amounts to half of the reference proteome sequences
+of the yeast *S. cerevisiae* S288C and close 70% of the cytoplasmic proteins
+detectable through MS-profiling of a whole-cell lysate._
 
 
-```{r 01-save-data, echo=F}
-save.image(here('output',sprintf("%02d-proteomics.rdata",chap_cur)))
+```{r save-data-proteomics, echo=F}
+save.image(here('output',paste0(chap_num,"proteomics.rdata")))
 ```
