@@ -1,79 +1,73 @@
----
-title: "RNA-seq, Ribo-seq and proteomic "
-date: "`r format(Sys.time(), 'Last Modified: %d-%b-%Y %R %p')`"
-subtitle: "How does gene expression vary at different expression scales?"
-author: "[Elie Teyssonniere](https://github.com/elielink/)"
-mail: "elieteyssonniere@gmail.com"
-github: "elielink"
-home: "https://github.com/elielink/"
-output:
-  rmdformats::downcute:
-    self_contained: true
-    thumbnails: false
-    lightbox: true
-    gallery: true
-    highlight: tango
-    code_download: true
-    code_folding: hide
-    fig_caption: yes
-    keep_md: yes
-    toc_depth: 3
-    toc_float:
-      toc_collapsed: true
-    number_sections: true
-    theme: lumen
-  editor_options: 
-    chunk_output_type: console
----
+```{r load-setup-data, echo=F}
+chap_cur=01
+chap_num = sprintf("%02d-",chap_cur)
+load(here::here('output',sprintf("%02d-yeast-data.rdata",chap_cur-1)))
+```
 
-```{r setup, include=FALSE, echo=F, warnings=F, message=F}
-knitr::opts_chunk$set(echo = T, collapse = T, cache.lazy = F,autodep = T)
-suppressPackageStartupMessages({
-  library(xfun)
-  # Load  package ---------------------------------------
-  dep.pkg = c("corrplot",
-"ggtree",
-"gtools",
-"pbapply",
-"gridExtra",
-"GGally",
-"dplyr",
-"performance", 
-"ggplot2",
-"ggfortify",
-"tidyverse",
-"gplots",
-"data.table",
-"ggpubr",
-"ggcorrplot",
-"plotly",
-"ggsignif",
-'ape')
+# Transcriptomics {.tabset .tabset-pills}
 
-  xfun::pkg_attach2(dep.pkg)
+## Summary
 
-  source(here("src","functions_transcriptomics.R"))
+During evolution, mutations arise in genomes, potentially affecting every gene
+and protein at every site over time. Degrees of sequence divergence within
+populations and between species reflect the interplay between several
+interconnected constraints (e.g., genomic, transcriptional, functional,
+biophysical, structural, environmental…) and underlie phenotypic diversity and
+organism fitness. Protein expression is the main determinant of a protein’s
+sequence conservation (e.g., the more a gene is expressed, the more its sequence
+is conserved). Although this expression-conservation correlation is well
+established, its mechanistic origin is not well understood.
 
-})
-# turn off annoying messages from dplyr::summarise
-options(dplyr.summarise.inform = FALSE)
-``` 
+In this perspective, analyzing variation of gene expression across every layer
+could reveal the key processes driving evolution among several yeast (*S. cerevisiae*) 
+isolates sharing an almost identical genetic background, except for
+newly acquired mutations, notably in protein-coding genes (e.g. Single
+Nucleotide Variations).
 
-# General dataset summary {.tabset .tabset-pills}
+Gene expression is a multi-layered phenomenon in which variations occur 
+differently at each step of the protein synthesis and life
+(transcription, translation and protein abundance). The exploration of each
+of these steps is therefore essential to define the constraints affecting the
+final protein abundance. Given this, we sought to understand how individuals
+differ in terms of translational regulation and if the translational variation
+is related to the transcriptional variation. 
+
+Therefore, we performed a joint exploration of RNA-seq, ribosome and proteomics
+profiling on 8 natural *Saccharomyces cerevisiae* yeast isolates with 
+widely diverse genetic and ecologic origins. We found that the evolutionary
+constraints on gene expression showed different magnitudes depending on the
+expression layer. Specifically, expression variations tended to be 10% lower at
+the translational level, which was related to a phenomenon called
+post-transcriptional buffering. This phenomenon was more likely to affect some
+specific genes such as essential genes as well as genes related to protein
+complexes. Surprisingly, genes being preferentially affected by the
+post-transcriptional buffering tended to be less expressed than the genes not
+affected by this phenomenon. Together, these results highlight that variations
+in gene expression were shaped differently depending on the expression level and
+multiple factors, including certain functional and physical constraints. We have
+also been collecting proteomics data for these 8 isolates, which will allow us
+to assess with high confidence the balance between biophysics (in particular
+abundance) versus function on protein evolution.
 
 
 ## Our datasets
 
 **_RNA-seq & Ribo-seq of 8 natural isolates of Saccharomyces cerevisiae_**
 
-We performed both ribosome profiling and RNA sequencing on eight _S. cerevisiae_ natural isolates coming from very diverse ecological environments and being genetically strongly different ([Peter et al., 2018](https://www.nature.com/articles/s41586-018-0030-5)). These isolates were cultivated in Synthetic Complete (SC) up to mid-log phase, harvested and flash-frozen. The RNA-seq and Ribo-seq experiment was performed in collaboration with the Riken institute in Japan.
+We performed both ribosome profiling and RNA sequencing on eight _S. cerevisiae_
+natural isolates coming from very diverse ecological environments and being
+genetically strongly different ([Peter et al.,2018](https://www.nature.com/articles/s41586-018-0030-5)).
+These isolates were cultivated in Synthetic Complete (SC) up to mid-log phase, 
+harvested and flash-frozen. The RNA-seq and Ribo-seq experiment was performed in
+collaboration with the Riken institute in Japan.
+
 ```{r load-rna-ribo-data}
 ## Our dataset
 isolates = c('CPI','CMP','AMH','CQC','BPL','BTT','BED','BAN')
 RNA_seq_data = readRDS(here("data",'RNA_seq.RDS'))
 Ribo_seq_data = readRDS(here("data",'Ribo_seq.RDS'))
 n = nrow(RNA_seq_data)
-strains = fread('strains.csv',data.table = F)
+strains = fread(here("data",'strains.csv'),data.table = F)
 strains = strains[strains$`Standardized name`%in%isolates,c(1,2,3,4,9,10,11,16)]
 library(DT)
 datatable(strains, rownames = FALSE, caption = NULL,
@@ -81,7 +75,10 @@ datatable(strains, rownames = FALSE, caption = NULL,
                width = NULL, height = NULL)
 ```
 
-Our data encompassed **`r n`** genes. The data was normalized using TPM normalization where for each gene in each isolate, we divided the raw count by the ORF length and we applied a per million factor (total read count / 1,000,000)
+Our data encompassed **`r n`** genes. The data was normalized using TPM
+normalization where for each gene in each isolate, we divided the raw count by
+the ORF length and we applied a per million factor (total read count /
+1,000,000)
 
 
 ```{r corr-rna-ribo}
@@ -94,10 +91,18 @@ p2=ggcorr(Ribo_seq_data ,method = c("everything", "spearman"), label = T, label_
 grid.arrange(p1,p2, ncol=2)
 ```
 
-We also calculated a Translation efficiency value which correspond, for each gene in each isolate, to the Ribo-seq TPM value divided by the RNA-seq TPM value. In brief, this represents how well a transcript will be used for translation.
+We also calculated a Translation efficiency value which correspond, for each
+gene in each isolate, to the Ribo-seq TPM value divided by the RNA-seq TPM
+value. In brief, this represents how well a transcript will be used for
+translation.
 
 ## Overlap with proteomic
 
 ```{r overlap-proteomics}
 
+```
+
+
+```{r save-transcriptomics, echo=F}
+save.image(here::here('output',paste0(chap_num,"transcriptomics.rdata")))
 ```
