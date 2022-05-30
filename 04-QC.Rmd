@@ -1,3 +1,8 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 ```{r load-data-processed, echo=F}
 chap_cur=04
 #load(here('output',sprintf("%02d-processed-data.rdata",chap_cur-1)))
@@ -5,18 +10,21 @@ chap_cur=04
 
 # Quality control {#qc}
 
+First, we retrieve the LFQ-intensities of each protein hit (label-free quantitation).
+
+```{r int-lfq}
+# get lfq-peptide intensities (lfq=label-free quantitation) 
+intensities = ms0 %>% dplyr::select(uniprot=majority_protein_i_ds,starts_with("lfq")) 
+# Convert intensities to long format 
+long_int_all = get_long_intensities(intensities) %>% mutate(int2use = log10_int)
+```
+
 ## Boxplot of sample raw intensities
 
-Second, we want to inspect the distribution of peptide intensities between strains.
+We want to inspect the distribution of peptide intensities between strains.
 In addition, we will also observe in how many replicates each hit was quantified.
 
 ```{r boxplot-int_ub, echo=F, fig.cap='Distribution of expression for ubiquitous hits (i.e. detected in all strains)'}
-# get lfq-peptide intensities (lfq=label-free quantitation) 
-intensities = ms0 %>% dplyr::select(uniprot=majority_protein_i_ds,starts_with("lfq")) 
-
-# Convert intensities to long format 
-long_int_all = get_long_intensities(intensities) %>% mutate(int2use = log10_int)
-
 
 # Get intensities for ubiquitously detected hits between strains
 long_intensities = long_int_all %>% 
@@ -43,15 +51,18 @@ bp=ggplot(data=long_intensities,mapping=aes(y=int2use,x=toupper(strain))) +
 plot(bp)
 
 BY_STRAINS = group_by(long_intensities,strain=toupper(strain)) %>% 
-             summarize(median_exp=median_(int2use))
+             summarize(median_exp=median_(int2use)) %>%
+             data.table::transpose(make.name = "strain", keep.names = "strain name") 
+
 BY_REP = group_by(long_intensities, n_replicates=as.integer(4-n_na_rep)) %>% 
-  summarize(median_exp=median_(int2use)) 
+  summarize(median_exp=median_(int2use)) %>% 
+  data.table::transpose(make.name = 'n_replicates',keep.names = '# replicates')
 
 library(kableExtra)
-TAB_STRAINS_EXP = kbl( transpose(BY_STRAINS) ,digits = 2) %>%
+TAB_STRAINS_EXP = kbl( BY_STRAINS ,digits = 2) %>%
   kable_paper("striped", full_width = F) %>% kable_styling()
 
-TAB_REP_EXP = kbl( transpose(round(BY_REP,1)) ) %>%
+TAB_REP_EXP = kbl( BY_REP, digits=2 ) %>%
   kable_paper("striped", full_width = F) %>% kable_styling()  
 
 ```
@@ -92,22 +103,27 @@ stat_per_miss = long_int_all %>%
   mutate(n_strains= nstrains-n_na_strains) %>%
   distinct() %>% 
   ungroup() %>%
+  arrange(n_strains) %>%
+  mutate( f_exp = 100*nprot/sum(nprot),
+          pc_exp = sprintf("%.1f%%",f_exp),
+          pc_cum = sprintf("%.1f%%",cumsum(f_exp))
+          ) %>%
   arrange(desc(n_strains)) %>%
-  mutate( f_exp = sprintf("%.1f%%",100*cumsum(nprot)/sum(nprot)) ) %>%
-  dplyr::select(n_strains,n_na_strains,nprot,f_exp)
+  mutate(pc_cum_desc = sprintf("%.1f%%",cumsum(f_exp))) %>%
+  dplyr::select(nprot,n_strains,pc_exp,pc_cum,pc_cum_desc)
 
 
-TAB_EXP_STRAIN = kbl(stat_per_miss,digits = 2) %>%
+TAB_EXP_STRAIN = kbl(stat_per_miss,digits = 2, align = 'l',
+                     col.names=c('# proteins','# expressing strains','% quantified','cum. %','cum. % (decreasing)')) %>%
   kable_paper("striped", full_width = F) %>% kable_styling()
 
 ```
 
 `r TAB_EXP_STRAIN`
 
-**Similarly, we found a lower peptide intensity when a hit was found 
-across less strains. Nevertheless, almost two thirds of the hits were detected in all strains.
-Up to 87% of the hits were expressed across at least 5 out of 8 strains.**
-
+**Proteins expressed across less strains have lower median peptide intensity.**
+Nevertheless, almost two thirds (*64.3%*) of the protein hits were detected in all strains.
+About 87% protein hits were expressed in the majority of strains (at least 5 out of 8 strains).
 
 ## Number of missing values in samples
 
@@ -130,6 +146,54 @@ ComplexUpset::upset(data=as.data.frame(1-na_int[,-1]),intersect=samples,
          ),
 )
 
+```
+
+
+## Coefficient of variations
+
+```{r boxplot-cv, echo=F, fig.cap='Coefficient of variations (%) in each sample and per strains before and after processing data (filtering and normalization)'}
+CV_raw= long_int_all %>%
+    group_by(uniprot,strain,bio) %>% mutate(cv_bio = 100*sd_(int2use)/mean_(int2use)) %>%
+    group_by(uniprot,strain) %>% mutate(cv_strain = 100*sd_(int2use)/mean_(int2use)) %>% 
+    dplyr::select(uniprot,strain,bio,cv_bio,cv_strain) %>% distinct() %>%
+    mutate(biological_rep=paste0(strain,"-",bio)) %>% drop_na()
+
+cv1 = ggplot(CV_raw) + 
+  geom_violin(aes(y=cv_strain,x=strain,fill=strain),
+              trim=T,draw_quantiles = c(0.25,0.75), na.rm = T,show.legend = F) + 
+  theme(axis.text.x = element_text(angle=90,vjust = 0.6)) + ylab('%CV (raw) within strains')
+cv2 = ggplot(CV_raw) + 
+  geom_violin(aes(y=cv_bio,x=biological_rep,fill=biological_rep),
+              trim=T,draw_quantiles = c(0.25,0.75), na.rm = T, show.legend = F) +
+  theme(axis.text.x = element_text(angle=90,vjust = 0.6)) + ylab('%CV (raw) within biological replicates')
+
+CV1_stats = CV_raw %>% group_by(strain) %>% summarize(min=min(cv_strain),q25=q25(cv_strain), md=median_(cv_strain), q75=q75(cv_strain), max=max(cv_strain))
+CV2_stats = CV_raw %>% group_by(strain) %>% summarize(min=min(cv_bio),q25=q25(cv_bio), md=median_(cv_bio), q75=q75(cv_bio), max=max(cv_bio))
+
+CV_norm= long_int_norm %>%
+    group_by(uniprot,strain,bio) %>% mutate(cv_bio = 100*sd_(int2use)/mean_(int2use)) %>%
+    group_by(uniprot,strain) %>% mutate(cv_strain = 100*sd_(int2use)/mean_(int2use)) %>% 
+    dplyr::select(uniprot,strain,bio,cv_bio,cv_strain) %>% distinct() %>%
+    mutate(biological_rep=paste0(strain,"-",bio)) %>% drop_na()
+
+cv3 = ggplot(CV_norm) + 
+  geom_violin(aes(y=cv_strain,x=strain,fill=strain),
+              trim=T,draw_quantiles = c(0.25,0.75), na.rm = T,show.legend = F) + 
+  theme(axis.text.x = element_text(angle=90,vjust = 0.6)) + ylab('%CV (normalized) within strains')
+cv4 = ggplot(CV_norm) + 
+  geom_violin(aes(y=cv_bio,x=biological_rep,fill=biological_rep),
+              trim=T,draw_quantiles = c(0.25,0.75), na.rm = T, show.legend = F) +
+  theme(axis.text.x = element_text(angle=90,vjust = 0.6)) + ylab('%CV (normalized) within biological replicates')
+
+plot((cv1 | cv2) / (cv3 | cv4))
+
+CV3_stats = CV_norm %>% group_by(strain) %>% summarize(min=min(cv_strain),q25=q25(cv_strain), md=median_(cv_strain), q75=q75(cv_strain), max=max(cv_strain))
+CV4_stats = CV_norm %>% group_by(strain) %>% summarize(min=min(cv_bio),q25=q25(cv_bio), md=median_(cv_bio), q75=q75(cv_bio), max=max(cv_bio))
+
+kbl(CV1_stats)
+kbl(CV2_stats)
+kbl(CV3_stats)
+kbl(CV4_stats)
 ```
 
 
