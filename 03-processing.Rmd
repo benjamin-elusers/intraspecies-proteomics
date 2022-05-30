@@ -1,6 +1,6 @@
 ```{r load-data-proteomics, echo=F}
-chap_cur=3
-load(here('output',sprintf('%02d-proteomics.rdata',chap_cur-1)))
+chap_cur=03
+#load(here('output',sprintf('%02d-proteomics.rdata',chap_cur-1)))
 ```
 
 # Data processing
