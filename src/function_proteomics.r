@@ -334,7 +334,74 @@ normalize_intensities = function(int,design=df.group){
   return(norm_res_eval)
 }
 
-## 3 Correlation of intensities ----------------------------------------------------------
+# 3 Variations of intensities --------------------------------------------------
+calculate_cv = function(intensity_long, by_bio=T){
+  
+  CV = intensity_long %>%
+    drop_na() %>%
+    group_by(uniprot,strain) %>% mutate(cv_strain = 100*sd_(int2use)/mean_(int2use))
+  
+  if(by_bio){
+    CV = CV %>% 
+      mutate(biological_rep=paste0(strain,'-',bio)) %>%
+      group_by(uniprot,biological_rep) %>% mutate(cv_biorep = 100*sd_(int2use)/mean_(int2use)) %>%
+      dplyr::select(uniprot,strain,cv_strain,biological_rep,cv_biorep) %>% distinct()
+  }else{
+    CV = CV %>% dplyr::select(uniprot,strain,cv_strain) %>% distinct()
+  }
+  
+  return(CV)
+}
+
+draw_boxcv = function(CV, by_bio=T,plot=F){
+  
+  if( missing(CV) ){
+    stop("run calculate_cv() on intensity dataframe in long format...")
+  }
+  
+  cv1 = ggplot(CV) + 
+    geom_violin(aes(y=cv_strain,x=strain,fill=strain),
+                trim=T,draw_quantiles = c(0.25,0.75), na.rm = T,show.legend = F) + 
+    theme(axis.text.x = element_text(angle=90,vjust = 0.6)) + 
+    ylab('%CV within strains')
+  if(by_bio){
+    cv2 = ggplot(CV) + 
+      geom_violin(aes(y=cv_biorep,x=biological_rep,fill=biological_rep),
+                  trim=T,draw_quantiles = c(0.25,0.75), na.rm = T, show.legend = F) +
+      theme(axis.text.x = element_text(angle=90,vjust = 0.6)) + 
+      ylab('%CV within biological replicates')
+    cv = (cv1|cv2)
+  }else{
+    cv = (cv1)
+  }
+  return(cv)
+}
+
+show_table_cv = function(CV,by_bio=T,caption=''){
+  if( missing(CV) ){
+    stop("run calculate_cv() on intensity dataframe in long format...")
+  }
+
+  if(by_bio){
+    tab_cv = CV %>%
+              group_by(biological_rep) %>%
+              summarize(min=min_(cv_biorep),q25=q25(cv_biorep), md=median_(cv_biorep), q75=q75(cv_biorep), max=max_(cv_biorep)) %>% 
+              kbl(x=., digits = 2,
+                  caption = 'Coefficient of variation - intensities per biological replicate') %>%
+              kable_paper("striped", full_width = F) %>% kable_styling()
+  }else{ 
+    tab_cv = CV %>% 
+              group_by(strain) %>% 
+              summarize(min=min_(cv_strain),q25=q25(cv_strain), md=median_(cv_strain), q75=q75(cv_strain), max=max_(cv_strain)) %>%
+              kbl(.,digits = 2,
+                  caption = 'Coefficient of variation - intensities per strain') %>% 
+              kable_paper("striped", full_width = F) %>% kable_styling()
+  }
+  return(tab_cv)
+}
+
+
+## 4 Correlation of intensities ----------------------------------------------------------
 compute_samples_correlation = function(datain=int.norm,as.df=F){
   #install.packages('corrr')
   cat("Compute pairwise samples correlation (Spearman)...\n")
@@ -392,7 +459,7 @@ draw_heatmap_samples = function(mcor,df.group,col.group,k=2){
 # pheatmap::pheatmap(int.norm,annotation_col=df.anno, annotation_colors =  color.anno)
 # 
 
-# 4 Scatterplots ----------------------------------------------------------
+# 5 Scatterplots of sample intensities -----------------------------------------
 draw_scatterplots = function(datain=ms2){
   library(GGally)
   #graphics.off()
@@ -426,18 +493,19 @@ norm_barplot = function(nr=NORM){
 }
 
 
-compare_normalization = function(INT = int_raw, DESIGN = df.group){
+draw_normalization_density = function(INT = int_raw, DESIGN = df.group){
   
   NORM = normalize_intensities(INT,DESIGN)
-  boxplot(NORM@ner@avgcvmem)
-  boxplot(NORM@ner@avgmadmem)
-  boxplot(NORM@ner@avgvarmem)
+  #boxplot(NORM@ner@avgcvmem)
+  #boxplot(NORM@ner@avgmadmem)
+  #boxplot(NORM@ner@avgvarmem)
   
   norm_methods = names(NORM@normalizations)
-  NORM@normalizations[[n]]$normalization = n
+  
+  #NORM@normalizations[[n]]$normalization = n
   
   df_raw = pivot_longer(data = as_tibble(int_raw), cols = everything(), 
-                        names_to = 'sample', values_to ='raw_int')
+                        names_to = 'sample', values_to ='raw_int_log2', values_transform= log2)
 
   norm_list = list()
   for(n in norm_methods ){
@@ -446,10 +514,12 @@ compare_normalization = function(INT = int_raw, DESIGN = df.group){
                                   names_to = 'sample', values_to ='norm_int') %>% 
                      mutate(norm = n )
   }
-  df_norm = bind_rows(norm_list) %>% left_join(DESIGN) %>% left_join(df_raw)
+  #norm_list$raw=#get_intensities(ms1)
+  df_norm = bind_rows(norm_list) %>% left_join(DESIGN)
+  
   ggplot(df_norm,aes(x=norm_int)) + 
     geom_density(aes(col=strain),show.legend = T) + 
-    geom_density(aes(col=strain),show.legend = T) + 
+    geom_density()
     facet_wrap(~norm,nrow=2,ncol =4) 
   
   
@@ -504,21 +574,25 @@ make_pca = function(x,with_labels=F,col_by_group=2){
 
 # 6 Statistical difference -----------------------------------------------------
 library(limma)
-pairwise_condition = function(conditions = all_strains){
+pairwise_condition = function(conditions = all_strains,to_pair=T){
   cond_pair = expand.grid(S1=conditions,S2=conditions)
   true.pairs <- t(apply(cond_pair[,1:2], 1, sort))
   dup.pairs <- duplicated(true.pairs)
   unique.pairs <- true.pairs[!dup.pairs & true.pairs[,1]!=true.pairs[,2],] %>% 
     as_tibble %>% rename(cond1=V1,cond2=V2)
+  
+  if(to_pair){
+    return( apply(unique.pairs,1,paste0,collapse='-') )
+  }
   return(unique.pairs)
 }
 
-compare_conditions = function(input, id_col = "UNIPROT",
-                              comparison = pairwise_condition(all_strains),
+compare_conditions = function(input, id_col = "uniprot",
+                              comparison = pairwise_condition(all_strains,to_pair=T),
                               col_group=1){
   
   if( id_col %in% colnames(input)){
-    processed_data = na.omit(input) %>% column_to_rownames('UNIPROT')
+    processed_data = na.omit(input) %>% remove_rownames %>% column_to_rownames(var = id_col)
   }else{
     processed_data = na.omit(input)
   }
@@ -532,7 +606,7 @@ compare_conditions = function(input, id_col = "UNIPROT",
   colnames(design) <- levels(f.df)
   fit <- lmFit(processed_data, design)
 
-  cont.matrix <- makeContrasts(contrasts = apply(comparison,1,paste0,collapse='-'), levels = design)
+  cont.matrix <- makeContrasts(contrasts = comparison, levels = design)
   fit2 <- contrasts.fit(fit, cont.matrix)
   fit3 <- eBayes(fit2,trend=T,robust=T)
   return(fit3)
@@ -540,11 +614,11 @@ compare_conditions = function(input, id_col = "UNIPROT",
 
 get_volcano_data = function(input_data=int_norm, min_lfc=2, min_pval=0.01, which=c('both','up','down'), topn = 20){
   datList <- list()
-  combination <- pairwise_condition()
-  stat_comb = apply(combination,1,paste0,collapse='-')
+  combination <- pairwise_condition(to_pair=T)
   
-  for (i in 1:length(stat_comb)) {
-    fit2 <- compare_conditions(input_data, comparison=combination, col_group = 1)
+  for (i in 1:length(combination)) {
+    
+    fit2 <- compare_conditions(input=input_data, id_col = 'uniprot', comparison=combination, col_group = 1)
     
     d.out <- data.frame(ID = names(fit2$coefficients[,i]),
                         pValue = fit2$p.value[,i],
@@ -576,7 +650,7 @@ get_volcano_data = function(input_data=int_norm, min_lfc=2, min_pval=0.01, which
     rownames(d.out) <- d.out$ID
     datName <- stat_comb[i]
     datList[[datName]] = d.out
-  } #for loop close
+  }
   return(datList)
 }
 
@@ -586,43 +660,121 @@ get_dfe = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN 
             dplyr::filter(sig!="Non significant")
   return(dfe)
 }
-volcPlot = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20){
+
+draw_volcano = function(data2plot,plot_title){
+  sig_count = table(data2plot$sig)
+  down = sig_count[1]
+  up = last(sig_count)
+  
+  data_sig = subset(data2plot,sig!='Non significant')
+  p <- ggplot(data2plot, 
+              aes(x=EffectSize, y=-log10(qValue), fill = sig)) +
+       geom_point(pch = 21, colour = "black", alpha = 0.5, size = 1.5)
+  p <- p + scale_fill_manual(aesthetics = c('colour','fill'),
+                             values=c("Non significant" = 'gray', "Downregulated" = 'red', "Upregulated" = 'blue')) +
+          xlab("log2 fold change") +
+          ylab("-log10 q-value") + 
+          labs(fill = NULL) +
+          ggtitle(label = plot_title )
+  
+  p <- p +
+       theme_classic(base_size = 14) +
+       theme(legend.position = 'top',
+             plot.title = element_text(face  = 1, hjust =0, size = 18),
+             axis.title = element_text(size = 10)
+             )
+
+  p <- p + geom_text_repel(data=data_sig,aes(label = ID,col=sig), show.legend = FALSE)
+  return(p)
+}
+
+volcPlot = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20, plot=F, use_dropdown=T, use_label='genename'){
     
   plotList <- list()
-  dlist <- get_volcano_data(input_data=INPUT, min_lfc=MIN_LFC, min_pval=MIN_PVAL, WHICH, topn = TOPN)
-  for( ncomp in 1:length(dlist) ){
-    comparison_current = names(dlist)[ncomp]
-    d=dlist[[ncomp]]
-    d.down = sum(round(d$qValue, 3) < MIN_PVAL & d$EffectSize < MIN_LFC*-1) 
-    d.up = sum(round(d$qValue, 3) < MIN_PVAL & d$EffectSize > MIN_LFC)
-    p <- ggplot(d, aes(x=EffectSize, y=-log10(qValue), fill = sig)) +
-      xlab("log2 fold change") + ylab("-log10 q-value") + labs(fill = NULL) +
-      ggtitle(label = comparison_current ) +
-      theme_classic(base_size = 14) +
-      geom_point(pch = 21, colour = "black", alpha = 0.5, size = 1.5) +
-      scale_fill_manual(values=c("Non significant" = 'gray', "Downregulated" = 'red', "Upregulated" = 'blue')) +
-      scale_color_manual(values=c("Non significant" = 'gray', "Downregulated" = 'red', "Upregulated" = 'blue')) +
-      theme(legend.position = 'top',
-            plot.title = element_text(face  = 1, hjust =0, size = 18),
-            axis.title.x = element_text(size = 10),
-            axis.title.y = element_text(size = 10))
+  #dlist <- get_volcano_data(input_data=INPUT, min_lfc=MIN_LFC, min_pval=MIN_PVAL, WHICH, topn = TOPN, id_col=use_label)
+  all_data = get_volcano_data(INPUT, MIN_LFC, MIN_PVAL,  WHICH,TOPN) %>% bind_rows %>%
+    mutate(log10_qvalue=-log10(qValue)) %>%
+    dplyr::left_join(sc_identifiers, by=c('ID'='UNIPROT'), keep=T )
+  
+  label2use=match.arg(tolower(use_label),tolower(names(sc_identifiers))) 
+  col_label = grep(label2use,names(sc_identifiers),ignore.case = T,v=T)
+  all_data$ID = all_data[[col_label]]
+  
+  comps = unique(all_data$comparison)
+  
+  for( comp in comps ){
+    data_comp = subset(all_data, comparison == comp )
+    p = draw_volcano(data_comp,comp)
+    p = p + geom_vline(aes(xintercept = (MIN_LFC*-1)), lty = 'dashed', colour = 'red',lwd=0.5) +
+            geom_vline(aes(xintercept = (MIN_LFC)), lty = 'dashed', colour = 'blue',lwd=0.5) +
+            geom_hline(aes(yintercept = -log10(MIN_PVAL)), lty = 'dashed', colour = 'black',lwd=0.5) 
     
-    if (WHICH == "up" || WHICH == "down") {
-      p <- p + geom_text_repel(data=subset(d,sig!='Non significant'),aes(label = ID,col=sig), show.legend = FALSE)
-    }
-    
-    if(WHICH == "both"){ 
-      p <- p + geom_text_repel(data=subset(d,sig!='Non significant'),aes(label = ID,col=sig), show.legend = FALSE)# +
-       # geom_text_repel(aes(label = ID), show.legend = FALSE)
-    }
-    
-    p <- p +  
-        geom_vline(aes(xintercept = (MIN_LFC*-1)), lty = 'dashed', colour = 'red',lwd=0.5) +
-        geom_vline(aes(xintercept = (MIN_LFC)), lty = 'dashed', colour = 'blue',lwd=0.5) +
-        geom_hline(aes(yintercept = -log10(MIN_PVAL)), lty = 'dashed', colour = 'black',lwd=0.5) 
-    plot(p)
-    plotList[[comparison_current]] = p
+    if(plot && !use_dropdown)
+      plot(p)
+    plotList[[comp]] = p
   }
+  
+  if(use_dropdown){
+    library(plotly)
+    
+    button_comparisons = lapply(comps,
+                               FUN = function(comp) {
+                                 button <- list(
+                                   method = 'restyle',
+                                   args = list('transforms[0].value', comp),
+                                   label = comp
+                                 )
+                               }
+    )
+    
+    
+    id2show = names(sc_identifiers)
+    button_ids = lapply(id2show,
+                                FUN = function(id) {
+                                  button <- list(
+                                    method = 'restyle',
+                                    args = list("text",list(as.formula(paste0("~",id)))),
+                                    label = id
+                                  )
+                                }
+    )
+    
+    count_data = all_data %>% group_by(comparison,sig) %>% count %>% 
+                 ungroup() %>% 
+                 mutate(X = fct_recode(factor(sig),"-2"="Downregulated","0"="Non significant","2"="Upregulated") %>% unfactor,
+                        Y = 10)
+    
+    #colnames(df) <- c("x", "y")
+    fig <- plot_ly(data=all_data %>% arrange(sig) %>% dplyr::left_join(count_data),
+                   type='scatter', mode='markers',
+                   x=~EffectSize, y=~log10_qvalue, color=~sig, 
+                   text = ~ID, hoverinfo = 'text', alpha = 0.3, sizes = 0.8,
+                   colors=c("Non significant" = 'gray', "Downregulated" = 'red', "Upregulated" = 'blue'),
+                   transforms = list(
+                                  list(
+                                       type = 'filter',
+                                       target = ~comparison,
+                                       operation = '=',
+                                       value = sort(comps)[1]
+                                  )
+                   )
+                 ) %>%
+      add_text(x=~X, y=~Y, text=~n, color=~sig, showlegend=F,  textfont = list(size=20), hovertemplate = ~sig) %>% 
+      plotly::layout( updatemenus = list(
+                          list( y=1,type='dropdown', active = 0, buttons = button_comparisons, name='comparison'),
+                          list( y=0.85,type='dropdown', active = 2, buttons = button_ids,name='id text' )),
+                       legend = list(x = 0, y = 100,orientation='h'),
+                       uniformtext=list(minsize=16, mode='hide'))#,
+                      #annotations = list(list(text = "Compare:", font=list(size=16), x=-0.2, y=1.05, xref='paper', yref='paper',showarrow=F),
+                       #                  list(text="Show:", font=list(size=16), x=-0.2, y=0.9, xref='paper', yref='paper',showarrow=F))) %>%
+      
+    
+    return(fig)
+  }
+    
+  
+  
+  
   # if (input$volcFeatures == "Counts") {
   #   p <- p + geom_text(aes(x = input$volcXdown, y= input$volcYdown, label=d.down)) +
   #     geom_text(aes(x = input$volcXup, y= input$volcYup, label=d.up))

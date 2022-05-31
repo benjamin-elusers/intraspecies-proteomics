@@ -5,15 +5,25 @@ chap_cur=06
 
 # Differential Expression
 
-```{r dfe, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%',}
-volcano_data =  get_volcano_data(input_data=int_norm, which='both',
-                            min_lfc=2, min_pval=0.01, topn = 20)
 
-df_limma = bind_rows(volcano_data) %>% as_tibble()
+
+```{r volcano-plots, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
+
+
+# get_dfe(int_norm, MIN_LFC=2, MIN_PVAL=0.01,  WHICH='both', TOPN = 20) %>% remove_rownames() %>% 
+#   dplyr::left_join(sc_identifiers, by=c('ID'='UNIPROT'))
+
+
 volcPlot(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20)
 
-dfe = subset(df_limma,sig!='Non significant')
+```
 
+
+```{r dfe-gene }
+volcano_data =  get_volcano_data(input_data=int_norm, which='both',
+                            min_lfc=2, min_pval=0.01, topn = 20)
+df_limma = bind_rows(volcano_data) %>% as_tibble()
+dfe = subset(df_limma,sig!='Non significant')
 down = dfe %>% group_by(ID) %>% dplyr::filter(sig=='Downregulated') %>%
        summarize( strains_down = paste0(comparison,collapse=' '),
                   down_AMH = str_count(strains_down,'AMH-'),
@@ -53,7 +63,9 @@ df_dfe_annot = df_dfe %>%
          regulated = Downregulated+Upregulated) %>% 
   dplyr::relocate(uniprot,uniprot_link,sgd_link,regulated,Downregulated,Upregulated, 
                   GENENAME,ORF,PNAME,'FUNCTION','BIOPROCESS_all','ORTHO','OTHER')
+```
 
+```{r dfe-table,fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T}
 library(kableExtra)
 library(formattable)
 library(DT)
@@ -66,8 +78,6 @@ ft_dt = df_dfe_annot %>%
       `regulated` = color_tile("white", "gray")
     )
 ) %>% as.datatable(
-        width = NULL, height = NULL,
-        rownames = FALSE, caption = NULL,
         options = list(
             fixedHeader=T,
             paging = TRUE, pageLength = 20,  ## paginate the output and #rows for each page
@@ -81,7 +91,10 @@ ft_dt = df_dfe_annot %>%
   extensions = c('FixedHeader','FixedColumns','Buttons'),
   selection = 'single',           ## enable selection of a single row
   filter = 'bottom',              ## include column filters at the bottom
-  rownames = FALSE                ## don't show row numbers/names
+  rownames = FALSE,               ## don't show row numbers/names
+  width = NULL, 
+  height = NULL,
+  caption = NULL
 ) %>% 
    formatStyle(columns = 1:30, target= 'row',lineHeight='100%', `font-size` = '12px')
 

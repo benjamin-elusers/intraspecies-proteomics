@@ -1,3 +1,8 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 ```{r load-data-proteomics, echo=F}
 chap_cur=03
 #load(here('output',sprintf('%02d-proteomics.rdata',chap_cur-1)))
@@ -49,24 +54,25 @@ int_raw = ms1 %>% dplyr::select(uniprot=majority_protein_i_ds,starts_with("lfq")
             
 
 int_md_norm = center_intensities(int_raw, center='median', tolog2=T) %>% 
-          as.data.frame %>% rownames_to_column('uniprot') %>%
-          as_tibble() %>%
+          as.data.frame() %>%
           rename_with(everything(),.fn =gsub, pattern='lfq_intensity_', replacement='') %>% 
           rename_with(.fn = str_to_upper)
          
 # TRYING DIFFERENT NORMALIZATIONS SCHEME (NOT READY)
 INT_NORM = normalize_intensities(int_raw,df.group)
-int_norm = int_md_norm 
+ul_normalizations = paste0(" - ", names(INT_NORM@normalizations),"\n")
+int_norm = int_md_norm %>% rownames_to_column('uniprot') 
+int_norm_ids = int_norm %>% dplyr::left_join(sc_identifiers,by=c('uniprot'='UNIPROT')) 
 #compare_exp(log2(int_raw),int_loess_norm, all=T)
 
-long_int_norm = pivot_longer(int_norm  , cols=-UNIPROT, values_to='int2use',
-                             names_to = c('strain','bioR','techR','day'),
+long_int_norm = pivot_longer(int_norm  , cols=-uniprot, values_to='int2use',
+                             names_to = c('strain','bio','tech','day'),
                              names_pattern = "([^_]+)_([^_]+)_([^_]+)_([^_]+)") %>%
-                group_by(strain,UNIPROT) %>% mutate(na_rep = sum.na(int2use))
+                group_by(strain,uniprot) %>% mutate(na_rep = sum.na(int2use))
 
 # Intensities across strains  (default is average)
 int_by_strain = pivot_wider(long_int_norm ,
-              id_cols=UNIPROT,
+              id_cols=uniprot,
               names_from = 'strain',
               names_glue = "{strain}",
               values_from = "int2use",
@@ -74,7 +80,7 @@ int_by_strain = pivot_wider(long_int_norm ,
               )
 
 na_by_strain = pivot_wider(long_int_norm,
-              id_cols=UNIPROT,
+              id_cols=uniprot,
               names_from = c('strain'),
               names_glue = "na_rep_{strain}",
               values_from = "int2use",
@@ -85,14 +91,14 @@ df_strains= left_join(int_by_strain,na_by_strain) %>%
   rowwise %>%
   mutate( na_strains = sum.na(c_across(cols = starts_with('lfq_int'))) )
 
-int_all = int_norm   %>% column_to_rownames('UNIPROT') %>% as.data.frame()
+int_all = int_norm   %>% column_to_rownames('uniprot') %>% as.data.frame()
 
 # Removing hits with missing values for more than one strain (using average intensities over replicates)
 ms2= df_strains %>% filter(na_strains < 1)
-int_filt_strains = ms2 %>% dplyr::select(-starts_with('na')) %>% column_to_rownames('UNIPROT') %>% as.data.frame()
+int_filt_strains = ms2 %>% dplyr::select(-starts_with('na')) %>% column_to_rownames('uniprot') %>% as.data.frame()
 
 # Save processed & normalized intensities data
-write_rds(df_strains,here::here('output',sprintf("%02d-normalized-intensities.rds",chap_cur)))
+#write_rds(df_strains,here::here('output',sprintf("%02d-normalized-intensities.rds",chap_cur)))
 ```
 
 

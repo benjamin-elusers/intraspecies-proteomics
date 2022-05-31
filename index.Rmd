@@ -1,9 +1,15 @@
 --- 
 title: "Intraspecies proteome expression"
-project: "Integrating timescales in protein evolution from distant species to populations"
-author: "Benjamin Dubreuil"
-github: "benjamin-elusers"
-mail: "benjamin.dubreuil@weizmann.ac.il"
+project: "Integrating gene expression layers and timescales of protein evolution from distant species to populations"
+author: 
+  - Benjamin Dubreuil^[Weizmann Institue of Science, ]
+  - Elie Teyssonniere^[Universite de Strasbourg (CNRS), https://github.com/elielink/]
+github: 
+  -"benjamin-elusers"
+  -"elielink"
+mail: 
+  - "benjamin.dubreuil-at-weizmann.ac.il"
+  - "elieteyssonniere-at-gmail.com"
 created: "24/04/2022"
 date: "`r format(Sys.time(), '%d-%b-%Y %R %p')`"
 site: bookdown::bookdown_site
@@ -13,7 +19,7 @@ bibliography:
 - book.bib
 - packages.bib
 description: |
-  This book is a report for analyzing a proteomic experiment between 8 isolated
+  This book is a report for analyzing gene expression profiling between 8 isolated
   strains from Saccharomyces cerevisiae.
 biblio-style: apalike
 csl: chicago-fullnote-bibliography.csl
@@ -83,6 +89,7 @@ knitr::write_bib(c(
 
 
 ```{r setup, include=F, echo=F, warnings=F, message=F}
+chap_cur = 00
 # Make sure the install repositories for dependencies are CRAN + Bioconductor
 #options(repos = c(getOption("repos"), BiocManager::repositories()))
 knitr::opts_chunk$set(echo = T, collapse = T, cache.lazy = F,autodep = T, warning = F)
@@ -90,6 +97,12 @@ knitr::opts_chunk$set(echo = T, collapse = T, cache.lazy = F,autodep = T, warnin
 suppressPackageStartupMessages({
   library(here)
   source("https://raw.githubusercontent.com/benjamin-elusers/yeastomics/main/src/__setup_yeastomics__.r")
+  library(xfun)
+  dep.pkg = c("corrplot", "ggtree", "gtools", "pbapply", "gridExtra", "GGally",
+    "dplyr", "performance", "ggplot2",  "ggfortify", "tidyverse", "gplots",
+    "data.table", "ggpubr", "ggcorrplot", "plotly", "ggsignif", "ape")
+  xfun::pkg_attach2(dep.pkg)
+  source(here("src","functions_transcriptomics.R"))
   source(here("src",'function_proteomics.r'))
 })
 # turn off annoying messages from dplyr::summarise
@@ -149,6 +162,6 @@ evo_yeast = left_join(evo_snp,evo_fungi, by=c('id','len_ref'),suffix=c('.yk11','
 # ggcorrplot(test_cor,type='upper',method='circle',lab = T,lab_size = 3, title='')
 ```
 
-```{r 00-save-index, echo=F}
-save.image(here::here('output','00-input-data.rdata'))
+```{r save-yeast-data, echo=F}
+save.image(here::here('output',sprintf("%02d-yeast-data.rdata",chap_cur)))
 ```

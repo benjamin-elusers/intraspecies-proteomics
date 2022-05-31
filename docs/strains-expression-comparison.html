@@ -4,30 +4,31 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Chapter 5 Strains expression comparison | Intraspecies proteome expression</title>
+<title>Chapter 6 Strains expression comparison | Intraspecies proteome expression</title>
 <meta name="author" content="Benjamin Dubreuil">
-<meta name="description" content="5.1 Scatterplots Initially, we can look at the scatterplots of intensities all-versus-all samples. # scatterplots between strains scmat_strains=draw_scatterplots(datain=int_filt_strains)...">
+<meta name="author" content="Elie Teyssonniere">
+<meta name="description" content="6.1 Scatterplots Initially, we can look at the scatterplots of intensities all-versus-all samples. # scatterplots between strains scmat_strains=draw_scatterplots(datain=int_filt_strains)...">
 <meta name="generator" content="bookdown 0.26 with bs4_book()">
-<meta property="og:title" content="Chapter 5 Strains expression comparison | Intraspecies proteome expression">
+<meta property="og:title" content="Chapter 6 Strains expression comparison | Intraspecies proteome expression">
 <meta property="og:type" content="book">
-<meta property="og:description" content="5.1 Scatterplots Initially, we can look at the scatterplots of intensities all-versus-all samples. # scatterplots between strains scmat_strains=draw_scatterplots(datain=int_filt_strains)...">
+<meta property="og:description" content="6.1 Scatterplots Initially, we can look at the scatterplots of intensities all-versus-all samples. # scatterplots between strains scmat_strains=draw_scatterplots(datain=int_filt_strains)...">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Chapter 5 Strains expression comparison | Intraspecies proteome expression">
-<meta name="twitter:description" content="5.1 Scatterplots Initially, we can look at the scatterplots of intensities all-versus-all samples. # scatterplots between strains scmat_strains=draw_scatterplots(datain=int_filt_strains)...">
+<meta name="twitter:title" content="Chapter 6 Strains expression comparison | Intraspecies proteome expression">
+<meta name="twitter:description" content="6.1 Scatterplots Initially, we can look at the scatterplots of intensities all-versus-all samples. # scatterplots between strains scmat_strains=draw_scatterplots(datain=int_filt_strains)...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
 <script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.3.1/transition.js"></script><script src="libs/bs3compat-0.3.1/tabs.js"></script><script src="libs/bs3compat-0.3.1/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
-<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
-<script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script><link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script><link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
 <script src="libs/datatables-binding-0.22/datatables.js"></script><link href="libs/dt-core-1.11.3/css/jquery.dataTables.min.css" rel="stylesheet">
 <link href="libs/dt-core-1.11.3/css/jquery.dataTables.extra.css" rel="stylesheet">
-<script src="libs/dt-core-1.11.3/js/jquery.dataTables.min.js"></script><link href="libs/dt-ext-fixedheader-1.11.3/css/fixedHeader.dataTables.min.css" rel="stylesheet">
-<script src="libs/dt-ext-fixedheader-1.11.3/js/dataTables.fixedHeader.min.js"></script><link href="libs/dt-ext-fixedcolumns-1.11.3/css/fixedColumns.dataTables.min.css" rel="stylesheet">
-<script src="libs/dt-ext-fixedcolumns-1.11.3/js/dataTables.fixedColumns.min.js"></script><script src="libs/jszip-1.11.3/jszip.min.js"></script><link href="libs/dt-ext-buttons-1.11.3/css/buttons.dataTables.min.css" rel="stylesheet">
-<script src="libs/dt-ext-buttons-1.11.3/js/dataTables.buttons.min.js"></script><script src="libs/dt-ext-buttons-1.11.3/js/buttons.html5.min.js"></script><script src="libs/dt-ext-buttons-1.11.3/js/buttons.colVis.min.js"></script><script src="libs/dt-ext-buttons-1.11.3/js/buttons.print.min.js"></script><link href="libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet">
+<script src="libs/dt-core-1.11.3/js/jquery.dataTables.min.js"></script><link href="libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet">
 <script src="libs/nouislider-7.0.10/jquery.nouislider.min.js"></script><link href="libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet">
 <script src="libs/selectize-0.12.0/selectize.min.js"></script><link href="libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
-<script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+<script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<link href="libs/dt-ext-fixedheader-1.11.3/css/fixedHeader.dataTables.min.css" rel="stylesheet">
+<script src="libs/dt-ext-fixedheader-1.11.3/js/dataTables.fixedHeader.min.js"></script><link href="libs/dt-ext-fixedcolumns-1.11.3/css/fixedColumns.dataTables.min.css" rel="stylesheet">
+<script src="libs/dt-ext-fixedcolumns-1.11.3/js/dataTables.fixedColumns.min.js"></script><script src="libs/jszip-1.11.3/jszip.min.js"></script><link href="libs/dt-ext-buttons-1.11.3/css/buttons.dataTables.min.css" rel="stylesheet">
+<script src="libs/dt-ext-buttons-1.11.3/js/dataTables.buttons.min.js"></script><script src="libs/dt-ext-buttons-1.11.3/js/buttons.html5.min.js"></script><script src="libs/dt-ext-buttons-1.11.3/js/buttons.colVis.min.js"></script><script src="libs/dt-ext-buttons-1.11.3/js/buttons.print.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
     
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
   </style>
@@ -54,12 +55,13 @@
       <nav aria-label="Table of contents"><h2>Table of contents</h2>
         <ul class="book-toc list-unstyled">
 <li><a class="" href="index.html"><span class="header-section-number">1</span> Introduction</a></li>
-<li><a class="" href="proteomics-experiment.html"><span class="header-section-number">2</span> Proteomics experiment</a></li>
-<li><a class="" href="data-processing.html"><span class="header-section-number">3</span> Data processing</a></li>
-<li><a class="" href="qc.html"><span class="header-section-number">4</span> Quality control</a></li>
-<li><a class="active" href="strains-expression-comparison.html"><span class="header-section-number">5</span> Strains expression comparison</a></li>
-<li><a class="" href="differential-expression.html"><span class="header-section-number">6</span> Differential Expression</a></li>
-<li><a class="" href="session-info.html"><span class="header-section-number">7</span> Session Info</a></li>
+<li><a class="" href="transcriptomics.html"><span class="header-section-number">2</span> Transcriptomics</a></li>
+<li><a class="" href="proteomics-experiment.html"><span class="header-section-number">3</span> Proteomics experiment</a></li>
+<li><a class="" href="data-processing.html"><span class="header-section-number">4</span> Data processing</a></li>
+<li><a class="" href="qc.html"><span class="header-section-number">5</span> Quality control</a></li>
+<li><a class="active" href="strains-expression-comparison.html"><span class="header-section-number">6</span> Strains expression comparison</a></li>
+<li><a class="" href="differential-expression.html"><span class="header-section-number">7</span> Differential Expression</a></li>
+<li><a class="" href="session-info.html"><span class="header-section-number">8</span> Session Info</a></li>
 <li><a class="" href="references.html">References</a></li>
 </ul>
 
@@ -68,27 +70,27 @@
         </div>
       </nav>
 </div>
-  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="strains-expression-comparison" class="section level1" number="5">
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="strains-expression-comparison" class="section level1" number="6">
 <h1>
-<span class="header-section-number">5</span> Strains expression comparison<a class="anchor" aria-label="anchor" href="#strains-expression-comparison"><i class="fas fa-link"></i></a>
+<span class="header-section-number">6</span> Strains expression comparison<a class="anchor" aria-label="anchor" href="#strains-expression-comparison"><i class="fas fa-link"></i></a>
 </h1>
-<div id="scatterplots-1" class="section level2" number="5.1">
+<div id="scatterplots-1" class="section level2" number="6.1">
 <h2>
-<span class="header-section-number">5.1</span> Scatterplots<a class="anchor" aria-label="anchor" href="#scatterplots-1"><i class="fas fa-link"></i></a>
+<span class="header-section-number">6.1</span> Scatterplots<a class="anchor" aria-label="anchor" href="#scatterplots-1"><i class="fas fa-link"></i></a>
 </h2>
 <p>Initially, we can look at the scatterplots of intensities all-versus-all samples.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># scatterplots between strains</span>
 <span class="va">scmat_strains</span><span class="op">=</span><span class="fu">draw_scatterplots</span><span class="op">(</span>datain<span class="op">=</span><span class="va">int_filt_strains</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">scmat_strains</span><span class="op">)</span></code></pre></div>
 <div class="inline-figure"><img src="plot/scatterplot-strains-1.png" width="100%"></div>
 </div>
-<div id="heatmap-correlation-1" class="section level2" number="5.2">
+<div id="heatmap-correlation-1" class="section level2" number="6.2">
 <h2>
-<span class="header-section-number">5.2</span> Heatmap Correlation<a class="anchor" aria-label="anchor" href="#heatmap-correlation-1"><i class="fas fa-link"></i></a>
+<span class="header-section-number">6.2</span> Heatmap Correlation<a class="anchor" aria-label="anchor" href="#heatmap-correlation-1"><i class="fas fa-link"></i></a>
 </h2>
 <p>We then compute spearman rank correlations of intensities between all samples.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># heatmap correlation</span>
 <span class="va">cs_strains</span><span class="op">=</span><span class="fu">compute_samples_correlation</span><span class="op">(</span><span class="va">int_filt_strains</span><span class="op">)</span>
 <span class="co">#&gt; Compute pairwise samples correlation (Spearman)...</span>
@@ -102,12 +104,12 @@
 <p>The heatmap correlations show the high correlation of expression between strains:
 [0.942 - 0.977]</p>
 </div>
-<div id="principle-component-analysis-1" class="section level2" number="5.3">
+<div id="principle-component-analysis-1" class="section level2" number="6.3">
 <h2>
-<span class="header-section-number">5.3</span> Principle Component Analysis<a class="anchor" aria-label="anchor" href="#principle-component-analysis-1"><i class="fas fa-link"></i></a>
+<span class="header-section-number">6.3</span> Principle Component Analysis<a class="anchor" aria-label="anchor" href="#principle-component-analysis-1"><i class="fas fa-link"></i></a>
 </h2>
 <p>Finally, the PCA reveals the distance between each sample.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">int_scaled_strains</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html">scale</a></span><span class="op">(</span><span class="va">int_filt_strains</span>,center<span class="op">=</span><span class="cn">T</span>, scale <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
 <span class="fu">make_pca</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html">na.omit</a></span><span class="op">(</span><span class="va">int_scaled_strains</span><span class="op">)</span>, with_labels<span class="op">=</span><span class="cn">F</span>,col_by_group<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></code></pre></div>
 <div class="inline-figure"><img src="Intraspecies-proteome-expression_files/figure-html/pca-strains-1.png" width="100%"></div>
@@ -115,21 +117,21 @@
 </div>
 </div>
   <div class="chapter-nav">
-<div class="prev"><a href="qc.html"><span class="header-section-number">4</span> Quality control</a></div>
-<div class="next"><a href="differential-expression.html"><span class="header-section-number">6</span> Differential Expression</a></div>
+<div class="prev"><a href="qc.html"><span class="header-section-number">5</span> Quality control</a></div>
+<div class="next"><a href="differential-expression.html"><span class="header-section-number">7</span> Differential Expression</a></div>
 </div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
       <ul class="nav navbar-nav">
-<li><a class="nav-link" href="#strains-expression-comparison"><span class="header-section-number">5</span> Strains expression comparison</a></li>
-<li><a class="nav-link" href="#scatterplots-1"><span class="header-section-number">5.1</span> Scatterplots</a></li>
-<li><a class="nav-link" href="#heatmap-correlation-1"><span class="header-section-number">5.2</span> Heatmap Correlation</a></li>
-<li><a class="nav-link" href="#principle-component-analysis-1"><span class="header-section-number">5.3</span> Principle Component Analysis</a></li>
+<li><a class="nav-link" href="#strains-expression-comparison"><span class="header-section-number">6</span> Strains expression comparison</a></li>
+<li><a class="nav-link" href="#scatterplots-1"><span class="header-section-number">6.1</span> Scatterplots</a></li>
+<li><a class="nav-link" href="#heatmap-correlation-1"><span class="header-section-number">6.2</span> Heatmap Correlation</a></li>
+<li><a class="nav-link" href="#principle-component-analysis-1"><span class="header-section-number">6.3</span> Principle Component Analysis</a></li>
 </ul>
 
       <div class="book-extra">
         <ul class="list-unstyled">
-<li><a id="book-source" href="https://github.com/benjamin-elusers/intraspecies-proteomics/blob/master/04-strain-comparison.Rmd">View source <i class="fab fa-github"></i></a></li>
-          <li><a id="book-edit" href="https://github.com/benjamin-elusers/intraspecies-proteomics/edit/master/04-strain-comparison.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+<li><a id="book-source" href="https://github.com/benjamin-elusers/intraspecies-proteomics/blob/master/05-strain-comparison.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/benjamin-elusers/intraspecies-proteomics/edit/master/05-strain-comparison.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
         </ul>
 </div>
     </nav>
@@ -141,7 +143,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil. It was last built on 19-May-2022 18:15.</p>
+    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 30-May-2022 16:14.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
