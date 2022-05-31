@@ -748,10 +748,11 @@ volcPlot = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN
                                 }
     )
     
-    count_data = all_data %>% group_by(comparison,sig) %>% count %>% 
+    count_data = all_data %>%
                  group_by(comparison) %>% 
-                 mutate(X = fct_recode(factor(sig),"-2"="Downregulated","0"="Non significant","2"="Upregulated") %>% unfactor,
-                        Y = max(log10_qvalue))
+                 mutate(Y = max(log10_qvalue)) %>%
+                 ungroup() %>% mutate(X = fct_recode(factor(sig),"-2"="Downregulated","0"="Non significant","2"="Upregulated") %>% unfactor) %>%
+                 group_by(comparison,sig) %>% mutate(n=n())
     
     #colnames(df) <- c("x", "y")
     fig <- plot_ly(data=all_data %>% arrange(sig) %>% dplyr::left_join(count_data),
@@ -768,7 +769,7 @@ volcPlot = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN
                                   )
                    )
                  ) %>%
-      add_text(x=~X, y=~Y, text = ~n, showarrow=F, showlegend=F,  textfont = list(size=20), hovertemplate = ~sig) %>%
+      add_text(x=~X, y=~Y, customdata =  ~n, text = ~n,  showlegend=F, texttemplate = '%{customdata:.s}', textposition = 'outside', textfont = list(size=20), hovertemplate = ~sig) %>%
       plotly::layout( updatemenus = list(
                           list( y=1,type='dropdown', active = 0, buttons = button_comparisons, name='comparison'),
                           list( y=0.85,type='dropdown', active = 2, buttons = button_ids,name='id text' )),
