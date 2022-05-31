@@ -18,4 +18,4 @@ data/Raw_files/combined/txt/msmsScans.txt
 output/evolution-fungi-residue.tsv
 output/evolution-snp-residue.tsv
 output/*.rdata
-.Rproj.user
+.Rproj.user/*
