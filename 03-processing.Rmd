@@ -1,8 +1,3 @@
----
-output: html_document
-editor_options: 
-  chunk_output_type: console
----
 ```{r load-data-proteomics, echo=F}
 chap_cur=03
 #load(here('output',sprintf('%02d-proteomics.rdata',chap_cur-1)))
@@ -21,6 +16,9 @@ are not suitable for analysis:
 ```{r filter-data}
 # Filter hits
 ms1=filter_hits(ms0)
+
+raw_int=read_maxquant(MAXQUANT.files$proteinGroups, zero.to.na = T, int_type = 'Intensity', pep_type = 'Unique peptides') %>% filter_hits()
+
 ```
 
 ## Processing quantified intensities

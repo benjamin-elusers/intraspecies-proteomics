@@ -1,3 +1,8 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 ```{r load-data-yeast, echo=F}
 chap_cur=02
 chap_num = sprintf("%02d-",chap_cur)
@@ -74,6 +79,7 @@ MAXQUANT.files = list(
 )
 # Reading maxquant protein data
 ms0=read_maxquant(MAXQUANT.files$proteinGroups, zero.to.na = T, int_type = 'LFQ', pep_type = 'Unique peptides')
+
 keys_cols = c('majority_protein_i_ds','gene_names')
 
 # get sample_names
@@ -102,10 +108,17 @@ col.group = list(
   dayrun = c('10_04_22'='white','12_04_22'='black') 
   )
 
+
+samples_selected = c("Sample names:\n",
+    ifelse(nsamples>0,sprintf("...selecting %s samples...\n",nsamples),""),
+    sprintf("%2s. %s\n",seq_along(samples),samples))
+
 #write_rds(ms0,here('output','01-expression.rds'))
 #write_rds(df.group,here('output','01-samples-group.rds'))
 #write_rds(col.group,here('output','01-samples-colors.rds'))
 ```
+
+`r cat(samples_selected)`
 
 Statistics of proteomics hits:
 

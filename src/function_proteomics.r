@@ -129,11 +129,6 @@ read_maxquant = function(datain,zero.to.na=T, int_type='LFQ',pep_type='Peptides'
   col_pep = stringr::str_subset( COLS, paste0(peptide_type," "))
 
   nsel = sum( stringr::str_count(sample_names,sample_pattern) )
-  selected = stringr::str_detect(sample_names,sample_pattern)
-  sample_names[selected] = paste0(sample_names[selected], " (x)")
-  cat("Sample names:\n",
-      ifelse(nsel>0,sprintf("...selecting %s samples (x)...\n",nsel),""),
-      sprintf("%2s. %s\n",seq_along(sample_names),sample_names))
   
   if(nsel>0){
     col_int = stringr::str_subset(col_int,sample_pattern)
@@ -515,7 +510,7 @@ draw_normalization_density = function(INT = int_raw, DESIGN = df.group){
                      mutate(norm = n )
   }
   #norm_list$raw=#get_intensities(ms1)
-  df_norm = bind_rows(norm_list) %>% left_join(DESIGN) %>% left_join(df_raw)
+  df_norm = bind_rows(norm_list) %>% left_join(DESIGN)  %>% left_join( df_raw)
   
   ggplot(df_norm,aes(x=norm_int)) + 
     geom_density(aes(col=strain),show.legend = T) + 
@@ -624,7 +619,7 @@ get_volcano_data = function(input_data=int_norm, min_lfc=2, min_pval=0.01, which
                         pValue = fit2$p.value[,i],
                         qValue = p.adjust(fit2$p.value[,i], "fdr"),
                         EffectSize = fit2$coefficients[,i],
-                        comparison = stat_comb[i])
+                        comparison = combination[i])
     d.out <- mutate(d.out, 
                     sig = ifelse(d.out$EffectSize > min_lfc & round(d.out$qValue, 3) < min_pval, "Upregulated",
                                  ifelse(d.out$EffectSize < (min_lfc * -1) & round(d.out$qValue, 3) < min_pval, "Downregulated", "Non significant")))
