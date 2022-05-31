@@ -104,9 +104,9 @@ col.group = list(
   )
 
 
-TAB_SAMPLES= kbl(samples,col.names = 'Sample Names:',row.names = centering = F) %>% 
+TAB_SAMPLES= kbl(samples,col.names = 'Sample Names:',row.names =T, centering = F) %>% 
               kable_paper("striped", full_width = F) %>% 
-              kable_styling()  
+              kable_styling(position='left')  
 
 #write_rds(ms0,here('output','01-expression.rds'))
 #write_rds(df.group,here('output','01-samples-group.rds'))
