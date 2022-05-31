@@ -25,7 +25,7 @@ biblio-style: apalike
 csl: chicago-fullnote-bibliography.csl
 ---
 
-.dropdown-menu{
+.updatemenu-dropdown-button-group{
     max-height: 50px;
     overflow-x: hidden;
     overflow-y: auto;
