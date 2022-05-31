@@ -104,7 +104,7 @@ col.group = list(
   )
 
 
-TAB_SAMPLES= kbl(samples,col.names = 'Sample Names:',row.names = T) %>% 
+TAB_SAMPLES= kbl(samples,col.names = 'Sample Names:',row.names = centering = F) %>% 
               kable_paper("striped", full_width = F) %>% 
               kable_styling()  
 

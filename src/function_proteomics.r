@@ -773,6 +773,15 @@ volcPlot = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN
                           list( y=1,type='dropdown', active = 0, buttons = button_comparisons, name='comparison'),
                           list( y=0.85,type='dropdown', active = 2, buttons = button_ids,name='id text' )),
                        legend = list(x = 0, y = 100,orientation='h'),
+                       annotations = list(
+                        x = ~X, 
+                        # use boxplot.stats() to get the outlier's y coordinate
+                        y = ~Y ,
+                        text = ~n,
+                        color=~sig,
+                        showarrow = FALSE,
+                        xanchor = "right"
+                      ),
                        uniformtext=list(minsize=16, mode='hide'))#,
                       #annotations = list(list(text = "Compare:", font=list(size=16), x=-0.2, y=1.05, xref='paper', yref='paper',showarrow=F),
                        #                  list(text="Show:", font=list(size=16), x=-0.2, y=0.9, xref='paper', yref='paper',showarrow=F))) %>%

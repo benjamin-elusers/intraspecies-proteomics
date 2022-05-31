@@ -14,6 +14,26 @@ intensities = ms1 %>% dplyr::select(uniprot=majority_protein_i_ds,starts_with("l
 long_int_all = get_long_intensities(intensities) %>% mutate(int2use = log10_int)
 ```
 
+## Total sample intensities
+
+```{r tot_int,echo=F, fig.cap='Total intensities per sample',out.width='100%'}
+tot_int = pivot_longer(intensities,   -uniprot,
+                       names_to = c('sample','strain','bio','tech','day'),
+                       names_pattern = "(([^_]+)_([^_]+)_([^_]+)_([^_]+))",
+                       names_prefix = 'lfq_intensity_',
+                       values_to='int') %>% 
+  group_by(sample) %>% 
+  summarize(total_intensity=sum_(as.numeric(int))) %>% 
+  dplyr::left_join(df.group %>% mutate(sample=tolower(sample)))
+
+  
+bp_totint= ggplot( tot_int, aes(x=sample,y=total_intensity,fill=strain,label=sample)) + 
+  geom_col() + 
+  geom_text(angle=90,check_overlap = T,hjust=-0.1,y=0) + 
+  theme(axis.text.x = element_blank(),axis.ticks = element_blank())
+plot(bp_totint)
+```
+
 ## Boxplot of sample raw intensities
 
 We want to inspect the distribution of peptide intensities between strains.
@@ -71,7 +91,7 @@ The median peptide intensity are remarkably similar (~10^8^ or 7.9 in log10) bet
 
 **On average, peptide intensities are higher when a hit is found in more than one replicate**
 
-## Barplot of missing hits per samples
+## Count of missing hits per sample
 
 The following barplot shows the range of missing hits per samples.
 
@@ -86,8 +106,8 @@ count_NA_samples= pivot_longer(intensities,   -uniprot,
   dplyr::left_join(df.group %>% mutate(sample=tolower(sample))) %>% 
   mutate(is_outlier = strain %in% c("CQC","CMP") & biorep=="R1")
 
-mean_na_outliers = mean_(count_NA_samples %>% dplyr::filter(is_outlier) %>% pull(n_na))
-mean_na = mean_(count_NA_samples %>% dplyr::filter(!is_outlier) %>% pull(n_na))
+mean_na_outliers = mean_(count_NA_samples %>% dplyr::filter(is_outlier) %>% pull(n_na)) %>% round()
+mean_na = mean_(count_NA_samples %>% dplyr::filter(!is_outlier) %>% pull(n_na)) %>% round()
 
 bp_na = ggplot(count_NA_samples,aes(x=sample,label=sample)) + 
         geom_col(aes(y=n_na,fill=strain,col=is_outlier)) + 
@@ -160,12 +180,12 @@ TAB_EXP_STRAIN = kbl(stat_per_miss,digits = 2, align = 'l',
 Nevertheless, almost two thirds (*66.5%*) of the protein hits were detected in all strains.
 About 86% protein hits were expressed in the majority of the strains (at least 5 out of 8 strains).
 
-## Number of missing values in samples
+## Missing hits across samples
 
 Furthermore, we can check whether the proportion of missing values is equally 
 distributed among all samples.
 
-```{r na-samples, echo=F, fig.cap='Number of quantified intensities across samples', height=18, out.width='100%', width=18}
+```{r na-samples, echo=F, fig.cap='Number of quantified intensities across samples', out.width='100%', fig.height=12, fig.width=12}
 # Count hits with NA in samples/groups
 na_int= intensities %>% 
         group_by(uniprot) %>%
@@ -190,7 +210,7 @@ Coefficient of variations correspond to the percent of variance relative to the 
 The following boxplots show how variable protein expression is, across strains
 or across biological replicates, before and after normalization.
 
-```{r boxplot-cv, echo=F, fig.cap='Coefficient of variations (%) in each sample and per strains before and after processing data (filtering and normalization)', width=18,height=18}
+```{r boxplot-cv, echo=F, fig.cap='Coefficient of variations (%) in each sample and per strains before and after processing data (filtering and normalization)', fig.height=12, fig.width=12}
 
 CV_raw = calculate_cv(long_int_all,by_bio = T)
 box_cv_raw = draw_boxcv(CV_raw,by_bio = T)
@@ -211,9 +231,9 @@ show_table_cv(CV_norm,by_bio = T)
 To highlight the strength of normalization, we also show the density distribution of 
 expression before and after normalization using each of the following normalization methods:
 
-`r cat("",ul_normalizations)`
+`r kbl("",ul_normalizations)`
 
-```{r exp_density,width=12,height=12}
+```{r exp_density,fig.height=12, fig.width=12}
 draw_normalization_density(int_raw,int_lfq,df.group)
 ```
 
