@@ -5,19 +5,16 @@ chap_cur=06
 
 # Differential Expression
 
-
+## Volcano plots
 
 ```{r volcano-plots, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
-
-
-# get_dfe(int_norm, MIN_LFC=2, MIN_PVAL=0.01,  WHICH='both', TOPN = 20) %>% remove_rownames() %>% 
-#   dplyr::left_join(sc_identifiers, by=c('ID'='UNIPROT'))
-
 
 volcPlot(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20)
 
 ```
 
+
+## Differentially expressed genes
 
 ```{r dfe-gene }
 volcano_data =  get_volcano_data(input_data=int_norm, which='both',
@@ -44,6 +41,8 @@ up = dfe %>% group_by(ID) %>% dplyr::filter(sig=='Upregulated') %>%
                   up_CMP = str_count(strains_up,'CMP-'),
                   up_CPI = str_count(strains_up,'CPI-'),
                   up_CQC = str_count(strains_up,'CQC-'))
+# get_dfe(int_norm, MIN_LFC=2, MIN_PVAL=0.01,  WHICH='both', TOPN = 20) %>% remove_rownames() %>% 
+#   dplyr::left_join(sc_identifiers, by=c('ID'='UNIPROT'))
 
 # Number of times a hit is differentially expressed
 df_dfe = dfe %>% left_join(janitor::tabyl(dfe,ID,sig)) %>%

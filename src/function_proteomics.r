@@ -515,7 +515,7 @@ draw_normalization_density = function(INT = int_raw, DESIGN = df.group){
                      mutate(norm = n )
   }
   #norm_list$raw=#get_intensities(ms1)
-  df_norm = bind_rows(norm_list) %>% left_join(DESIGN)
+  df_norm = bind_rows(norm_list) %>% left_join(DESIGN) %>% left_join(df_raw)
   
   ggplot(df_norm,aes(x=norm_int)) + 
     geom_density(aes(col=strain),show.legend = T) + 
