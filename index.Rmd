@@ -80,7 +80,7 @@ abundance) versus function place on protein evolution.
 knitr::include_graphics("images/Fungi-SpeciesTree-v7.png")
 ```
 
-```{r include=FALSE}
+```{r biblio, include=FALSE}
 # automatically create a bib database for R packages
 knitr::write_bib(c(
   .packages(), 'bookdown', 'knitr', 'rmarkdown'
@@ -100,7 +100,8 @@ suppressPackageStartupMessages({
   library(xfun)
   dep.pkg = c("corrplot", "ggtree", "gtools", "pbapply", "gridExtra", "GGally",
     "dplyr", "performance", "ggplot2",  "ggfortify", "tidyverse", "gplots",
-    "data.table", "ggpubr", "ggcorrplot", "plotly", "ggsignif", "ape")
+    "data.table", "ggpubr", "ggcorrplot", "plotly", "ggsignif", "ape","kableExtra",
+    "ggcorrplot","formattable","DT","sessioninfo")
   xfun::pkg_attach2(dep.pkg)
   source(here("src","functions_transcriptomics.R"))
   source(here("src",'function_proteomics.r'))
@@ -139,7 +140,7 @@ fungi_rate = evo_fungi %>% dplyr::select(r4s:leisr_local) %>% as.matrix
 strains_rate = evo_snp %>% dplyr::select(r4s:leisr_local) %>% as.matrix
 er_fungi_cor = cor(fungi_rate,use='pairwise.complete',met='spearman')
 er_strains_cor = cor(strains_rate,use='pairwise.complete',met='spearman')
-library(ggcorrplot)
+
 ggcorrplot(er_fungi_cor,type='upper',method='circle',lab = T,lab_size = 3, title='fungi evo. rate')
 ggcorrplot(er_strains_cor,type='upper',method='circle',lab = T,lab_size = 3, title='strains evo. rate')
 

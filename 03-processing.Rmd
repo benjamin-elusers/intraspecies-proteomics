@@ -18,7 +18,7 @@ are not suitable for analysis:
 ms1=filter_hits(ms0)
 
 int_raw=read_maxquant(MAXQUANT.files$proteinGroups, zero.to.na = T, int_type = 'Intensity', pep_type = 'Unique peptides') %>% 
-  filter_hits() %>% 
+  filter_hits(verbose = F) %>% 
   dplyr::select(uniprot=majority_protein_i_ds,starts_with("intensity_")) %>% 
             #mutate(across(where(is.integer64), ~as.integer(.))) %>% # make sure to use numeric and not integer
             as.data.frame() %>% column_to_rownames('uniprot') %>%

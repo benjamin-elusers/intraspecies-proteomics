@@ -3,12 +3,12 @@
 ## Appendix: All code for this report
 
 ```{r get-labels, echo = FALSE}
-labs = knitr::all_labels()
-labs = setdiff(labs, c("setup", "get-labels"))
+labs = setdiff( knitr::all_labels(), c("biblio","get-labels","platform","loaded-packages","all-packages"))
 ```
 
 ```{r all-code, ref.label=labs, eval=FALSE}
 ```
+
 ## Platform info 
 ```{r platform, out.width='100%',}
 df_platform = devtools::session_info()$platform %>% 

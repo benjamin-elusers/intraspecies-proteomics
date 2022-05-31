@@ -104,16 +104,16 @@ col.group = list(
   )
 
 
-samples_selected = c("Sample names:\n",
-    ifelse(nsamples>0,sprintf("...selecting %s samples...\n",nsamples),""),
-    sprintf("%2s. %s\n",seq_along(samples),samples))
+TAB_SAMPLES= kbl(samples,col.names = 'Sample Names:',row.names = T) %>% 
+              kable_paper("striped", full_width = F) %>% 
+              kable_styling()  
 
 #write_rds(ms0,here('output','01-expression.rds'))
 #write_rds(df.group,here('output','01-samples-group.rds'))
 #write_rds(col.group,here('output','01-samples-colors.rds'))
 ```
 
-`r cat(samples_selected)`
+`r TAB_SAMPLES`
 
 Statistics of proteomics hits:
 

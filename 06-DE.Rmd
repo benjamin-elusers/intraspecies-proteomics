@@ -106,11 +106,10 @@ ft_dt
 ```{r treemap-bioprocess, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%',}
 library(treemap)
 library(d3Tree)
-
 treemap(df_dfe_annot, index=c("BIOPROCESS_all", "comparison"), vSize='regulated', vColor="EffectSize", type="value") 
 treemap(df_dfe_annot, index=c("BIOPROCESS_all", "GENENAME"), vSize="regulated", vColor="EffectSize", type="value",)
 ```
 
-```{r 05-save-data, echo=F}
+```{r save-data-diffexp, echo=F}
 save.image(here('output',sprintf("%02d-differential-expression.rdata",chap_cur)))
 ```
