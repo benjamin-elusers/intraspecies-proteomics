@@ -2,7 +2,7 @@
 title: "Intraspecies proteome expression"
 project: "Integrating gene expression layers and timescales of protein evolution from distant species to populations"
 author: 
-  - Benjamin Dubreuil^[Weizmann Institue of Science, ]
+  - Benjamin Dubreuil^[Weizmann Institue of Science, https://github.com/benjamin-elusers/]
   - Elie Teyssonniere^[Universite de Strasbourg (CNRS), https://github.com/elielink/]
 github: 
   -"benjamin-elusers"
