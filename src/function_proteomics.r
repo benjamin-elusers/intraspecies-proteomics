@@ -154,7 +154,7 @@ read_maxquant = function(datain,zero.to.na=T, int_type='LFQ',pep_type='Peptides'
 #ms0=read_proteomics_results(ms.resfile)
 
 ## 1 Filter data ----------------------------------------------------------
-filter_hits = function(MS0=ms0,id='majority_protein_i_ds',np=2){
+filter_hits = function(MS0=ms0,id='majority_protein_i_ds',np=2,verbose=T){
   # Mark contaminants
   MS0$is_contaminated = stringr::str_detect(MS0[[id]],"CON")
   # Mark reverse sequenced
@@ -166,15 +166,17 @@ filter_hits = function(MS0=ms0,id='majority_protein_i_ds',np=2){
   MS0$has_many = stringr::str_detect(MS0[[id]],";")
   MS1 = MS0 %>% 
     dplyr::filter(!is_contaminated & !is_reversed & has_upep & !has_many)
-  cat("Discarding problematic hits...\n")
-  cat(sprintf("* %5s = less than 2 unique peptides\n",sum(!MS0$has_upep)))
-  cat(sprintf("* %5s = contaminated hits\n",sum(MS0$is_contaminated)))
-  cat(sprintf("* %5s = reversed sequences\n",sum(MS0$is_reversed)))
-  cat(sprintf("* %5s = multi-protein hits\n",sum(MS0$has_many)))
   nelim = nrow(MS0)-nrow(MS1)
-  cat("-----------------------------------------\n")
-  cat(sprintf(" -> %-5s hits eliminated\n",nelim))
-  cat(sprintf(" => %-5s remaining hits for analysis\n",nrow(MS1)))
+  
+  if(verbose)
+    cat("Discarding problematic hits...\n")
+    cat(sprintf("* %5s = less than 2 unique peptides\n",sum(!MS0$has_upep)))
+    cat(sprintf("* %5s = contaminated hits\n",sum(MS0$is_contaminated)))
+    cat(sprintf("* %5s = reversed sequences\n",sum(MS0$is_reversed)))
+    cat(sprintf("* %5s = multi-protein hits\n",sum(MS0$has_many)))
+    cat("-----------------------------------------\n")
+    cat(sprintf(" -> %-5s hits eliminated\n",nelim))
+    cat(sprintf(" => %-5s remaining hits for analysis\n",nrow(MS1)))
   
   return(MS1)
 }
