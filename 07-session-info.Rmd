@@ -6,7 +6,7 @@
 labs = setdiff( knitr::all_labels(), c("biblio","get-labels","platform","loaded-packages","all-packages"))
 ```
 
-```{r all-code, ref.label=labs, eval=FALSE,collapse=TRUE}
+```{r all-code, ref.label=labs, eval=FALSE,class.source = 'fold-hide'}
 ```
 
 ## Platform info 
