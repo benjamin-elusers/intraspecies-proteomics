@@ -64,7 +64,11 @@ int_md_norm = center_intensities(int_lfq, center='median', tolog2=T) %>%
          
 # TRYING DIFFERENT NORMALIZATIONS SCHEME (NOT READY)
 INT_NORM = normalize_intensities(int = int_raw, design = df.group)
-ul_normalizations = paste0(" - ", names(INT_NORM@normalizations),"\n")
+TAB_NORM = kbl(names(INT_NORM@normalizations),row.names = T,col.names = 'Normalizations:',position = 'left') %>% 
+            kable_paper("striped", full_width = F) %>% 
+            kable_styling(position='left')  
+
+            
 int_norm = int_md_norm %>% rownames_to_column('uniprot') 
 int_norm_ids = int_norm %>% dplyr::left_join(sc_identifiers,by=c('uniprot'='UNIPROT')) 
 #compare_exp(log2(int_raw),int_loess_norm, all=T)

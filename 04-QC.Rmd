@@ -231,7 +231,7 @@ show_table_cv(CV_norm,by_bio = T)
 To highlight the strength of normalization, we also show the density distribution of 
 expression before and after normalization using each of the following normalization methods:
 
-`r kbl("",ul_normalizations)`
+`r TAB_NORM`
 
 ```{r exp_density,fig.height=12, fig.width=12}
 draw_normalization_density(int_raw,int_lfq,df.group)
