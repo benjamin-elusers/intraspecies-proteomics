@@ -771,7 +771,7 @@ volcPlot = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN
                  ) %>%
       add_text(x=~X, y=~Y, customdata =  ~n, text = ~n,  showlegend=F, texttemplate = '%{customdata:.s}', textposition = 'outside', textfont = list(size=20), hovertemplate = ~sig) %>%
       plotly::layout( updatemenus = list(
-                          list( y=1,type='dropdown', active = 0, buttons = button_comparisons, name='comparison'),
+                          list( y=1,type='dropdown', active = 0, font = list(size=10),buttons = button_comparisons, name='comparison'),
                           list( y=0.85,type='dropdown', active = 2, buttons = button_ids,name='id text' )),
                        legend = list(x = 0, y = 100,orientation='h'),
                        uniformtext=list(minsize=16, mode='hide'))#,
