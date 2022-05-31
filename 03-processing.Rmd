@@ -17,7 +17,13 @@ are not suitable for analysis:
 # Filter hits
 ms1=filter_hits(ms0)
 
-raw_int=read_maxquant(MAXQUANT.files$proteinGroups, zero.to.na = T, int_type = 'Intensity', pep_type = 'Unique peptides') %>% filter_hits()
+int_raw=read_maxquant(MAXQUANT.files$proteinGroups, zero.to.na = T, int_type = 'Intensity', pep_type = 'Unique peptides') %>% 
+  filter_hits() %>% 
+  dplyr::select(uniprot=majority_protein_i_ds,starts_with("intensity_")) %>% 
+            #mutate(across(where(is.integer64), ~as.integer(.))) %>% # make sure to use numeric and not integer
+            as.data.frame() %>% column_to_rownames('uniprot') %>%
+            rename_with(everything(),.fn=gsub, pattern='intensity_', replacement='') %>%
+            rename_with(.fn = str_to_upper)
 
 ```
 
@@ -44,20 +50,20 @@ We filter out hits that contains missing values for either strains or replicates
 # Process intensities
 is.integer64 <- function(x) inherits(x, "integer64")
 
-int_raw = ms1 %>% dplyr::select(uniprot=majority_protein_i_ds,starts_with("lfq")) %>% 
+int_lfq = ms1 %>% dplyr::select(uniprot=majority_protein_i_ds,starts_with("lfq")) %>% 
             #mutate(across(where(is.integer64), ~as.integer(.))) %>% # make sure to use numeric and not integer
             as.data.frame() %>% column_to_rownames('uniprot') %>%
             rename_with(everything(),.fn=gsub, pattern='lfq_intensity_', replacement='') %>%
             rename_with(.fn = str_to_upper)
             
 
-int_md_norm = center_intensities(int_raw, center='median', tolog2=T) %>% 
+int_md_norm = center_intensities(int_lfq, center='median', tolog2=T) %>% 
           as.data.frame() %>%
           rename_with(everything(),.fn =gsub, pattern='lfq_intensity_', replacement='') %>% 
           rename_with(.fn = str_to_upper)
          
 # TRYING DIFFERENT NORMALIZATIONS SCHEME (NOT READY)
-INT_NORM = normalize_intensities(int_raw,df.group)
+INT_NORM = normalize_intensities(int = int_raw, design = df.group)
 ul_normalizations = paste0(" - ", names(INT_NORM@normalizations),"\n")
 int_norm = int_md_norm %>% rownames_to_column('uniprot') 
 int_norm_ids = int_norm %>% dplyr::left_join(sc_identifiers,by=c('uniprot'='UNIPROT')) 
@@ -89,7 +95,7 @@ df_strains= left_join(int_by_strain,na_by_strain) %>%
   rowwise %>%
   mutate( na_strains = sum.na(c_across(cols = starts_with('lfq_int'))) )
 
-int_all = int_norm   %>% column_to_rownames('uniprot') %>% as.data.frame()
+int_all = int_norm  %>% column_to_rownames('uniprot') %>% as.data.frame()
 
 # Removing hits with missing values for more than one strain (using average intensities over replicates)
 ms2= df_strains %>% filter(na_strains < 1)

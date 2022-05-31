@@ -306,11 +306,12 @@ center_intensities = function(int.raw, center='median', tolog2=T ){
 normalize_intensities = function(int,design=df.group){
 
   library(NormalyzerDE)
-  m.int = int %>% mutate(across(everything(),as.numeric)) %>% as.matrix()
+  m.int = int %>% mutate(across(everything(),as.numeric)) %>% as.matrix() # remove_rownames() 
   experiment <- SummarizedExperiment::SummarizedExperiment(
     assays=list(raw = m.int ),
+    rowData = data.frame(uniprot=rownames(int)),
     colData = design,
-    metadata = list(sample='sample',group='strain')
+    metadata = list(sample='sample',group='strain'),checkDimnames=F
   )  
   #source("https://raw.githubusercontent.com/ByrumLab/proteiNorm/master/normFunctions.R")
   
@@ -488,8 +489,9 @@ norm_barplot = function(nr=NORM){
 }
 
 
-draw_normalization_density = function(INT = int_raw, DESIGN = df.group){
+draw_normalization_density = function(RAW = int_raw, INT=int_lfq, DESIGN = df.group){
   
+  IDS = rownames(INT)
   NORM = normalize_intensities(INT,DESIGN)
   #boxplot(NORM@ner@avgcvmem)
   #boxplot(NORM@ner@avgmadmem)
@@ -499,48 +501,58 @@ draw_normalization_density = function(INT = int_raw, DESIGN = df.group){
   
   #NORM@normalizations[[n]]$normalization = n
   
-  df_raw = pivot_longer(data = as_tibble(int_raw), cols = everything(), 
-                        names_to = 'sample', values_to ='raw_int_log2', values_transform= log2)
+  df_raw = pivot_longer(data = RAW %>% rownames_to_column('uniprot'), cols = -uniprot, 
+                        names_to = 'sample', values_to ='norm_int', values_transform= log2) %>% 
+            mutate(type='raw intensity') %>%  left_join(DESIGN)
 
   norm_list = list()
   for(n in norm_methods ){
-    norm_list[[n]] = pivot_longer(data = as_tibble(NORM@normalizations[[n]]),  
-                                  cols = everything(),
+    norm_list[[n]] = pivot_longer(data = NORM@normalizations[[n]] %>% as.data.frame(row.names=IDS) %>% rownames_to_column('uniprot'),  
+                                  cols = -uniprot,
                                   names_to = 'sample', values_to ='norm_int') %>% 
                      mutate(norm = n )
   }
-  #norm_list$raw=#get_intensities(ms1)
-  df_norm = bind_rows(norm_list) %>% left_join(DESIGN)  %>% left_join( df_raw)
+  #norm_list$raw=df_raw
+  df_norm = bind_rows(norm_list) %>% left_join(DESIGN) #%>% 
+  #          left_join(df_raw,by=c('uniprot','sample'))
   
-  ggplot(df_norm,aes(x=norm_int)) + 
+  library(geomtextpath)
+  dens_plot = ggplot(df_norm,aes(x=norm_int)) + 
+    geom_density(data=subset(df_raw, strain!='AMH'), mapping=aes(x=norm_int,group=strain),
+                 col='black',show.legend = F,linewidth=1) +
+    geom_textdensity(data=subset(df_raw, strain=='AMH'), mapping=aes(x=norm_int,group=strain,label=type),
+                     col='black',show.legend = F, size=3,
+                     fontface = 2,linewidth=1, hjust = 0.2, vjust = 1.5) +
     geom_density(aes(col=strain),show.legend = T) + 
-    geom_density()
-    facet_wrap(~norm,nrow=2,ncol =4) 
+    facet_wrap(~norm,nrow=2,ncol=4)  
+  
+  return(dens_plot)
+    
   
   
-  plot(log2(INT[,1]),log2(INT[,2]))
-  points(NORM@normalizations$Quantile[,1],NORM@normalizations$Quantile[,2],col='red')
-  
-  library(limma)
-  
-  n = ncol(rawexp)/2
-  s = colnames(rawexp)
-  
-  par(pch=19,cex.lab=1.4,cex.axis=1.2)
-  cols = c( raw=rgb(0,0,0,0.5), loess=rgb(1,0,0,0.5), median=rgb(0,1,0,0.5), quantile=rgb(0,0,1,0.5))
-  for( i in 1:n){
-    for( j in 1:n){
-      exp_unit= "(log2)-intensity"
-      plot( rawexp[,s[i]], rawexp[,s[j]], xlab='', ylab='',col=cols['raw'], cex=0.6)
-      points(norm_loess[,s[i]], norm_loess[,s[j]],col=cols['loess'], cex=0.6)
-      points(norm_median[,s[i]], norm_median[,s[j]],col=cols['median'], cex=0.6)
-      points(norm_quantile[,s[i]], norm_quantile[,s[j]],col=cols['quantile'], cex=0.6)
-      
-      legend('topleft',title=NULL,legend = names(cols), col = cols, pch = 19, border = NA, bty='n')
-      title(main="Raw vs Normalized protein expression:",
-            xlab=paste(s[i],exp_unit) ,ylab=paste(s[j],exp_unit))
-    }
-  }
+  #plot(log2(INT[,1]),log2(INT[,2]))
+  # #points(NORM@normalizations$Quantile[,1],NORM@normalizations$Quantile[,2],col='red')
+  # 
+  # library(limma)
+  # 
+  # n = ncol(rawexp)/2
+  # s = colnames(rawexp)
+  # 
+  # par(pch=19,cex.lab=1.4,cex.axis=1.2)
+  # cols = c( raw=rgb(0,0,0,0.5), loess=rgb(1,0,0,0.5), median=rgb(0,1,0,0.5), quantile=rgb(0,0,1,0.5))
+  # for( i in 1:n){
+  #   for( j in 1:n){
+  #     exp_unit= "(log2)-intensity"
+  #     plot( rawexp[,s[i]], rawexp[,s[j]], xlab='', ylab='',col=cols['raw'], cex=0.6)
+  #     points(norm_loess[,s[i]], norm_loess[,s[j]],col=cols['loess'], cex=0.6)
+  #     points(norm_median[,s[i]], norm_median[,s[j]],col=cols['median'], cex=0.6)
+  #     points(norm_quantile[,s[i]], norm_quantile[,s[j]],col=cols['quantile'], cex=0.6)
+  #     
+  #     legend('topleft',title=NULL,legend = names(cols), col = cols, pch = 19, border = NA, bty='n')
+  #     title(main="Raw vs Normalized protein expression:",
+  #           xlab=paste(s[i],exp_unit) ,ylab=paste(s[j],exp_unit))
+  #   }
+  # }
   #  if(n>1 & onebyone){ invisible(readline(prompt="Press [enter] to continue")) }
 }
 
@@ -643,7 +655,7 @@ get_volcano_data = function(input_data=int_norm, min_lfc=2, min_pval=0.01, which
     }
 
     rownames(d.out) <- d.out$ID
-    datName <- stat_comb[i]
+    datName <- combination[i]
     datList[[datName]] = d.out
   }
   return(datList)

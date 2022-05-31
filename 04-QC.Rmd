@@ -178,7 +178,7 @@ expression before and after normalization using each of the following normalizat
 `r cat("",ul_normalizations)`
 
 ```{r exp_density}
-#draw_normalization_density(int_raw,df.group)
+draw_normalization_density(int_raw,int_lfq,df.group)
 ```
 
 ## Compare all-vs-all expression
