@@ -25,7 +25,8 @@
 <script src="libs/nouislider-7.0.10/jquery.nouislider.min.js"></script><link href="libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet">
 <script src="libs/selectize-0.12.0/selectize.min.js"></script><link href="libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
 <script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
-<link href="libs/dt-ext-fixedheader-1.11.3/css/fixedHeader.dataTables.min.css" rel="stylesheet">
+<script src="libs/plotly-binding-4.10.0/plotly.js"></script><script src="libs/typedarray-0.1/typedarray.min.js"></script><link href="libs/plotly-htmlwidgets-css-2.5.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="libs/plotly-main-2.5.1/plotly-latest.min.js"></script><link href="libs/dt-ext-fixedheader-1.11.3/css/fixedHeader.dataTables.min.css" rel="stylesheet">
 <script src="libs/dt-ext-fixedheader-1.11.3/js/dataTables.fixedHeader.min.js"></script><link href="libs/dt-ext-fixedcolumns-1.11.3/css/fixedColumns.dataTables.min.css" rel="stylesheet">
 <script src="libs/dt-ext-fixedcolumns-1.11.3/js/dataTables.fixedColumns.min.js"></script><script src="libs/jszip-1.11.3/jszip.min.js"></script><link href="libs/dt-ext-buttons-1.11.3/css/buttons.dataTables.min.css" rel="stylesheet">
 <script src="libs/dt-ext-buttons-1.11.3/js/dataTables.buttons.min.js"></script><script src="libs/dt-ext-buttons-1.11.3/js/buttons.html5.min.js"></script><script src="libs/dt-ext-buttons-1.11.3/js/buttons.colVis.min.js"></script><script src="libs/dt-ext-buttons-1.11.3/js/buttons.print.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
@@ -92,6 +93,22 @@ are not suitable for analysis:</p>
 <span class="co">#&gt; *    57 = multi-protein hits</span>
 <span class="co">#&gt; -----------------------------------------</span>
 <span class="co">#&gt;  -&gt; 206   hits eliminated</span>
+<span class="co">#&gt;  =&gt; 3429  remaining hits for analysis</span>
+
+<span class="va">int_raw</span><span class="op">=</span><span class="fu">read_maxquant</span><span class="op">(</span><span class="va">MAXQUANT.files</span><span class="op">$</span><span class="va">proteinGroups</span>, zero.to.na <span class="op">=</span> <span class="cn">T</span>, int_type <span class="op">=</span> <span class="st">'Intensity'</span>, pep_type <span class="op">=</span> <span class="st">'Unique peptides'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">filter_hits</span><span class="op">(</span>verbose <span class="op">=</span> <span class="cn">F</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span>uniprot<span class="op">=</span><span class="va">majority_protein_i_ds</span>,<span class="fu">starts_with</span><span class="op">(</span><span class="st">"intensity_"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+            <span class="co">#mutate(across(where(is.integer64), ~as.integer(.))) %&gt;% # make sure to use numeric and not integer</span>
+            <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'uniprot'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
+            <span class="fu">rename_with</span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span>,.fn<span class="op">=</span><span class="va">gsub</span>, pattern<span class="op">=</span><span class="st">'intensity_'</span>, replacement<span class="op">=</span><span class="st">''</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
+            <span class="fu">rename_with</span><span class="op">(</span>.fn <span class="op">=</span> <span class="va">str_to_upper</span><span class="op">)</span>
+<span class="co">#&gt; Total number of proteins hits: 3635</span>
+<span class="co">#&gt; *   104 = less than 2 unique peptides</span>
+<span class="co">#&gt; *    20 = contaminated hits</span>
+<span class="co">#&gt; *    52 = reversed sequences</span>
+<span class="co">#&gt; *    57 = multi-protein hits</span>
+<span class="co">#&gt; -----------------------------------------</span>
+<span class="co">#&gt;  -&gt; 206   hits eliminated</span>
 <span class="co">#&gt;  =&gt; 3429  remaining hits for analysis</span></code></pre></div>
 <div id="processing-quantified-intensities" class="section level2" number="4.1">
 <h2>
@@ -111,38 +128,43 @@ We filter out hits that contains missing values for either strains or replicates
 <code class="sourceCode R"><span class="co"># Process intensities</span>
 <span class="va">is.integer64</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/class.html">inherits</a></span><span class="op">(</span><span class="va">x</span>, <span class="st">"integer64"</span><span class="op">)</span>
 
-<span class="va">int_raw</span> <span class="op">=</span> <span class="va">ms1</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span>uniprot<span class="op">=</span><span class="va">majority_protein_i_ds</span>,<span class="fu">starts_with</span><span class="op">(</span><span class="st">"lfq"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+<span class="va">int_lfq</span> <span class="op">=</span> <span class="va">ms1</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span>uniprot<span class="op">=</span><span class="va">majority_protein_i_ds</span>,<span class="fu">starts_with</span><span class="op">(</span><span class="st">"lfq"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
             <span class="co">#mutate(across(where(is.integer64), ~as.integer(.))) %&gt;% # make sure to use numeric and not integer</span>
             <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'uniprot'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
             <span class="fu">rename_with</span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span>,.fn<span class="op">=</span><span class="va">gsub</span>, pattern<span class="op">=</span><span class="st">'lfq_intensity_'</span>, replacement<span class="op">=</span><span class="st">''</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
             <span class="fu">rename_with</span><span class="op">(</span>.fn <span class="op">=</span> <span class="va">str_to_upper</span><span class="op">)</span>
             
 
-<span class="va">int_md_norm</span> <span class="op">=</span> <span class="fu">center_intensities</span><span class="op">(</span><span class="va">int_raw</span>, center<span class="op">=</span><span class="st">'median'</span>, tolog2<span class="op">=</span><span class="cn">T</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
-          <span class="va">as.data.frame</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">rownames_to_column</span><span class="op">(</span><span class="st">'uniprot'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
-          <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
+<span class="va">int_md_norm</span> <span class="op">=</span> <span class="fu">center_intensities</span><span class="op">(</span><span class="va">int_lfq</span>, center<span class="op">=</span><span class="st">'median'</span>, tolog2<span class="op">=</span><span class="cn">T</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+          <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
           <span class="fu">rename_with</span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span>,.fn <span class="op">=</span><span class="va">gsub</span>, pattern<span class="op">=</span><span class="st">'lfq_intensity_'</span>, replacement<span class="op">=</span><span class="st">''</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
           <span class="fu">rename_with</span><span class="op">(</span>.fn <span class="op">=</span> <span class="va">str_to_upper</span><span class="op">)</span>
 <span class="co">#&gt; Normalize log2-transformed intensities by the samples  median ...</span>
          
 <span class="co"># TRYING DIFFERENT NORMALIZATIONS SCHEME (NOT READY)</span>
-<span class="va">INT_NORM</span> <span class="op">=</span> <span class="fu">normalize_intensities</span><span class="op">(</span><span class="va">int_raw</span>,<span class="va">df.group</span><span class="op">)</span>
+<span class="va">INT_NORM</span> <span class="op">=</span> <span class="fu">normalize_intensities</span><span class="op">(</span>int <span class="op">=</span> <span class="va">int_raw</span>, design <span class="op">=</span> <span class="va">df.group</span><span class="op">)</span>
 <span class="co">#&gt; Input data checked. All fields are valid.</span>
 <span class="co">#&gt; Sample check: More than one sample group found</span>
 <span class="co">#&gt; Sample replication check: All samples have replicates</span>
 <span class="co">#&gt; No RT column found, skipping RT processing</span>
 <span class="co">#&gt; No RT column specified (column named 'RT') or option not specified Skipping RT normalization.</span>
-<span class="va">int_norm</span> <span class="op">=</span> <span class="va">int_md_norm</span> 
+<span class="va">TAB_NORM</span> <span class="op">=</span> <span class="fu">kbl</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">INT_NORM</span><span class="op">@</span><span class="va">normalizations</span><span class="op">)</span>,row.names <span class="op">=</span> <span class="cn">T</span>,col.names <span class="op">=</span> <span class="st">'Normalizations:'</span>,position <span class="op">=</span> <span class="st">'left'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+            <span class="fu">kable_paper</span><span class="op">(</span><span class="st">"striped"</span>, full_width <span class="op">=</span> <span class="cn">F</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+            <span class="fu">kable_styling</span><span class="op">(</span>position<span class="op">=</span><span class="st">'left'</span><span class="op">)</span>  
+
+            
+<span class="va">int_norm</span> <span class="op">=</span> <span class="va">int_md_norm</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">rownames_to_column</span><span class="op">(</span><span class="st">'uniprot'</span><span class="op">)</span> 
+<span class="va">int_norm_ids</span> <span class="op">=</span> <span class="va">int_norm</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">sc_identifiers</span>,by<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'uniprot'</span><span class="op">=</span><span class="st">'UNIPROT'</span><span class="op">)</span><span class="op">)</span> 
 <span class="co">#compare_exp(log2(int_raw),int_loess_norm, all=T)</span>
 
-<span class="va">long_int_norm</span> <span class="op">=</span> <span class="fu">pivot_longer</span><span class="op">(</span><span class="va">int_norm</span>  , cols<span class="op">=</span><span class="op">-</span><span class="va">UNIPROT</span>, values_to<span class="op">=</span><span class="st">'int2use'</span>,
+<span class="va">long_int_norm</span> <span class="op">=</span> <span class="fu">pivot_longer</span><span class="op">(</span><span class="va">int_norm</span>  , cols<span class="op">=</span><span class="op">-</span><span class="va">uniprot</span>, values_to<span class="op">=</span><span class="st">'int2use'</span>,
                              names_to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'strain'</span>,<span class="st">'bio'</span>,<span class="st">'tech'</span>,<span class="st">'day'</span><span class="op">)</span>,
                              names_pattern <span class="op">=</span> <span class="st">"([^_]+)_([^_]+)_([^_]+)_([^_]+)"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
-                <span class="fu">group_by</span><span class="op">(</span><span class="va">strain</span>,<span class="va">UNIPROT</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">mutate</span><span class="op">(</span>na_rep <span class="op">=</span> <span class="fu">sum.na</span><span class="op">(</span><span class="va">int2use</span><span class="op">)</span><span class="op">)</span>
+                <span class="fu">group_by</span><span class="op">(</span><span class="va">strain</span>,<span class="va">uniprot</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">mutate</span><span class="op">(</span>na_rep <span class="op">=</span> <span class="fu">sum.na</span><span class="op">(</span><span class="va">int2use</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co"># Intensities across strains  (default is average)</span>
 <span class="va">int_by_strain</span> <span class="op">=</span> <span class="fu">pivot_wider</span><span class="op">(</span><span class="va">long_int_norm</span> ,
-              id_cols<span class="op">=</span><span class="va">UNIPROT</span>,
+              id_cols<span class="op">=</span><span class="va">uniprot</span>,
               names_from <span class="op">=</span> <span class="st">'strain'</span>,
               names_glue <span class="op">=</span> <span class="st">"{strain}"</span>,
               values_from <span class="op">=</span> <span class="st">"int2use"</span>,
@@ -150,7 +172,7 @@ We filter out hits that contains missing values for either strains or replicates
               <span class="op">)</span>
 
 <span class="va">na_by_strain</span> <span class="op">=</span> <span class="fu">pivot_wider</span><span class="op">(</span><span class="va">long_int_norm</span>,
-              id_cols<span class="op">=</span><span class="va">UNIPROT</span>,
+              id_cols<span class="op">=</span><span class="va">uniprot</span>,
               names_from <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'strain'</span><span class="op">)</span>,
               names_glue <span class="op">=</span> <span class="st">"na_rep_{strain}"</span>,
               values_from <span class="op">=</span> <span class="st">"int2use"</span>,
@@ -160,16 +182,16 @@ We filter out hits that contains missing values for either strains or replicates
 <span class="va">df_strains</span><span class="op">=</span> <span class="fu">left_join</span><span class="op">(</span><span class="va">int_by_strain</span>,<span class="va">na_by_strain</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
   <span class="va">rowwise</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
   <span class="fu">mutate</span><span class="op">(</span> na_strains <span class="op">=</span> <span class="fu">sum.na</span><span class="op">(</span><span class="fu">c_across</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu">starts_with</span><span class="op">(</span><span class="st">'lfq_int'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">)</span>
-<span class="co">#&gt; Joining, by = "UNIPROT"</span>
+<span class="co">#&gt; Joining, by = "uniprot"</span>
 
-<span class="va">int_all</span> <span class="op">=</span> <span class="va">int_norm</span>   <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'UNIPROT'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">int_all</span> <span class="op">=</span> <span class="va">int_norm</span>  <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'uniprot'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span>
 
 <span class="co"># Removing hits with missing values for more than one strain (using average intensities over replicates)</span>
 <span class="va">ms2</span><span class="op">=</span> <span class="va">df_strains</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">na_strains</span> <span class="op">&lt;</span> <span class="fl">1</span><span class="op">)</span>
-<span class="va">int_filt_strains</span> <span class="op">=</span> <span class="va">ms2</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu">starts_with</span><span class="op">(</span><span class="st">'na'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'UNIPROT'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">int_filt_strains</span> <span class="op">=</span> <span class="va">ms2</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu">starts_with</span><span class="op">(</span><span class="st">'na'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'uniprot'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span>
 
 <span class="co"># Save processed &amp; normalized intensities data</span>
-<span class="fu">write_rds</span><span class="op">(</span><span class="va">df_strains</span>,<span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html">here</a></span><span class="op">(</span><span class="st">'output'</span>,<span class="fu"><a href="https://rdrr.io/r/base/sprintf.html">sprintf</a></span><span class="op">(</span><span class="st">"%02d-normalized-intensities.rds"</span>,<span class="va">chap_cur</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="co">#write_rds(df_strains,here::here('output',sprintf("%02d-normalized-intensities.rds",chap_cur)))</span></code></pre></div>
 
 </div>
 </div>
@@ -198,7 +220,7 @@ We filter out hits that contains missing values for either strains or replicates
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 30-May-2022 16:14.</p>
+    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 01-Jun-2022 02:08.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

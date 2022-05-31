@@ -1,5 +1,6 @@
 fig:project-goal
 fig:phylo-8-strain
+fig:missing-hit-samples
 fig:missing-hit
 fig:na-samples
 fig:boxplot-cv
@@ -23,9 +24,12 @@ loading-mass-spectrometry-results
 data-processing
 processing-quantified-intensities
 qc
+total-sample-intensities
 boxplot-of-sample-raw-intensities
-number-of-missing-values-in-samples
+count-of-missing-hits-per-sample
+missing-hits-across-samples
 coefficient-of-variations
+expression-distributions
 compare-all-vs-all-expression
 scatterplots
 heatmap-correlation
@@ -35,6 +39,8 @@ scatterplots-1
 heatmap-correlation-1
 principle-component-analysis-1
 differential-expression
+volcano-plots
+differentially-expressed-genes
 functional-map-for-diffentially-expressed-genes
 session-info
 appendix-all-code-for-this-report
