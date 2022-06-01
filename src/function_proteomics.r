@@ -358,14 +358,12 @@ draw_boxcv = function(CV, by_bio=T,plot=F){
   }
   
   cv1 = ggplot(CV) + 
-    geom_violin(aes(y=cv_strain,x=strain,fill=strain),
-                trim=T,draw_quantiles = c(0.25,0.75), na.rm = T,show.legend = F) + 
+    geom_boxplot(aes(y=cv_strain,x=strain,fill=strain),na.rm = T,show.legend = F) +  # trim=T,draw_quantiles = c(0.25,0.75), 
     theme(axis.text.x = element_text(angle=90,vjust = 0.6)) + 
     ylab('%CV within strains')
   if(by_bio){
     cv2 = ggplot(CV) + 
-      geom_violin(aes(y=cv_biorep,x=biological_rep,fill=biological_rep),
-                  trim=T,draw_quantiles = c(0.25,0.75), na.rm = T, show.legend = F) +
+      geom_boxplot(aes(y=cv_biorep,x=biological_rep,fill=biological_rep), na.rm = T, show.legend = F) + #  trim=T,draw_quantiles = c(0.25,0.75), 
       theme(axis.text.x = element_text(angle=90,vjust = 0.6)) + 
       ylab('%CV within biological replicates')
     cv = (cv1|cv2)
@@ -581,7 +579,7 @@ make_pca = function(x,with_labels=F,col_by_group=2){
   return(p)
 }
 
-# 6 Statistical difference -----------------------------------------------------
+# 6 Differential expression ----------------------------------------------------
 library(limma)
 pairwise_condition = function(conditions = all_strains,to_pair=T){
   cond_pair = expand.grid(S1=conditions,S2=conditions)
@@ -771,7 +769,7 @@ volcPlot = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN
                  ) %>%
       add_text(x=~X, y=~Y, customdata =  ~n, text = ~n,  showlegend=F, texttemplate = '%{customdata:.s}', textposition = 'outside', textfont = list(size=20), hovertemplate = ~sig) %>%
       plotly::layout( updatemenus = list(
-                          list( y=1,type='dropdown', active = 0, font = list(size=10),buttons = button_comparisons, name='comparison'),
+                          list( y=1,type='dropdown', active = 0, buttons = button_comparisons, name='comparison'),
                           list( y=0.85,type='dropdown', active = 2, buttons = button_ids,name='id text' )),
                        legend = list(x = 0, y = 100,orientation='h'),
                        uniformtext=list(minsize=16, mode='hide'))#,
