@@ -1,3 +1,8 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 ```{r load-setup-data, echo=F}
 chap_cur=01
 chap_num = sprintf("%02d-",chap_cur)
@@ -99,6 +104,251 @@ translation.
 ## Overlap with proteomic
 
 ```{r overlap-proteomics}
+
+proteomic_WIS2 = fread(here::here('output','median-normalized.txt'), data.table = F)
+n = nrow(proteomic_WIS2)
+a = fread(here::here('output','proteomics-normalized-log10_intensities.tsv'))
+rownames(proteomic_WIS2)= a$UNIPROT
+
+prot_gene_name = fread(here::here('output','test.csv'), fill = T, data.table = F) %>% 
+                  mutate(Chromosome = recode(Chromosome,'(3)'=V8) ) %>% 
+                  dplyr::select(-V8) %>%
+                  dplyr::filter(!duplicated(prot_names)) %>% 
+                  column_to_rownames('prot_names')
+
+# Calculate mean of normalized intensity per strain
+a = lapply(isolates,function(i){
+  i<<-tolower(i)
+  i = tolower(i)
+  b = proteomic_WIS2[,grep(i,colnames(proteomic_WIS2))]
+  return(rowMeans(b,na.rm = T))
+})
+a= setNames(a,isolates)
+a = as.data.frame(a)
+rownames(a)= rownames(proteomic_WIS2)
+proteomic_WIS_mean2 = a
+rownames(proteomic_WIS_mean2) = rownames(proteomic_WIS2)
+proteomic_WIS_mean2=na.omit(proteomic_WIS_mean2)
+
+# 
+b=prot_gene_name[!(duplicated(prot_gene_name$prot_names)),]
+rownames(b)=b$prot_names
+a  =proteomic_WIS_mean2
+a = a[rownames(a)%in%b$prot_names,]
+rownames(a)=b[rownames(a),"ID"]
+proteomic_WIS_mean_filtered2=a
+
+
+temp = intersect(rownames(proteomic_WIS_mean_filtered2),rownames(RNA_seq_data))
+a = cbind(proteomic_WIS_mean_filtered2[temp,],cbind(RNA_seq_data[temp,],Ribo_seq_data[temp,]))
+for(i in c(0,8,16)){
+  if(i==0)(colnames(a)[1:8]=paste(colnames(a)[1:8],'Prot',sep='_'))
+  if(i==8)(colnames(a)[i+(1:8)]=paste(colnames(a)[i+(1:8)],'RNA',sep='_'))
+  if(i==16)(colnames(a)[i+(1:8)]=paste(colnames(a)[i+(1:8)],'Ribo',sep='_'))
+}
+
+e= a
+e = log2(e)
+
+a = nrow(e)
+boxplot(e)
+```
+
+Our proteomic data encompassed **`r n`** genes. The overlap between the two datasets encompassed **`r a`** (after several filtration of some missing values). The data between the different data sets needed to be normalized so it can be studied together (see graph above). We therefore performed quantile normalization to obtain equally distributed data (see below)
+
+```{r dataset4}
+df_rank <- apply(e,2,rank,ties.method="min")
+df_sorted <- data.frame(apply(e, 2, sort))
+df_mean <- apply(df_sorted, 1, mean)
+index_to_mean <- function(my_index, my_mean){
+  return(my_mean[my_index])
+}
+
+df_final2 <- apply(df_rank, 2, index_to_mean, my_mean=df_mean)
+boxplot(df_final2)
+```
+
+# Post transcriptional buffering {.tabset .tabset-pills}
+
+The post-transcriptional buffering (PTB) is a phenomenon where transcriptional variations tend to be buffered as the expression process progresses (add ref). It has been observed in different situations... To be completed
+
+It is possible to detect this phenomenon in different ways:
+
+## Correlation between isolate
+
+Using the quantile normalized data, we performed Spearman correlation between all the isolate profile in each expression level separately (using the median value of the replicate for the proteomic data)
+
+Comparing the correlation values, it reveals that the profiles tended to be more and more similar as the expression process progresses (increasing of the correlation coefficient values), bringing a first proof of the presence of the phenomenon across our 8 isolates. 
+
+```{r PTB1}
+
+d= list()
+
+a= df_final2[, grep('Prot', colnames(df_final2))]
+d[['prot']]=cor(a,method = 's')[lower.tri(cor(a,method = 's'))]
+a= df_final2[, grep('RNA', colnames(df_final2))]
+d[['RNA']]=cor(a,method = 's')[lower.tri(cor(a,method = 's'))]
+a = df_final2[, grep('Ribo', colnames(df_final2))]
+d[['Ribo']]=cor(a,method = 's')[lower.tri(cor(a,method = 's'))]
+d= as.data.frame(d)
+d= melt(d)
+d$variable=factor(d$variable,levels = c('RNA','Ribo','prot'))
+b = combn(as.character(unique(d$variable)),2)
+b = apply(b,2,function(i){
+  return(list(i[1],i[2]))
+})
+lapply(1:length(b),function(i){
+  b[[i]]<<-unlist(b[[i]])
+})
+
+
+ggplot(d,aes(x=variable, y=value,fill=variable))+
+  geom_boxplot()+
+  theme_classic()+
+  xlab('')+
+  ylab('Rho')+
+  stat_compare_means(comparisons = b)
+```
+
+
+## Variation quantification 
+
+It is also possible to explore PTB by quantifying the variation in each pairwise comparison. Basically, for each gene in each isolate pairwise comparison, we use the absolute value of the log2 transformed fold to represent the intensity of the expression variation between the 2 isolates. The more this value increases, the more a gene displays variable regulation between isolate.
+
+We calculated this value in each pairwise comparison, for each gene and at each expression level. We found that the intensities of the variations were decreasing as long as the expression process progresses, supporting once again the presence of the PTB phenomenon in our dataset.
+
+```{r PTB2}
+
+a = combn(isolates,2)
+
+b = pbapply(a,2,function(i){
+  i<<-i
+  d = list()
+  e = df_final2[,grep(pattern = paste(i,collapse = '|'),colnames(df_final2))]
+  
+  c = e[,1:2]
+  c= c[,1]/c[,2]
+  c= abs(log2(c))
+  
+  d[['prot']] = c
+  
+  c = e[,3:4]
+  c= c[,1]/c[,2]
+  c= abs(log2(c))
+  
+  d[['RNA']] = c
+  
+  c = e[,5:6]
+  c= c[,1]/c[,2]
+  c= abs(log2(c))
+  
+  d[['Ribo']] = c
+  c =lapply(d,function(j){
+    j<<-j
+    
+  })
+  return(c)
+})
+
+pblapply(1:length(b), function(i){
+  i<<-i
+  b[[i]] <<- as.data.frame(b[[i]])
+  return('')
+})
+
+a = do.call(rbind, b)
+a = melt(a)
+
+a$variable=factor(a$variable,levels = c('RNA','Ribo','prot'))
+b = combn(as.character(unique(a$variable)),2)
+b = apply(b,2,function(i){
+  return(list(i[1],i[2]))
+})
+lapply(1:length(b),function(i){
+  b[[i]]<<-unlist(b[[i]])
+})
+
+ggplot(a,aes(variable,value, fill=variable))+
+  geom_boxplot()+
+  scale_y_log10()+
+  stat_compare_means(comparisons = b)+
+  theme_classic()+
+  xlab('')+
+  ylab('|log2(FC)|')
+
+```
+
+## Euclidean distances between the profiles
+
+Euclidean distances can also give information on how variable datasets can be. We once again used the quantile normalized data to calculate Euclidean distances between the profile in each expression level.
+
+Consistently to the previous results, we found that the distances were lower and lower as the expression process progresses, suggesting once again that the expression variations were decreased. This also supported the presence of the PTB phenomenon
+
+```{r PTB3}
+
+a = dist(t(df_final2))
+a = as.matrix(a)
+a = as.data.frame(a)
+b=lapply(c('RNA','Ribo','Prot'), function(i){
+  i<<-i
+  a = df_final2[,grep(i, colnames(df_final2))]
+  a = dist(t(a))
+  a = as.matrix(a)
+  a= a[lower.tri(a)]
+  return(a)
+})
+names(b)=  c('RNA','Ribo','Prot')
+b=as.data.frame(b)
+b = melt(b)
+
+c = combn(as.character(unique(b$variable)),2)
+c = apply(c,2,function(i){
+  return(list(i[1],i[2]))
+})
+lapply(1:length(c),function(i){
+  c[[i]]<<-unlist(c[[i]])
+})
+
+ggplot(b,aes(x=variable,y=value, fill=variable))+
+  geom_boxplot()+
+  theme_classic()+
+  ylab('Euclidean distance')+
+  xlab('')+
+  stat_compare_means(comparisons = c)
+
+```
+
+## Variance comparison
+
+A simple variance calculation can also give a clue on the variation intensity of gene expression. We calculated the variance in all dataset for each gene and found that it tended to be higher at the transcription level, lower at the protein abundance level (with the translation level being in the middle), which was in accordance with the previous exploration
+
+```{r PTB4}
+
+a=lapply(c('RNA','Ribo','Prot'), function(i){
+  i<<-i
+  a = df_final2[,grep(i, colnames(df_final2))]
+  a=apply(a,1 ,var)
+  return(a)
+})
+names(a)= c('RNA','Ribo','Prot') 
+a =as.data.frame(a)
+b=a
+b = melt(b)
+c = combn(as.character(unique(b$variable)),2)
+c = apply(c,2,function(i){
+  return(list(i[1],i[2]))
+})
+lapply(1:length(c),function(i){
+  c[[i]]<<-unlist(c[[i]])
+})
+
+ggplot(b,aes(x=variable,y=value, fill=variable))+
+  geom_boxplot()+
+  theme_classic()+
+  ylab('Variance')+
+  xlab('')+
+  stat_compare_means(comparisons = c)+
+  scale_y_log10()
 
 ```
 
