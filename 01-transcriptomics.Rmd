@@ -108,8 +108,8 @@ rownames(proteomic_WIS2)= a$UNIPROT
 prot_gene_name = fread(here::here('output','test.csv'), fill = T, data.table = F) %>% 
                   mutate(Chromosome = recode(Chromosome,'(3)'=V8) ) %>% 
                   dplyr::select(-V8) %>%
-                  dplyr::filter(!duplicated(prot_names)) %>% 
-                  column_to_rownames('prot_names')
+                  dplyr::filter(!duplicated(prot_names))
+                  
 
 # Calculate mean of normalized intensity per strain
 a = lapply(isolates,function(i){
@@ -126,7 +126,7 @@ rownames(proteomic_WIS_mean2) = rownames(proteomic_WIS2)
 proteomic_WIS_mean2=na.omit(proteomic_WIS_mean2)
 
 # 
-b=prot_gene_name[!(duplicated(prot_gene_name$prot_names)),]
+b=prot_gene_name
 rownames(b)=b$prot_names
 a  =proteomic_WIS_mean2
 a = a[rownames(a)%in%b$prot_names,]
@@ -146,7 +146,7 @@ e= a
 e = log2(e)
 
 a = nrow(e)
-boxplot(e)
+boxplot(e,las=2)
 ```
 
 Our proteomic data encompassed **`r n`** genes. The overlap between the two datasets encompassed **`r a`** (after several filtration of some missing values). The data between the different data sets needed to be normalized so it can be studied together (see graph above). We therefore performed quantile normalization to obtain equally distributed data (see below)
@@ -160,7 +160,7 @@ index_to_mean <- function(my_index, my_mean){
 }
 
 df_final2 <- apply(df_rank, 2, index_to_mean, my_mean=df_mean)
-boxplot(df_final2)
+boxplot(df_final2,las=2)
 ```
 
 # Post transcriptional buffering {.tabset .tabset-pills}

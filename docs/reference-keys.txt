@@ -15,6 +15,11 @@ transcriptomics
 summary
 our-datasets
 overlap-with-proteomic
+post-transcriptional-buffering
+correlation-between-isolate
+variation-quantification
+euclidean-distances-between-the-profiles
+variance-comparison
 proteomics-experiment
 experiment-design
 sample-preparation

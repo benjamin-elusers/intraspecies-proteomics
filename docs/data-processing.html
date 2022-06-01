@@ -4,16 +4,16 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Chapter 4 Data processing | Intraspecies proteome expression</title>
+<title>Chapter 5 Data processing | Intraspecies proteome expression</title>
 <meta name="author" content="Benjamin Dubreuil">
 <meta name="author" content="Elie Teyssonniere">
 <meta name="description" content="Before normalizing intensities, we first need to discard some hits because they are not suitable for analysis: contaminants (identifier starts with CON) reversed sequences (identifier starts with...">
 <meta name="generator" content="bookdown 0.26 with bs4_book()">
-<meta property="og:title" content="Chapter 4 Data processing | Intraspecies proteome expression">
+<meta property="og:title" content="Chapter 5 Data processing | Intraspecies proteome expression">
 <meta property="og:type" content="book">
 <meta property="og:description" content="Before normalizing intensities, we first need to discard some hits because they are not suitable for analysis: contaminants (identifier starts with CON) reversed sequences (identifier starts with...">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Chapter 4 Data processing | Intraspecies proteome expression">
+<meta name="twitter:title" content="Chapter 5 Data processing | Intraspecies proteome expression">
 <meta name="twitter:description" content="Before normalizing intensities, we first need to discard some hits because they are not suitable for analysis: contaminants (identifier starts with CON) reversed sequences (identifier starts with...">
 <!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
@@ -57,12 +57,13 @@
         <ul class="book-toc list-unstyled">
 <li><a class="" href="index.html"><span class="header-section-number">1</span> Introduction</a></li>
 <li><a class="" href="transcriptomics.html"><span class="header-section-number">2</span> Transcriptomics</a></li>
-<li><a class="" href="proteomics-experiment.html"><span class="header-section-number">3</span> Proteomics experiment</a></li>
-<li><a class="active" href="data-processing.html"><span class="header-section-number">4</span> Data processing</a></li>
-<li><a class="" href="qc.html"><span class="header-section-number">5</span> Quality control</a></li>
-<li><a class="" href="strains-expression-comparison.html"><span class="header-section-number">6</span> Strains expression comparison</a></li>
-<li><a class="" href="differential-expression.html"><span class="header-section-number">7</span> Differential Expression</a></li>
-<li><a class="" href="session-info.html"><span class="header-section-number">8</span> Session Info</a></li>
+<li><a class="" href="post-transcriptional-buffering.html"><span class="header-section-number">3</span> Post transcriptional buffering</a></li>
+<li><a class="" href="proteomics-experiment.html"><span class="header-section-number">4</span> Proteomics experiment</a></li>
+<li><a class="active" href="data-processing.html"><span class="header-section-number">5</span> Data processing</a></li>
+<li><a class="" href="qc.html"><span class="header-section-number">6</span> Quality control</a></li>
+<li><a class="" href="strains-expression-comparison.html"><span class="header-section-number">7</span> Strains expression comparison</a></li>
+<li><a class="" href="differential-expression.html"><span class="header-section-number">8</span> Differential Expression</a></li>
+<li><a class="" href="session-info.html"><span class="header-section-number">9</span> Session Info</a></li>
 <li><a class="" href="references.html">References</a></li>
 </ul>
 
@@ -71,9 +72,9 @@
         </div>
       </nav>
 </div>
-  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="data-processing" class="section level1" number="4">
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="data-processing" class="section level1" number="5">
 <h1>
-<span class="header-section-number">4</span> Data processing<a class="anchor" aria-label="anchor" href="#data-processing"><i class="fas fa-link"></i></a>
+<span class="header-section-number">5</span> Data processing<a class="anchor" aria-label="anchor" href="#data-processing"><i class="fas fa-link"></i></a>
 </h1>
 <p>Before normalizing intensities, we first need to discard some hits because they
 are not suitable for analysis:</p>
@@ -83,7 +84,7 @@ are not suitable for analysis:</p>
 <li>multiple hits (<em>peptides matching several proteins</em>)</li>
 <li>not enough unique peptides (<em>low confidence identification (&lt; 2 peptides)</em>)</li>
 </ol>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Filter hits</span>
 <span class="va">ms1</span><span class="op">=</span><span class="fu">filter_hits</span><span class="op">(</span><span class="va">ms0</span><span class="op">)</span>
 <span class="co">#&gt; Discarding problematic hits...</span>
@@ -110,9 +111,9 @@ are not suitable for analysis:</p>
 <span class="co">#&gt; -----------------------------------------</span>
 <span class="co">#&gt;  -&gt; 206   hits eliminated</span>
 <span class="co">#&gt;  =&gt; 3429  remaining hits for analysis</span></code></pre></div>
-<div id="processing-quantified-intensities" class="section level2" number="4.1">
+<div id="processing-quantified-intensities" class="section level2" number="5.1">
 <h2>
-<span class="header-section-number">4.1</span> Processing quantified intensities<a class="anchor" aria-label="anchor" href="#processing-quantified-intensities"><i class="fas fa-link"></i></a>
+<span class="header-section-number">5.1</span> Processing quantified intensities<a class="anchor" aria-label="anchor" href="#processing-quantified-intensities"><i class="fas fa-link"></i></a>
 </h2>
 <p>Following the aim of this experiment, we wish to compare the variation of protein
 expression between strains.</p>
@@ -124,7 +125,7 @@ each sample’s median. (cf formula below)</p>
 <p><strong>Normalization method = Equalizing medians</strong></p>
 <p><span class="math display">\[ norm.int_{sample} = log2(raw.int_{sample}) - log2(median_{sample}) \]</span>
 We filter out hits that contains missing values for either strains or replicates</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Process intensities</span>
 <span class="va">is.integer64</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/class.html">inherits</a></span><span class="op">(</span><span class="va">x</span>, <span class="st">"integer64"</span><span class="op">)</span>
 
@@ -196,13 +197,13 @@ We filter out hits that contains missing values for either strains or replicates
 </div>
 </div>
   <div class="chapter-nav">
-<div class="prev"><a href="proteomics-experiment.html"><span class="header-section-number">3</span> Proteomics experiment</a></div>
-<div class="next"><a href="qc.html"><span class="header-section-number">5</span> Quality control</a></div>
+<div class="prev"><a href="proteomics-experiment.html"><span class="header-section-number">4</span> Proteomics experiment</a></div>
+<div class="next"><a href="qc.html"><span class="header-section-number">6</span> Quality control</a></div>
 </div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
     <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
       <ul class="nav navbar-nav">
-<li><a class="nav-link" href="#data-processing"><span class="header-section-number">4</span> Data processing</a></li>
-<li><a class="nav-link" href="#processing-quantified-intensities"><span class="header-section-number">4.1</span> Processing quantified intensities</a></li>
+<li><a class="nav-link" href="#data-processing"><span class="header-section-number">5</span> Data processing</a></li>
+<li><a class="nav-link" href="#processing-quantified-intensities"><span class="header-section-number">5.1</span> Processing quantified intensities</a></li>
 </ul>
 
       <div class="book-extra">
@@ -220,7 +221,7 @@ We filter out hits that contains missing values for either strains or replicates
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 01-Jun-2022 02:40.</p>
+    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 01-Jun-2022 16:45.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
