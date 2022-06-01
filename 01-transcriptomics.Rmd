@@ -112,48 +112,32 @@ prot_gene_name = fread(here::here('output','test.csv'), fill = T, data.table = F
                   
 
 # Calculate mean of normalized intensity per strain
-a = lapply(isolates,function(i){
-  i<<-tolower(i)
-  i = tolower(i)
-  b = proteomic_WIS2[,grep(i,colnames(proteomic_WIS2))]
-  return(rowMeans(b,na.rm = T))
-})
-a= setNames(a,isolates)
-a = as.data.frame(a)
-rownames(a)= rownames(proteomic_WIS2)
-proteomic_WIS_mean2 = a
-rownames(proteomic_WIS_mean2) = rownames(proteomic_WIS2)
-proteomic_WIS_mean2=na.omit(proteomic_WIS_mean2)
+int_strains = pivot_longer(proteomic_WIS2 %>% rownames_to_column('uniprot'), 
+             -uniprot, values_to='int2use',
+                       names_to = c('strain','bio','tech','day'),
+                       names_pattern = "([^_]+)_([^_]+)_([^_]+)_([^_]+)") %>% 
+      group_by(uniprot,strain=toupper(strain)) %>% summarize( mean_int = mean_(int2use)) %>%
+      pivot_wider(id_cols=uniprot, names_from = strain, names_glue = "{strain}", values_from = mean_int )
 
-# 
-b=prot_gene_name
-rownames(b)=b$prot_names
-a  =proteomic_WIS_mean2
-a = a[rownames(a)%in%b$prot_names,]
-rownames(a)=b[rownames(a),"ID"]
-proteomic_WIS_mean_filtered2=a
+proteomic_WIS_mean_filtered = data.frame(int_strains) %>% 
+                      drop_na %>% 
+                      dplyr::filter(uniprot %in% prot_gene_name$prot_names) %>% 
+                      left_join(prot_gene_name[,c('prot_names','ID')], by=c('uniprot'='prot_names'))
+
+all_exp = proteomic_WIS_mean_filtered %>% 
+  inner_join(RNA_seq_data %>% rownames_to_column('ID'), by ='ID', suffix=c('_Prot','')) %>% 
+  inner_join(Ribo_seq_data %>% rownames_to_column('ID'), by ='ID', suffix=c('_RNA','_Ribo'))
 
 
-temp = intersect(rownames(proteomic_WIS_mean_filtered2),rownames(RNA_seq_data))
-a = cbind(proteomic_WIS_mean_filtered2[temp,],cbind(RNA_seq_data[temp,],Ribo_seq_data[temp,]))
-for(i in c(0,8,16)){
-  if(i==0)(colnames(a)[1:8]=paste(colnames(a)[1:8],'Prot',sep='_'))
-  if(i==8)(colnames(a)[i+(1:8)]=paste(colnames(a)[i+(1:8)],'RNA',sep='_'))
-  if(i==16)(colnames(a)[i+(1:8)]=paste(colnames(a)[i+(1:8)],'Ribo',sep='_'))
-}
-
-e= a
-e = log2(e)
-
-a = nrow(e)
-boxplot(e,las=2)
+log2_all_exp= all_exp %>% column_to_rownames('ID') %>% dplyr::select(where(is.numeric)) %>% log2
+boxplot(log2_all_exp,las=2)
 ```
 
-Our proteomic data encompassed **`r n`** genes. The overlap between the two datasets encompassed **`r a`** (after several filtration of some missing values). The data between the different data sets needed to be normalized so it can be studied together (see graph above). We therefore performed quantile normalization to obtain equally distributed data (see below)
+Our proteomic data encompassed **`r n`** genes. The overlap between the two datasets encompassed **`r nrow(log2_all_exp)`** (after several filtration of some missing values). The data between the different data sets needed to be normalized so it can be studied together (see graph above). We therefore performed quantile normalization to obtain equally distributed data (see below)
 
 ```{r dataset4}
-df_rank <- apply(e,2,rank,ties.method="min")
-df_sorted <- data.frame(apply(e, 2, sort))
+df_rank <- apply(log2_all_exp,2,rank,ties.method="min")
+df_sorted <- data.frame(apply(log2_all_exp, 2, sort))
 df_mean <- apply(df_sorted, 1, mean)
 index_to_mean <- function(my_index, my_mean){
   return(my_mean[my_index])
