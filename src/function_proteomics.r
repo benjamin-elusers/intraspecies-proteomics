@@ -168,7 +168,7 @@ filter_hits = function(MS0=ms0,id='majority_protein_i_ds',np=2,verbose=T){
     dplyr::filter(!is_contaminated & !is_reversed & has_upep & !has_many)
   nelim = nrow(MS0)-nrow(MS1)
   
-  if(verbose)
+  if(verbose){
     cat("Discarding problematic hits...\n")
     cat(sprintf("* %5s = less than 2 unique peptides\n",sum(!MS0$has_upep)))
     cat(sprintf("* %5s = contaminated hits\n",sum(MS0$is_contaminated)))
@@ -177,7 +177,7 @@ filter_hits = function(MS0=ms0,id='majority_protein_i_ds',np=2,verbose=T){
     cat("-----------------------------------------\n")
     cat(sprintf(" -> %-5s hits eliminated\n",nelim))
     cat(sprintf(" => %-5s remaining hits for analysis\n",nrow(MS1)))
-  
+  }
   return(MS1)
 }
 #ms1=filter_hits(ms0)
