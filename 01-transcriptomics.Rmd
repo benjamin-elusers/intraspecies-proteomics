@@ -1,8 +1,3 @@
----
-output: html_document
-editor_options: 
-  chunk_output_type: console
----
 ```{r load-setup-data, echo=F}
 chap_cur=01
 chap_num = sprintf("%02d-",chap_cur)
