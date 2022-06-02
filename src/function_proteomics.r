@@ -678,7 +678,10 @@ draw_volcano = function(data2plot,plot_title){
               aes(x=EffectSize, y=-log10(qValue), fill = sig)) +
        geom_point(pch = 21, colour = "black", alpha = 0.5, size = 1.5)
   p <- p + scale_fill_manual(aesthetics = c('colour','fill'),
-                             values=c("Non significant" = 'gray', "Downregulated" = 'red', "Upregulated" = 'blue')) +
+                             values=c("Non significant" = 'gray', 
+                                      "Downregulated" = 'red', 
+                                      "Upregulated" = 'blue',
+                                      'is_imputed'='purple')) +
           xlab("log2 fold change") +
           ylab("-log10 q-value") + 
           labs(fill = NULL) +
@@ -695,13 +698,19 @@ draw_volcano = function(data2plot,plot_title){
   return(p)
 }
 
-volcPlot = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20, plot=F, use_dropdown=T, use_label='genename'){
+volcPlot = function(INPUT=int_norm, IMPUTED, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20, plot=F, use_dropdown=T, use_label='genename'){
     
   plotList <- list()
+  if(missing(IMPUTED)){ 
+    IMPUTED = tibble( uniprot = int_norm$uniprot, 
+                      is_imputed = (rowSums( is.na(int_norm))>0 )* 1, 
+                      imputed = factor(is_imputed,levels = c(0,1), labels = c('not','is_imputed')))
+  }
   #dlist <- get_volcano_data(input_data=INPUT, min_lfc=MIN_LFC, min_pval=MIN_PVAL, WHICH, topn = TOPN, id_col=use_label)
   all_data = get_volcano_data(INPUT, MIN_LFC, MIN_PVAL,  WHICH,TOPN) %>% bind_rows %>%
     mutate(log10_qvalue=-log10(qValue)) %>%
-    dplyr::left_join(sc_identifiers, by=c('ID'='UNIPROT'), keep=T )
+    dplyr::left_join(sc_identifiers, by=c('ID'='UNIPROT'), keep=T ) %>% 
+    dplyr::left_join(IMPUTED,by=c('ID'='uniprot'))
   
   label2use=match.arg(tolower(use_label),tolower(names(sc_identifiers))) 
   col_label = grep(label2use,names(sc_identifiers),ignore.case = T,v=T)
@@ -712,6 +721,7 @@ volcPlot = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN
   for( comp in comps ){
     data_comp = subset(all_data, comparison == comp )
     p = draw_volcano(data_comp,comp)
+    p = p + geom_point(data=subset(data_comp,is_imputed), aes(col=imputed), fill=NA, stroke=1,shape=21,show.legend = F)
     p = p + geom_vline(aes(xintercept = (MIN_LFC*-1)), lty = 'dashed', colour = 'red',lwd=0.5) +
             geom_vline(aes(xintercept = (MIN_LFC)), lty = 'dashed', colour = 'blue',lwd=0.5) +
             geom_hline(aes(yintercept = -log10(MIN_PVAL)), lty = 'dashed', colour = 'black',lwd=0.5) 
@@ -734,7 +744,11 @@ volcPlot = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN
                                }
     )
     
-    
+    button_imputed <- list(
+      list( method = 'restyle', args = list('transforms[1].value', 1), label = 'with_impute'),
+      list( method = 'restyle', args = list('transforms[1].value', 0), label = 'no_impute'))
+      
+
     id2show = names(sc_identifiers)
     button_ids = lapply(id2show,
                                 FUN = function(id) {
@@ -748,9 +762,10 @@ volcPlot = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN
     
     count_data = all_data %>%
                  group_by(comparison) %>% 
-                 mutate(Y = max(log10_qvalue)) %>%
+                 mutate(Y = max(log10_qvalue), Y_imp =Y - 1*is_imputed) %>%
                  ungroup() %>% mutate(X = fct_recode(factor(sig),"-2"="Downregulated","0"="Non significant","2"="Upregulated") %>% unfactor) %>%
-                 group_by(comparison,sig) %>% mutate(n=n())
+                 group_by(comparison,sig) %>% mutate(n=n()) %>% 
+      add_count(is_imputed,name = 'n_imp')
     
     #colnames(df) <- c("x", "y")
     fig <- plot_ly(data=all_data %>% arrange(sig) %>% dplyr::left_join(count_data),
@@ -764,14 +779,20 @@ volcPlot = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN
                                        target = ~comparison,
                                        operation = '=',
                                        value = sort(comps)[1]
+                                  ),
+                                  list(
+                                    type = 'filter',
+                                    target = ~is_imputed,
+                                    operation = '<=',
+                                    value = 1
                                   )
                    )
                  ) %>%
-      add_text(x=~X, y=~Y, customdata =  ~n, text = ~n,  showlegend=F, texttemplate = '%{customdata:.s}', textposition = 'outside', textfont = list(size=20), hovertemplate = ~sig) %>%
+      add_text(x=~X, y=~Y_imp, customdata =  ~n_imp,  showlegend=F, texttemplate = '%{customdata:.s}', textposition = 'outside', textfont = list(size=20), hovertemplate = ~sig) %>%
       plotly::layout( updatemenus = list(
-                          list( y=1,type='dropdown', active = 0, buttons = button_comparisons, name='comparison'),
-                          list( y=0.85,type='dropdown', active = 2, buttons = button_ids,name='id text' )),
-                       legend = list(x = 0, y = 100,orientation='h'),
+                          list( y=1,x=-0.1,type='dropdown', active = 0, buttons = button_comparisons, name='comparison'),
+                          list( y=0.2,x=-0.1,type='buttons', buttons = button_imputed, name='with_impute' ),
+                          list( y=0.7,x=-0.1,type='buttons', active = 2, buttons = button_ids,name='id text')),#legend = list(x = 0, y = 100,orientation='h'),
                        uniformtext=list(minsize=16, mode='hide'))#,
                       #annotations = list(list(text = "Compare:", font=list(size=16), x=-0.2, y=1.05, xref='paper', yref='paper',showarrow=F),
                        #                  list(text="Show:", font=list(size=16), x=-0.2, y=0.9, xref='paper', yref='paper',showarrow=F))) %>%
