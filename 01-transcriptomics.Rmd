@@ -129,22 +129,26 @@ all_exp = proteomic_WIS_mean_filtered %>%
   inner_join(Ribo_seq_data %>% rownames_to_column('ID'), by ='ID', suffix=c('_RNA','_Ribo'))
 
 
-log2_all_exp= all_exp %>% column_to_rownames('ID') %>% dplyr::select(where(is.numeric)) %>% log2
-boxplot(log2_all_exp,las=2)
+log2_all_exp= all_exp %>% column_to_rownames('ID') %>%
+              # transform to log2 to RNA and Ribo (already done for normalized proteomics)
+              mutate( across( ends_with(c('_RNA','_Ribo')), .fns = log2) ) %>%
+              select(where(is.numeric))
+boxplot(log2_all_exp,las=2,ylab='Gene expression (log2)')
 ```
 
 Our proteomic data encompassed **`r n`** genes. The overlap between the two datasets encompassed **`r nrow(log2_all_exp)`** (after several filtration of some missing values). The data between the different data sets needed to be normalized so it can be studied together (see graph above). We therefore performed quantile normalization to obtain equally distributed data (see below)
 
-```{r dataset4}
-df_rank <- apply(log2_all_exp,2,rank,ties.method="min")
+```{r quantile-norm}
+df_rank <- apply(log2_all_exp,2,rank,ties.method="min") 
 df_sorted <- data.frame(apply(log2_all_exp, 2, sort))
 df_mean <- apply(df_sorted, 1, mean)
 index_to_mean <- function(my_index, my_mean){
   return(my_mean[my_index])
 }
 
-df_final2 <- apply(df_rank, 2, index_to_mean, my_mean=df_mean)
-boxplot(df_final2,las=2)
+log2_all_exp_norm <- apply(df_rank, 2, index_to_mean, my_mean=df_mean) %>% as_tibble
+rownames(log2_all_exp_norm) = rownames(log2_all_exp)
+boxplot(log2_all_exp_norm,las=2, ylab='Normalized gene expression (log2)', title='Quantile-normalized gene expression across RNA/Ribo/Proteomics')
 ```
 
 # Post transcriptional buffering {.tabset .tabset-pills}
@@ -160,33 +164,24 @@ Using the quantile normalized data, we performed Spearman correlation between al
 Comparing the correlation values, it reveals that the profiles tended to be more and more similar as the expression process progresses (increasing of the correlation coefficient values), bringing a first proof of the presence of the phenomenon across our 8 isolates. 
 
 ```{r PTB1}
+library(corrr)
+cor_prot= select(log2_all_exp_norm, ends_with('_Prot')) %>%  correlate(method = 'sp') %>% column_to_rownames('term')
+cor_rna= select(log2_all_exp_norm, ends_with('_RNA')) %>%  correlate(method = 'sp') %>% column_to_rownames('term')
+cor_ribo= select(log2_all_exp_norm, ends_with('_Ribo')) %>%  correlate(method = 'sp') %>% column_to_rownames('term')
 
-d= list()
+cor_exp= tibble(RNA = cor_rna[lower.tri(cor_rna)],
+                Ribo = cor_ribo[lower.tri(cor_ribo)],
+                Prot = cor_prot[lower.tri(cor_prot)])
+df_cor_exp = pivot_longer(cor_exp, everything()) %>% 
+              arrange(name) %>% mutate(experiment = factor(name))
+pair_exp = unique(df_cor_exp$experiment) %>% as.character() %>% combn(m = 2) %>% as_tibble()
 
-a= df_final2[, grep('Prot', colnames(df_final2))]
-d[['prot']]=cor(a,method = 's')[lower.tri(cor(a,method = 's'))]
-a= df_final2[, grep('RNA', colnames(df_final2))]
-d[['RNA']]=cor(a,method = 's')[lower.tri(cor(a,method = 's'))]
-a = df_final2[, grep('Ribo', colnames(df_final2))]
-d[['Ribo']]=cor(a,method = 's')[lower.tri(cor(a,method = 's'))]
-d= as.data.frame(d)
-d= melt(d)
-d$variable=factor(d$variable,levels = c('RNA','Ribo','prot'))
-b = combn(as.character(unique(d$variable)),2)
-b = apply(b,2,function(i){
-  return(list(i[1],i[2]))
-})
-lapply(1:length(b),function(i){
-  b[[i]]<<-unlist(b[[i]])
-})
-
-
-ggplot(d,aes(x=variable, y=value,fill=variable))+
+ggplot(df_cor_exp,aes(x=experiment, y=value,fill=experiment))+
   geom_boxplot()+
   theme_classic()+
   xlab('')+
   ylab('Rho')+
-  stat_compare_means(comparisons = b)
+  stat_compare_means(comparisons =pair_exp)
 ```
 
 
@@ -197,60 +192,34 @@ It is also possible to explore PTB by quantifying the variation in each pairwise
 We calculated this value in each pairwise comparison, for each gene and at each expression level. We found that the intensities of the variations were decreasing as long as the expression process progresses, supporting once again the presence of the PTB phenomenon in our dataset.
 
 ```{r PTB2}
+#remotes::install_github("TimTeaFan/dplyover")
+library(dplyover)
+# calculate fold change pairwise for each experiment
+fc_prot = select(log2_all_exp_norm,ends_with('_Prot')) %>% 
+  rename_with(.fn=str_remove_all,pattern = "_Prot") %>%
+  transmute(across2x(everything(), everything(),.fns = ~foldchange(.x,.y),.comb = 'minimal'),
+            experiment='Prot')%>% 
+  pivot_longer(-experiment,names_to='pair',values_to = 'fc')
+fc_rna = select(log2_all_exp_norm,ends_with('_RNA')) %>% 
+  rename_with(.fn=str_remove_all,pattern = "_RNA") %>%
+  transmute(across2x(everything(), everything(),.fns = ~foldchange(.x,.y),.comb = 'minimal'),
+            experiment='RNA')%>% 
+  pivot_longer(-experiment,names_to='pair',values_to = 'fc')
+fc_ribo = select(log2_all_exp_norm,ends_with('_Ribo')) %>% 
+  rename_with(.fn=str_remove_all,pattern = "_Ribo") %>%
+  transmute(across2x(everything(), everything(),.fns = ~foldchange(.x,.y),.comb = 'minimal'),
+            experiment='Ribo') %>% 
+  pivot_longer(-experiment,names_to='pair',values_to = 'fc')
 
-a = combn(isolates,2)
+# combine all pairwise foldchange
+fc_exp = bind_rows(fc_prot,fc_rna,fc_ribo) %>% arrange(experiment,pair)
 
-b = pbapply(a,2,function(i){
-  i<<-i
-  d = list()
-  e = df_final2[,grep(pattern = paste(i,collapse = '|'),colnames(df_final2))]
-  
-  c = e[,1:2]
-  c= c[,1]/c[,2]
-  c= abs(log2(c))
-  
-  d[['prot']] = c
-  
-  c = e[,3:4]
-  c= c[,1]/c[,2]
-  c= abs(log2(c))
-  
-  d[['RNA']] = c
-  
-  c = e[,5:6]
-  c= c[,1]/c[,2]
-  c= abs(log2(c))
-  
-  d[['Ribo']] = c
-  c =lapply(d,function(j){
-    j<<-j
-    
-  })
-  return(c)
-})
+pair_exp=unique(fc_exp$experiment) %>% as.character() %>% combn(m = 2) %>% as_tibble()
 
-pblapply(1:length(b), function(i){
-  i<<-i
-  b[[i]] <<- as.data.frame(b[[i]])
-  return('')
-})
-
-a = do.call(rbind, b)
-a = melt(a)
-
-a$variable=factor(a$variable,levels = c('RNA','Ribo','prot'))
-b = combn(as.character(unique(a$variable)),2)
-b = apply(b,2,function(i){
-  return(list(i[1],i[2]))
-})
-lapply(1:length(b),function(i){
-  b[[i]]<<-unlist(b[[i]])
-})
-
-ggplot(a,aes(variable,value, fill=variable))+
+ggplot(fc_exp,aes(experiment, log2(fc), fill=experiment))+
   geom_boxplot()+
   scale_y_log10()+
-  stat_compare_means(comparisons = b)+
+  stat_compare_means(comparisons = pair_exp)+
   theme_classic()+
   xlab('')+
   ylab('|log2(FC)|')
@@ -264,13 +233,19 @@ Euclidean distances can also give information on how variable datasets can be. W
 Consistently to the previous results, we found that the distances were lower and lower as the expression process progresses, suggesting once again that the expression variations were decreased. This also supported the presence of the PTB phenomenon
 
 ```{r PTB3}
+# dist_exp = log2_all_exp_norm %>% add_column(id=all_exp$ID) %>%
+#   pivot_longer(cols = -id,
+#                names_to = c('strain','experiment'), 
+#                names_pattern = '(.+)_(.+)', 
+#                values_to = 'exp') %>% 
+#   pivot_wider(id_cols = c('id','experiment'),names_from='strain', values_from = 'exp') %>%
+#   group_by(experiment) %>% 
+#   mutate( across2x(AMH:CQC, AMH:CQC, .fns =dist, method= 'euclidean', .comb = 'minimal'))     
+#            
 
-a = dist(t(df_final2))
-a = as.matrix(a)
-a = as.data.frame(a)
 b=lapply(c('RNA','Ribo','Prot'), function(i){
   i<<-i
-  a = df_final2[,grep(i, colnames(df_final2))]
+  a = log2_all_exp_norm[,grep(i, colnames(log2_all_exp_norm))]
   a = dist(t(a))
   a = as.matrix(a)
   a= a[lower.tri(a)]
@@ -280,20 +255,14 @@ names(b)=  c('RNA','Ribo','Prot')
 b=as.data.frame(b)
 b = melt(b)
 
-c = combn(as.character(unique(b$variable)),2)
-c = apply(c,2,function(i){
-  return(list(i[1],i[2]))
-})
-lapply(1:length(c),function(i){
-  c[[i]]<<-unlist(c[[i]])
-})
+pair_exp=unique(b$variable) %>% as.character() %>% combn(m = 2) %>% as_tibble()
 
 ggplot(b,aes(x=variable,y=value, fill=variable))+
   geom_boxplot()+
   theme_classic()+
   ylab('Euclidean distance')+
   xlab('')+
-  stat_compare_means(comparisons = c)
+  stat_compare_means(comparisons = pair_exp)
 
 ```
 
@@ -305,7 +274,7 @@ A simple variance calculation can also give a clue on the variation intensity of
 
 a=lapply(c('RNA','Ribo','Prot'), function(i){
   i<<-i
-  a = df_final2[,grep(i, colnames(df_final2))]
+  a = log2_all_exp_norm[,grep(i, colnames(log2_all_exp_norm))]
   a=apply(a,1 ,var)
   return(a)
 })
@@ -313,20 +282,15 @@ names(a)= c('RNA','Ribo','Prot')
 a =as.data.frame(a)
 b=a
 b = melt(b)
-c = combn(as.character(unique(b$variable)),2)
-c = apply(c,2,function(i){
-  return(list(i[1],i[2]))
-})
-lapply(1:length(c),function(i){
-  c[[i]]<<-unlist(c[[i]])
-})
+
+pair_exp=unique(b$variable) %>% as.character() %>% combn(m = 2) %>% as_tibble()
 
 ggplot(b,aes(x=variable,y=value, fill=variable))+
   geom_boxplot()+
   theme_classic()+
   ylab('Variance')+
   xlab('')+
-  stat_compare_means(comparisons = c)+
+  stat_compare_means(comparisons = pair_exp)+
   scale_y_log10()
 
 ```
