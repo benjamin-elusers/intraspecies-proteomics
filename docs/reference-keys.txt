@@ -47,6 +47,7 @@ differential-expression
 volcano-plots
 differentially-expressed-genes
 functional-map-for-diffentially-expressed-genes
+heatmap-of-expression-differences
 session-info
 appendix-all-code-for-this-report
 platform-info

@@ -210,7 +210,7 @@ Coefficient of variations correspond to the percent of variance relative to the 
 The following boxplots show how variable protein expression is, across strains
 or across biological replicates, before and after normalization.
 
-```{r boxplot-cv, echo=F, fig.cap='Coefficient of variations (%) in each sample and per strains before and after processing data (filtering and normalization)', fig.height=12, fig.width=12}
+```{r boxplot-cv, echo=F, fig.cap='Coefficient of variations (%) in each sample and per strains before and after processing data (filtering and normalization)', fig.height=10, fig.width=10}
 
 CV_raw = calculate_cv(long_int_all,by_bio = T)
 box_cv_raw = draw_boxcv(CV_raw,by_bio = T)
@@ -233,7 +233,7 @@ expression before and after normalization using each of the following normalizat
 
 `r TAB_NORM`
 
-```{r exp_density,fig.height=12, fig.width=12}
+```{r exp_density,fig.height=8, fig.width=8}
 draw_normalization_density(int_raw,int_lfq,df.group)
 ```
 

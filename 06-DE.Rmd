@@ -1,6 +1,6 @@
 ```{r load-data-comparison, echo=F}
 chap_cur=06
-#load(here('output',sprintf("%02d-strain-comparison.rdata",chap_cur-1)))
+#load(here::here('output',sprintf("%02d-strain-comparison.rdata",chap_cur-1)))
 ```
 
 # Differential Expression
@@ -109,6 +109,55 @@ library(d3Tree)
 treemap(df_dfe_annot, index=c("BIOPROCESS_all", "comparison"), vSize='regulated', vColor="EffectSize", type="value") 
 treemap(df_dfe_annot, index=c("BIOPROCESS_all", "GENENAME"), vSize="regulated", vColor="EffectSize", type="value",)
 ```
+
+## Heatmap of expression differences
+```{r heatmap-diffexp}
+dat_scaled = int_scaled_strains %>% as.data.frame() %>% rownames_to_column('uniprot')
+
+# Transpose the matrix to calculate distance between experiments, row-wise
+d_pair <- dat_scaled[,-1] %>% t() %>%
+  dist(.,method = "euclidean", diag = FALSE, upper = FALSE)
+# Calculate the distance between proteins row-wise 
+d_prot <- dat_scaled %>% dplyr::filter( uniprot %in% dfe$ID) %>% dplyr::select(-uniprot) %>% dist(.,method = "euclidean", diag = FALSE, upper = FALSE)
+
+dfe_lfc = bind_rows(volcano_data) %>% 
+          pivot_wider(id_cols=ID, names_from = 'comparison', values_from = 'EffectSize') %>% 
+          dplyr::filter(ID %in% dfe$ID) %>% left_join(sc_identifiers,by=c('ID'='UNIPROT')) %>%
+          column_to_rownames('GENENAME') %>% dplyr::select(-ORF,-ID,-SGD)
+pheatmap::pheatmap(t(dfe_lfc),fontsize = 5,cutree_rows = 5,cellwidth = 3,cellheight = 3,border_color = NA)
+
+dfe_exp = dat_scaled %>% dplyr::filter( uniprot %in% dfe$ID) %>%  left_join(sc_identifiers,by=c('uniprot'='UNIPROT'))  
+
+#p_dfe_exp=pheatmap::pheatmap(dfe_exp %>% dplyr::select(-ORF,-uniprot,-SGD) %>%column_to_rownames('GENENAME'),
+#                             fontsize = 8,cellwidth = 4,cellheight =4,border_color = NA,treeheight_col = 10)
+
+textcol <- "grey40"
+# further modified ggplot
+p <- ggplot(dfe_exp%>%pivot_longer(where(is.numeric), names_to = 'strain', values_to='exp'), 
+            aes(y=strain, x=GENENAME, fill=exp))+
+  geom_tile(colour="white", size=0.1)+
+  labs(x="", y="")+
+  scale_fill_gradientn(colours = colorRampPalette(rev(brewer.pal(n = 7, name =
+  "RdYlBu")))(100))+
+  #scale_fill_manual(values=c("#d53e4f", "#f46d43", "#fdae61", "#fee08b", "#e6f598", "#abdda4", "#ddf1da"), na.value = "grey90")+
+  theme_grey(base_size=10)+
+  theme(legend.position="right", legend.direction="vertical",
+        legend.title=element_text(colour=textcol),
+        legend.margin=margin(grid::unit(0, "cm")),
+        legend.text=element_text(colour=textcol, size=7, face="bold"),
+        legend.key.height=grid::unit(0.8, "cm"),
+        legend.key.width=grid::unit(0.2, "cm"),
+        axis.text.x=element_text(size=8, angle=90,colour=textcol,hjust = 1),
+        axis.text.y=element_text(vjust=0.2, colour=textcol),
+        axis.ticks=element_line(size=0.4),
+        plot.background=element_blank(),
+        panel.border=element_blank(),
+        plot.margin=margin(0.7, 0.4, 0.1, 0.2, "cm"),
+        plot.title=element_text(colour=textcol, hjust=0, size=14, face="bold")
+        ) + coord_equal()
+p
+```
+
 
 ```{r save-data-diffexp, echo=F}
 save.image(here('output',sprintf("%02d-differential-expression.rdata",chap_cur)))
