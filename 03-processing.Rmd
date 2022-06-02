@@ -1,6 +1,6 @@
 ```{r load-data-proteomics, echo=F}
 chap_cur=03
-#load(here('output',sprintf('%02d-proteomics.rdata',chap_cur-1)))
+load(here('output',sprintf('%02d-proteomics.rdata',chap_cur-1)))
 ```
 
 # Data processing
@@ -109,6 +109,15 @@ int_filt_strains = ms2 %>% dplyr::select(-starts_with('na')) %>% column_to_rowna
 #write_rds(df_strains,here::here('output',sprintf("%02d-normalized-intensities.rds",chap_cur)))
 ```
 
+
+```{r impute-na}
+library(MsCoreUtils)
+int_norm_nona = impute_bpca(int_norm)
+#colSums(is.na(int_norm_nona))
+#draw_scatterplots(int_norm_nona)
+int_norm = int_norm_nona
+
+```
 
 ```{r 02-save-data, echo=F}
 save.image(here('output',sprintf("%02d-processed-data.rdata",chap_cur)))
