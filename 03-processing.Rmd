@@ -70,7 +70,7 @@ TAB_NORM = kbl(names(INT_NORM@normalizations),row.names = T,col.names = 'Normali
 
             
 int_norm = int_md_norm %>% rownames_to_column('uniprot') 
-int_norm_ids = int_norm %>% dplyr::left_join(sc_identifiers,by=c('uniprot'='UNIPROT')) 
+int_norm_ids = int_norm %>% dplyr::left_join(sc_identifiers,by=c('uniprot'='UNIPROT')) %>% filter(!duplicated(uniprot))
 #compare_exp(log2(int_raw),int_loess_norm, all=T)
 
 long_int_norm = pivot_longer(int_norm  , cols=-uniprot, values_to='int2use',
@@ -112,11 +112,10 @@ int_filt_strains = ms2 %>% dplyr::select(-starts_with('na')) %>% column_to_rowna
 
 ```{r impute-na}
 library(MsCoreUtils)
-int_norm_nona = impute_bpca(int_norm)
+int_norm_nona = int_norm %>% drop_na()
+int_norm_bpca = impute_bpca(int_norm) %>% as_tibble() %>% add_column(uniprot = int_norm_ids$uniprot)
 #colSums(is.na(int_norm_nona))
 #draw_scatterplots(int_norm_nona)
-int_norm = int_norm_nona
-
 ```
 
 ```{r 02-save-data, echo=F}

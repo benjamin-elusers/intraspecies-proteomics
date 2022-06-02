@@ -5,10 +5,20 @@ chap_cur=06
 
 # Differential Expression
 
+We then compare the protein expression between strains for each pairwise
+comparison (28 unique pairwise combinations)
+
+To detect differentially expressed genes, we use the limma analysis on
+normalized protein expression.
+
 ## Volcano plots
+
+First, we can look at the volcano plots (log-foldchange vs qvalue) for each unique
+pairwise comparison.
 
 ```{r volcano-plots, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
 
+volcPlot(INPUT=int_norm_na, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20)
 volcPlot(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20)
 
 ```
@@ -17,10 +27,20 @@ volcPlot(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20)
 ## Differentially expressed genes
 
 ```{r dfe-gene }
-volcano_data =  get_volcano_data(input_data=int_norm, which='both',
+volcano_data =  get_volcano_data(input_data=int_norm_nona, which='both',
                             min_lfc=2, min_pval=0.01, topn = 20)
 df_limma = bind_rows(volcano_data) %>% as_tibble()
-dfe = subset(df_limma,sig!='Non significant')
+dfe_nona = subset(df_limma,sig!='Non significant')
+
+dfe =  get_volcano_data(input_data=int_norm_bpca, which='both',
+                            min_lfc=2, min_pval=0.01, topn = 20) %>% 
+                bind_rows %>% as_tibble() %>% filter(sig!='Non significant')
+N_DFE_NONA = nrow(dfe_nona)
+N_DFE_IMPUTE = nrow(dfe)
+
+NPROT_DFE_NONA =  n_distinct(dfe_nona$ID)
+NPROT_DFE_IMPUTE =  n_distinct(dfe$ID)
+
 down = dfe %>% group_by(ID) %>% dplyr::filter(sig=='Downregulated') %>%
        summarize( strains_down = paste0(comparison,collapse=' '),
                   down_AMH = str_count(strains_down,'AMH-'),
@@ -64,6 +84,21 @@ df_dfe_annot = df_dfe %>%
                   GENENAME,ORF,PNAME,'FUNCTION','BIOPROCESS_all','ORTHO','OTHER')
 ```
 
+We get *`r NPROT_DFE_NONA`* genes differentially expressed when
+excluding genes with missing expression in any samples. 
+
+On average, each gene is detected in `r NPROT_DFE_NONA/N_DFE_NONA` unique pairwise strain comparison.
+
+
+After imputation of missing expression with bpca (Bayesian missing value imputation),
+we get *`r NPROT_DFE_IMPUTE-NPROT_DFE_NONA`* more genes differentially expressed (*`r NPROT_DFE_IMPUTE`*).
+
+On average, each gene is detected in `r NPROT_DFE_IMPUTE/N_DFE_IMPUTE` unique pairwise strain comparison.
+
+
+The following table shows the list of differentially expressed genes across all unique pairwise comparison,
+with annotations data and conservation/snp information.
+
 ```{r dfe-table,fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T}
 library(kableExtra)
 library(formattable)
@@ -84,8 +119,8 @@ ft_dt = df_dfe_annot %>%
             #autoWidth = TRUE, ## use smart column width handling
             server = FALSE,   ## use client-side processing
             dom = 'Bfrtip', buttons = list('csv', 'excel', list(extend = 'colvis')),
-            fixedColumns = list(leftColumns = 2),
-            columnDefs = list(list(visible=FALSE, targets=c(42:48)))
+            fixedColumns = list(leftColumns = 1),
+            columnDefs = list(list(width = '50px', visible=TRUE, targets = "_all"))
           ),
   extensions = c('FixedHeader','FixedColumns','Buttons'),
   selection = 'single',           ## enable selection of a single row
