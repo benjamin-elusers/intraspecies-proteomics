@@ -85,42 +85,33 @@
 <p>Using the quantile normalized data, we performed Spearman correlation between all the isolate profile in each expression level separately (using the median value of the replicate for the proteomic data)</p>
 <p>Comparing the correlation values, it reveals that the profiles tended to be more and more similar as the expression process progresses (increasing of the correlation coefficient values), bringing a first proof of the presence of the phenomenon across our 8 isolates.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R">
-<span class="va">d</span><span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
-
-<span class="va">a</span><span class="op">=</span> <span class="va">df_final2</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="st">'Prot'</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">df_final2</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
-<span class="va">d</span><span class="op">[[</span><span class="st">'prot'</span><span class="op">]</span><span class="op">]</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span><span class="op">(</span><span class="va">a</span>,method <span class="op">=</span> <span class="st">'s'</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span><span class="op">(</span><span class="va">a</span>,method <span class="op">=</span> <span class="st">'s'</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
-<span class="va">a</span><span class="op">=</span> <span class="va">df_final2</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="st">'RNA'</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">df_final2</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
-<span class="va">d</span><span class="op">[[</span><span class="st">'RNA'</span><span class="op">]</span><span class="op">]</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span><span class="op">(</span><span class="va">a</span>,method <span class="op">=</span> <span class="st">'s'</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span><span class="op">(</span><span class="va">a</span>,method <span class="op">=</span> <span class="st">'s'</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
-<span class="va">a</span> <span class="op">=</span> <span class="va">df_final2</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="st">'Ribo'</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">df_final2</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
-<span class="va">d</span><span class="op">[[</span><span class="st">'Ribo'</span><span class="op">]</span><span class="op">]</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span><span class="op">(</span><span class="va">a</span>,method <span class="op">=</span> <span class="st">'s'</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span><span class="op">(</span><span class="va">a</span>,method <span class="op">=</span> <span class="st">'s'</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
-<span class="va">d</span><span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span>
-<span class="va">d</span><span class="op">=</span> <span class="fu">melt</span><span class="op">(</span><span class="va">d</span><span class="op">)</span>
-<span class="co">#&gt; No id variables; using all as measure variables</span>
-<span class="va">d</span><span class="op">$</span><span class="va">variable</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">variable</span>,levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'RNA'</span>,<span class="st">'Ribo'</span>,<span class="st">'prot'</span><span class="op">)</span><span class="op">)</span>
-<span class="va">b</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span>,<span class="fl">2</span><span class="op">)</span>
-<span class="va">b</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">b</span>,<span class="fl">2</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">i</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,<span class="va">i</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">b</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">&lt;&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">b</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; [[1]]</span>
-<span class="co">#&gt; [1] "prot" "RNA" </span>
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tidymodels/corrr">corrr</a></span><span class="op">)</span>
+<span class="va">cor_prot</span><span class="op">=</span> <span class="fu">select</span><span class="op">(</span><span class="va">log2_all_exp_norm</span>, <span class="fu">ends_with</span><span class="op">(</span><span class="st">'_Prot'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>  <span class="fu"><a href="https://corrr.tidymodels.org/reference/correlate.html">correlate</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">'sp'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'term'</span><span class="op">)</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; [[2]]</span>
-<span class="co">#&gt; [1] "prot" "Ribo"</span>
+<span class="co">#&gt; Correlation method: 'sp'</span>
+<span class="co">#&gt; Missing treated using: 'pairwise.complete.obs'</span>
+<span class="va">cor_rna</span><span class="op">=</span> <span class="fu">select</span><span class="op">(</span><span class="va">log2_all_exp_norm</span>, <span class="fu">ends_with</span><span class="op">(</span><span class="st">'_RNA'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>  <span class="fu"><a href="https://corrr.tidymodels.org/reference/correlate.html">correlate</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">'sp'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'term'</span><span class="op">)</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; [[3]]</span>
-<span class="co">#&gt; [1] "RNA"  "Ribo"</span>
+<span class="co">#&gt; Correlation method: 'sp'</span>
+<span class="co">#&gt; Missing treated using: 'pairwise.complete.obs'</span>
+<span class="va">cor_ribo</span><span class="op">=</span> <span class="fu">select</span><span class="op">(</span><span class="va">log2_all_exp_norm</span>, <span class="fu">ends_with</span><span class="op">(</span><span class="st">'_Ribo'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>  <span class="fu"><a href="https://corrr.tidymodels.org/reference/correlate.html">correlate</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">'sp'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'term'</span><span class="op">)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Correlation method: 'sp'</span>
+<span class="co">#&gt; Missing treated using: 'pairwise.complete.obs'</span>
 
+<span class="va">cor_exp</span><span class="op">=</span> <span class="fu">tibble</span><span class="op">(</span>RNA <span class="op">=</span> <span class="va">cor_rna</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="va">cor_rna</span><span class="op">)</span><span class="op">]</span>,
+                Ribo <span class="op">=</span> <span class="va">cor_ribo</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="va">cor_ribo</span><span class="op">)</span><span class="op">]</span>,
+                Prot <span class="op">=</span> <span class="va">cor_prot</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="va">cor_prot</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
+<span class="va">df_cor_exp</span> <span class="op">=</span> <span class="fu">pivot_longer</span><span class="op">(</span><span class="va">cor_exp</span>, <span class="fu">everything</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+              <span class="fu">arrange</span><span class="op">(</span><span class="va">name</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">mutate</span><span class="op">(</span>experiment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">name</span><span class="op">)</span><span class="op">)</span>
+<span class="va">pair_exp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">df_cor_exp</span><span class="op">$</span><span class="va">experiment</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span>
 
-<span class="fu">ggplot</span><span class="op">(</span><span class="va">d</span>,<span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">variable</span>, y<span class="op">=</span><span class="va">value</span>,fill<span class="op">=</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
+<span class="fu">ggplot</span><span class="op">(</span><span class="va">df_cor_exp</span>,<span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">experiment</span>, y<span class="op">=</span><span class="va">value</span>,fill<span class="op">=</span><span class="va">experiment</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">geom_boxplot</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">theme_classic</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">xlab</span><span class="op">(</span><span class="st">''</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">ylab</span><span class="op">(</span><span class="st">'Rho'</span><span class="op">)</span><span class="op">+</span>
-  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">b</span><span class="op">)</span></code></pre></div>
+  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span><span class="va">pair_exp</span><span class="op">)</span></code></pre></div>
 <div class="inline-figure"><img src="Intraspecies-proteome-expression_files/figure-html/PTB1-1.png" width="100%"></div>
 </div>
 <div id="variation-quantification" class="section level2" number="3.2">
@@ -130,152 +121,34 @@
 <p>It is also possible to explore PTB by quantifying the variation in each pairwise comparison. Basically, for each gene in each isolate pairwise comparison, we use the absolute value of the log2 transformed fold to represent the intensity of the expression variation between the 2 isolates. The more this value increases, the more a gene displays variable regulation between isolate.</p>
 <p>We calculated this value in each pairwise comparison, for each gene and at each expression level. We found that the intensities of the variations were decreasing as long as the expression process progresses, supporting once again the presence of the PTB phenomenon in our dataset.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R">
-<span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span><span class="va">isolates</span>,<span class="fl">2</span><span class="op">)</span>
+<code class="sourceCode R"><span class="co">#remotes::install_github("TimTeaFan/dplyover")</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/TimTeaFan/dplyover">dplyover</a></span><span class="op">)</span>
+<span class="co"># calculate fold change pairwise for each experiment</span>
+<span class="va">fc_prot</span> <span class="op">=</span> <span class="fu">select</span><span class="op">(</span><span class="va">log2_all_exp_norm</span>,<span class="fu">ends_with</span><span class="op">(</span><span class="st">'_Prot'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">rename_with</span><span class="op">(</span>.fn<span class="op">=</span><span class="va">str_remove_all</span>,pattern <span class="op">=</span> <span class="st">"_Prot"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
+  <span class="fu">transmute</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/dplyover/man/across2.html">across2x</a></span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span>, <span class="fu">everything</span><span class="op">(</span><span class="op">)</span>,.fns <span class="op">=</span> <span class="op">~</span><span class="fu">foldchange</span><span class="op">(</span><span class="va">.x</span>,<span class="va">.y</span><span class="op">)</span>,.comb <span class="op">=</span> <span class="st">'minimal'</span><span class="op">)</span>,
+            experiment<span class="op">=</span><span class="st">'Prot'</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">pivot_longer</span><span class="op">(</span><span class="op">-</span><span class="va">experiment</span>,names_to<span class="op">=</span><span class="st">'pair'</span>,values_to <span class="op">=</span> <span class="st">'fc'</span><span class="op">)</span>
+<span class="va">fc_rna</span> <span class="op">=</span> <span class="fu">select</span><span class="op">(</span><span class="va">log2_all_exp_norm</span>,<span class="fu">ends_with</span><span class="op">(</span><span class="st">'_RNA'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">rename_with</span><span class="op">(</span>.fn<span class="op">=</span><span class="va">str_remove_all</span>,pattern <span class="op">=</span> <span class="st">"_RNA"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
+  <span class="fu">transmute</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/dplyover/man/across2.html">across2x</a></span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span>, <span class="fu">everything</span><span class="op">(</span><span class="op">)</span>,.fns <span class="op">=</span> <span class="op">~</span><span class="fu">foldchange</span><span class="op">(</span><span class="va">.x</span>,<span class="va">.y</span><span class="op">)</span>,.comb <span class="op">=</span> <span class="st">'minimal'</span><span class="op">)</span>,
+            experiment<span class="op">=</span><span class="st">'RNA'</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">pivot_longer</span><span class="op">(</span><span class="op">-</span><span class="va">experiment</span>,names_to<span class="op">=</span><span class="st">'pair'</span>,values_to <span class="op">=</span> <span class="st">'fc'</span><span class="op">)</span>
+<span class="va">fc_ribo</span> <span class="op">=</span> <span class="fu">select</span><span class="op">(</span><span class="va">log2_all_exp_norm</span>,<span class="fu">ends_with</span><span class="op">(</span><span class="st">'_Ribo'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">rename_with</span><span class="op">(</span>.fn<span class="op">=</span><span class="va">str_remove_all</span>,pattern <span class="op">=</span> <span class="st">"_Ribo"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
+  <span class="fu">transmute</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/dplyover/man/across2.html">across2x</a></span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span>, <span class="fu">everything</span><span class="op">(</span><span class="op">)</span>,.fns <span class="op">=</span> <span class="op">~</span><span class="fu">foldchange</span><span class="op">(</span><span class="va">.x</span>,<span class="va">.y</span><span class="op">)</span>,.comb <span class="op">=</span> <span class="st">'minimal'</span><span class="op">)</span>,
+            experiment<span class="op">=</span><span class="st">'Ribo'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">pivot_longer</span><span class="op">(</span><span class="op">-</span><span class="va">experiment</span>,names_to<span class="op">=</span><span class="st">'pair'</span>,values_to <span class="op">=</span> <span class="st">'fc'</span><span class="op">)</span>
 
-<span class="va">b</span> <span class="op">=</span> <span class="fu">pbapply</span><span class="op">(</span><span class="va">a</span>,<span class="fl">2</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">i</span><span class="op">&lt;&lt;-</span><span class="va">i</span>
-  <span class="va">d</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
-  <span class="va">e</span> <span class="op">=</span> <span class="va">df_final2</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">i</span>,collapse <span class="op">=</span> <span class="st">'|'</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">df_final2</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
-  
-  <span class="va">c</span> <span class="op">=</span> <span class="va">e</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>
-  <span class="va">c</span><span class="op">=</span> <span class="va">c</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">/</span><span class="va">c</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>
-  <span class="va">c</span><span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span><span class="op">)</span>
-  
-  <span class="va">d</span><span class="op">[[</span><span class="st">'prot'</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="va">c</span>
-  
-  <span class="va">c</span> <span class="op">=</span> <span class="va">e</span><span class="op">[</span>,<span class="fl">3</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>
-  <span class="va">c</span><span class="op">=</span> <span class="va">c</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">/</span><span class="va">c</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>
-  <span class="va">c</span><span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span><span class="op">)</span>
-  
-  <span class="va">d</span><span class="op">[[</span><span class="st">'RNA'</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="va">c</span>
-  
-  <span class="va">c</span> <span class="op">=</span> <span class="va">e</span><span class="op">[</span>,<span class="fl">5</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>
-  <span class="va">c</span><span class="op">=</span> <span class="va">c</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">/</span><span class="va">c</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>
-  <span class="va">c</span><span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span><span class="op">)</span>
-  
-  <span class="va">d</span><span class="op">[[</span><span class="st">'Ribo'</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="va">c</span>
-  <span class="va">c</span> <span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">d</span>,<span class="kw">function</span><span class="op">(</span><span class="va">j</span><span class="op">)</span><span class="op">{</span>
-    <span class="va">j</span><span class="op">&lt;&lt;-</span><span class="va">j</span>
-    
-  <span class="op">}</span><span class="op">)</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
+<span class="co"># combine all pairwise foldchange</span>
+<span class="va">fc_exp</span> <span class="op">=</span> <span class="fu">bind_rows</span><span class="op">(</span><span class="va">fc_prot</span>,<span class="va">fc_rna</span>,<span class="va">fc_ribo</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">arrange</span><span class="op">(</span><span class="va">experiment</span>,<span class="va">pair</span><span class="op">)</span>
 
-<span class="fu">pblapply</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">i</span><span class="op">&lt;&lt;-</span><span class="va">i</span>
-  <span class="va">b</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">b</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="st">''</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; [[1]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[2]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[3]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[4]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[5]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[6]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[7]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[8]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[9]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[10]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[11]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[12]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[13]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[14]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[15]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[16]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[17]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[18]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[19]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[20]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[21]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[22]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[23]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[24]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[25]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[26]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[27]]</span>
-<span class="co">#&gt; [1] ""</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[28]]</span>
-<span class="co">#&gt; [1] ""</span>
+<span class="va">pair_exp</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">fc_exp</span><span class="op">$</span><span class="va">experiment</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span>
 
-<span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">b</span><span class="op">)</span>
-<span class="va">a</span> <span class="op">=</span> <span class="fu">melt</span><span class="op">(</span><span class="va">a</span><span class="op">)</span>
-<span class="co">#&gt; No id variables; using all as measure variables</span>
-
-<span class="va">a</span><span class="op">$</span><span class="va">variable</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">a</span><span class="op">$</span><span class="va">variable</span>,levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'RNA'</span>,<span class="st">'Ribo'</span>,<span class="st">'prot'</span><span class="op">)</span><span class="op">)</span>
-<span class="va">b</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">a</span><span class="op">$</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span>,<span class="fl">2</span><span class="op">)</span>
-<span class="va">b</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">b</span>,<span class="fl">2</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">i</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,<span class="va">i</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">b</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">&lt;&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">b</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; [[1]]</span>
-<span class="co">#&gt; [1] "prot" "RNA" </span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[2]]</span>
-<span class="co">#&gt; [1] "prot" "Ribo"</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[3]]</span>
-<span class="co">#&gt; [1] "RNA"  "Ribo"</span>
-
-<span class="fu">ggplot</span><span class="op">(</span><span class="va">a</span>,<span class="fu">aes</span><span class="op">(</span><span class="va">variable</span>,<span class="va">value</span>, fill<span class="op">=</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
+<span class="fu">ggplot</span><span class="op">(</span><span class="va">fc_exp</span>,<span class="fu">aes</span><span class="op">(</span><span class="va">experiment</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="va">fc</span><span class="op">)</span>, fill<span class="op">=</span><span class="va">experiment</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">geom_boxplot</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">scale_y_log10</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
-  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">b</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">pair_exp</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">theme_classic</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">xlab</span><span class="op">(</span><span class="st">''</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">ylab</span><span class="op">(</span><span class="st">'|log2(FC)|'</span><span class="op">)</span></code></pre></div>
@@ -288,13 +161,19 @@
 <p>Euclidean distances can also give information on how variable datasets can be. We once again used the quantile normalized data to calculate Euclidean distances between the profile in each expression level.</p>
 <p>Consistently to the previous results, we found that the distances were lower and lower as the expression process progresses, suggesting once again that the expression variations were decreased. This also supported the presence of the PTB phenomenon</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R">
-<span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/dist.html">dist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">df_final2</span><span class="op">)</span><span class="op">)</span>
-<span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span>
-<span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span>
+<code class="sourceCode R"><span class="co"># dist_exp = log2_all_exp_norm %&gt;% add_column(id=all_exp$ID) %&gt;%</span>
+<span class="co">#   pivot_longer(cols = -id,</span>
+<span class="co">#                names_to = c('strain','experiment'), </span>
+<span class="co">#                names_pattern = '(.+)_(.+)', </span>
+<span class="co">#                values_to = 'exp') %&gt;% </span>
+<span class="co">#   pivot_wider(id_cols = c('id','experiment'),names_from='strain', values_from = 'exp') %&gt;%</span>
+<span class="co">#   group_by(experiment) %&gt;% </span>
+<span class="co">#   mutate( across2x(AMH:CQC, AMH:CQC, .fns =dist, method= 'euclidean', .comb = 'minimal'))     </span>
+<span class="co">#            </span>
+
 <span class="va">b</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'RNA'</span>,<span class="st">'Ribo'</span>,<span class="st">'Prot'</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
   <span class="va">i</span><span class="op">&lt;&lt;-</span><span class="va">i</span>
-  <span class="va">a</span> <span class="op">=</span> <span class="va">df_final2</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="va">i</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">df_final2</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
+  <span class="va">a</span> <span class="op">=</span> <span class="va">log2_all_exp_norm</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="va">i</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">log2_all_exp_norm</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
   <span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/dist.html">dist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op">)</span>
   <span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span>
   <span class="va">a</span><span class="op">=</span> <span class="va">a</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op">]</span>
@@ -305,28 +184,14 @@
 <span class="va">b</span> <span class="op">=</span> <span class="fu">melt</span><span class="op">(</span><span class="va">b</span><span class="op">)</span>
 <span class="co">#&gt; No id variables; using all as measure variables</span>
 
-<span class="va">c</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">b</span><span class="op">$</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span>,<span class="fl">2</span><span class="op">)</span>
-<span class="va">c</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">2</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">i</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,<span class="va">i</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">c</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">&lt;&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">c</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; [[1]]</span>
-<span class="co">#&gt; [1] "RNA"  "Ribo"</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[2]]</span>
-<span class="co">#&gt; [1] "RNA"  "Prot"</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[3]]</span>
-<span class="co">#&gt; [1] "Ribo" "Prot"</span>
+<span class="va">pair_exp</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">b</span><span class="op">$</span><span class="va">variable</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span>
 
 <span class="fu">ggplot</span><span class="op">(</span><span class="va">b</span>,<span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">variable</span>,y<span class="op">=</span><span class="va">value</span>, fill<span class="op">=</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">geom_boxplot</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">theme_classic</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">ylab</span><span class="op">(</span><span class="st">'Euclidean distance'</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">xlab</span><span class="op">(</span><span class="st">''</span><span class="op">)</span><span class="op">+</span>
-  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">c</span><span class="op">)</span></code></pre></div>
+  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">pair_exp</span><span class="op">)</span></code></pre></div>
 <div class="inline-figure"><img src="Intraspecies-proteome-expression_files/figure-html/PTB3-1.png" width="100%"></div>
 </div>
 <div id="variance-comparison" class="section level2" number="3.4">
@@ -338,7 +203,7 @@
 <code class="sourceCode R">
 <span class="va">a</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'RNA'</span>,<span class="st">'Ribo'</span>,<span class="st">'Prot'</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
   <span class="va">i</span><span class="op">&lt;&lt;-</span><span class="va">i</span>
-  <span class="va">a</span> <span class="op">=</span> <span class="va">df_final2</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="va">i</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">df_final2</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
+  <span class="va">a</span> <span class="op">=</span> <span class="va">log2_all_exp_norm</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="va">i</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">log2_all_exp_norm</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
   <span class="va">a</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">a</span>,<span class="fl">1</span> ,<span class="va">var</span><span class="op">)</span>
   <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
@@ -347,28 +212,15 @@
 <span class="va">b</span><span class="op">=</span><span class="va">a</span>
 <span class="va">b</span> <span class="op">=</span> <span class="fu">melt</span><span class="op">(</span><span class="va">b</span><span class="op">)</span>
 <span class="co">#&gt; No id variables; using all as measure variables</span>
-<span class="va">c</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">b</span><span class="op">$</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span>,<span class="fl">2</span><span class="op">)</span>
-<span class="va">c</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">2</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">i</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,<span class="va">i</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">c</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">&lt;&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">c</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-<span class="co">#&gt; [[1]]</span>
-<span class="co">#&gt; [1] "RNA"  "Ribo"</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[2]]</span>
-<span class="co">#&gt; [1] "RNA"  "Prot"</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; [[3]]</span>
-<span class="co">#&gt; [1] "Ribo" "Prot"</span>
+
+<span class="va">pair_exp</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">b</span><span class="op">$</span><span class="va">variable</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span>
 
 <span class="fu">ggplot</span><span class="op">(</span><span class="va">b</span>,<span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">variable</span>,y<span class="op">=</span><span class="va">value</span>, fill<span class="op">=</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">geom_boxplot</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">theme_classic</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">ylab</span><span class="op">(</span><span class="st">'Variance'</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">xlab</span><span class="op">(</span><span class="st">''</span><span class="op">)</span><span class="op">+</span>
-  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">c</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">pair_exp</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">scale_y_log10</span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <div class="inline-figure"><img src="Intraspecies-proteome-expression_files/figure-html/PTB4-1.png" width="100%"></div>
 
@@ -402,7 +254,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 01-Jun-2022 16:45.</p>
+    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 02-Jun-2022 12:32.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

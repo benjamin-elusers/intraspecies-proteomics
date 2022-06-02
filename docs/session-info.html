@@ -207,142 +207,101 @@
                   
 
 <span class="co"># Calculate mean of normalized intensity per strain</span>
-<span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">isolates</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">i</span><span class="op">&lt;&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/chartr.html">tolower</a></span><span class="op">(</span><span class="va">i</span><span class="op">)</span>
-  <span class="va">i</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/chartr.html">tolower</a></span><span class="op">(</span><span class="va">i</span><span class="op">)</span>
-  <span class="va">b</span> <span class="op">=</span> <span class="va">proteomic_WIS2</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="va">i</span>,<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">proteomic_WIS2</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colSums.html">rowMeans</a></span><span class="op">(</span><span class="va">b</span>,na.rm <span class="op">=</span> <span class="cn">T</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-<span class="va">a</span><span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/setNames.html">setNames</a></span><span class="op">(</span><span class="va">a</span>,<span class="va">isolates</span><span class="op">)</span>
-<span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">proteomic_WIS2</span><span class="op">)</span>
-<span class="va">proteomic_WIS_mean2</span> <span class="op">=</span> <span class="va">a</span>
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">proteomic_WIS_mean2</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">proteomic_WIS2</span><span class="op">)</span>
-<span class="va">proteomic_WIS_mean2</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html">na.omit</a></span><span class="op">(</span><span class="va">proteomic_WIS_mean2</span><span class="op">)</span>
+<span class="va">int_strains</span> <span class="op">=</span> <span class="fu">pivot_longer</span><span class="op">(</span><span class="va">proteomic_WIS2</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">rownames_to_column</span><span class="op">(</span><span class="st">'uniprot'</span><span class="op">)</span>, 
+             <span class="op">-</span><span class="va">uniprot</span>, values_to<span class="op">=</span><span class="st">'int2use'</span>,
+                       names_to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'strain'</span>,<span class="st">'bio'</span>,<span class="st">'tech'</span>,<span class="st">'day'</span><span class="op">)</span>,
+                       names_pattern <span class="op">=</span> <span class="st">"([^_]+)_([^_]+)_([^_]+)_([^_]+)"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+      <span class="fu">group_by</span><span class="op">(</span><span class="va">uniprot</span>,strain<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/chartr.html">toupper</a></span><span class="op">(</span><span class="va">strain</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">summarize</span><span class="op">(</span> mean_int <span class="op">=</span> <span class="fu">mean_</span><span class="op">(</span><span class="va">int2use</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
+      <span class="fu">pivot_wider</span><span class="op">(</span>id_cols<span class="op">=</span><span class="va">uniprot</span>, names_from <span class="op">=</span> <span class="va">strain</span>, names_glue <span class="op">=</span> <span class="st">"{strain}"</span>, values_from <span class="op">=</span> <span class="va">mean_int</span> <span class="op">)</span>
 
-<span class="co"># </span>
-<span class="va">b</span><span class="op">=</span><span class="va">prot_gene_name</span>
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span><span class="op">=</span><span class="va">b</span><span class="op">$</span><span class="va">prot_names</span>
-<span class="va">a</span>  <span class="op">=</span><span class="va">proteomic_WIS_mean2</span>
-<span class="va">a</span> <span class="op">=</span> <span class="va">a</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span><span class="va">b</span><span class="op">$</span><span class="va">prot_names</span>,<span class="op">]</span>
-<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op">=</span><span class="va">b</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span>,<span class="st">"ID"</span><span class="op">]</span>
-<span class="va">proteomic_WIS_mean_filtered2</span><span class="op">=</span><span class="va">a</span>
+<span class="va">proteomic_WIS_mean_filtered</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="va">int_strains</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+                      <span class="va">drop_na</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+                      <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html">filter</a></span><span class="op">(</span><span class="va">uniprot</span> <span class="op"><a href="https://rdrr.io/r/base/match.html">%in%</a></span> <span class="va">prot_gene_name</span><span class="op">$</span><span class="va">prot_names</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+                      <span class="fu">left_join</span><span class="op">(</span><span class="va">prot_gene_name</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'prot_names'</span>,<span class="st">'ID'</span><span class="op">)</span><span class="op">]</span>, by<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'uniprot'</span><span class="op">=</span><span class="st">'prot_names'</span><span class="op">)</span><span class="op">)</span>
+
+<span class="va">all_exp</span> <span class="op">=</span> <span class="va">proteomic_WIS_mean_filtered</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">inner_join</span><span class="op">(</span><span class="va">RNA_seq_data</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">rownames_to_column</span><span class="op">(</span><span class="st">'ID'</span><span class="op">)</span>, by <span class="op">=</span><span class="st">'ID'</span>, suffix<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'_Prot'</span>,<span class="st">''</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">inner_join</span><span class="op">(</span><span class="va">Ribo_seq_data</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">rownames_to_column</span><span class="op">(</span><span class="st">'ID'</span><span class="op">)</span>, by <span class="op">=</span><span class="st">'ID'</span>, suffix<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'_RNA'</span>,<span class="st">'_Ribo'</span><span class="op">)</span><span class="op">)</span>
 
 
-<span class="va">temp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html">intersect</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">proteomic_WIS_mean_filtered2</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">RNA_seq_data</span><span class="op">)</span><span class="op">)</span>
-<span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">proteomic_WIS_mean_filtered2</span><span class="op">[</span><span class="va">temp</span>,<span class="op">]</span>,<span class="fu"><a href="https://rdrr.io/r/base/cbind.html">cbind</a></span><span class="op">(</span><span class="va">RNA_seq_data</span><span class="op">[</span><span class="va">temp</span>,<span class="op">]</span>,<span class="va">Ribo_seq_data</span><span class="op">[</span><span class="va">temp</span>,<span class="op">]</span><span class="op">)</span><span class="op">)</span>
-<span class="kw">for</span><span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">8</span>,<span class="fl">16</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
-  <span class="kw">if</span><span class="op">(</span><span class="va">i</span><span class="op">==</span><span class="fl">0</span><span class="op">)</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">]</span>,<span class="st">'Prot'</span>,sep<span class="op">=</span><span class="st">'_'</span><span class="op">)</span><span class="op">)</span>
-  <span class="kw">if</span><span class="op">(</span><span class="va">i</span><span class="op">==</span><span class="fl">8</span><span class="op">)</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">+</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span><span class="op">]</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">+</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span><span class="op">]</span>,<span class="st">'RNA'</span>,sep<span class="op">=</span><span class="st">'_'</span><span class="op">)</span><span class="op">)</span>
-  <span class="kw">if</span><span class="op">(</span><span class="va">i</span><span class="op">==</span><span class="fl">16</span><span class="op">)</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">+</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span><span class="op">]</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op">[</span><span class="va">i</span><span class="op">+</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span><span class="op">]</span>,<span class="st">'Ribo'</span>,sep<span class="op">=</span><span class="st">'_'</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span>
-
-<span class="va">e</span><span class="op">=</span> <span class="va">a</span>
-<span class="va">e</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span>
-
-<span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html">nrow</a></span><span class="op">(</span><span class="va">e</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">e</span>,las<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
-<span class="va">df_rank</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">e</span>,<span class="fl">2</span>,<span class="va">rank</span>,ties.method<span class="op">=</span><span class="st">"min"</span><span class="op">)</span>
-<span class="va">df_sorted</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">e</span>, <span class="fl">2</span>, <span class="va">sort</span><span class="op">)</span><span class="op">)</span>
+<span class="va">log2_all_exp</span><span class="op">=</span> <span class="va">all_exp</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'ID'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
+              <span class="co"># transform to log2 to RNA and Ribo (already done for normalized proteomics)</span>
+              <span class="fu">mutate</span><span class="op">(</span> <span class="fu">across</span><span class="op">(</span> <span class="fu">ends_with</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'_RNA'</span>,<span class="st">'_Ribo'</span><span class="op">)</span><span class="op">)</span>, .fns <span class="op">=</span> <span class="va">log2</span><span class="op">)</span> <span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
+              <span class="fu">select</span><span class="op">(</span><span class="fu">where</span><span class="op">(</span><span class="va">is.numeric</span><span class="op">)</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">log2_all_exp</span>,las<span class="op">=</span><span class="fl">2</span>,ylab<span class="op">=</span><span class="st">'Gene expression (log2)'</span><span class="op">)</span>
+<span class="va">df_rank</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">log2_all_exp</span>,<span class="fl">2</span>,<span class="va">rank</span>,ties.method<span class="op">=</span><span class="st">"min"</span><span class="op">)</span> 
+<span class="va">df_sorted</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">log2_all_exp</span>, <span class="fl">2</span>, <span class="va">sort</span><span class="op">)</span><span class="op">)</span>
 <span class="va">df_mean</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">df_sorted</span>, <span class="fl">1</span>, <span class="va">mean</span><span class="op">)</span>
 <span class="va">index_to_mean</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">my_index</span>, <span class="va">my_mean</span><span class="op">)</span><span class="op">{</span>
   <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">my_mean</span><span class="op">[</span><span class="va">my_index</span><span class="op">]</span><span class="op">)</span>
 <span class="op">}</span>
 
-<span class="va">df_final2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">df_rank</span>, <span class="fl">2</span>, <span class="va">index_to_mean</span>, my_mean<span class="op">=</span><span class="va">df_mean</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">df_final2</span>,las<span class="op">=</span><span class="fl">2</span><span class="op">)</span>
+<span class="va">log2_all_exp_norm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">df_rank</span>, <span class="fl">2</span>, <span class="va">index_to_mean</span>, my_mean<span class="op">=</span><span class="va">df_mean</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="va">as_tibble</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">log2_all_exp_norm</span><span class="op">)</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">log2_all_exp</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html">boxplot</a></span><span class="op">(</span><span class="va">log2_all_exp_norm</span>,las<span class="op">=</span><span class="fl">2</span>, ylab<span class="op">=</span><span class="st">'Normalized gene expression (log2)'</span>, title<span class="op">=</span><span class="st">'Quantile-normalized gene expression across RNA/Ribo/Proteomics'</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tidymodels/corrr">corrr</a></span><span class="op">)</span>
+<span class="va">cor_prot</span><span class="op">=</span> <span class="fu">select</span><span class="op">(</span><span class="va">log2_all_exp_norm</span>, <span class="fu">ends_with</span><span class="op">(</span><span class="st">'_Prot'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>  <span class="fu"><a href="https://corrr.tidymodels.org/reference/correlate.html">correlate</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">'sp'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'term'</span><span class="op">)</span>
+<span class="va">cor_rna</span><span class="op">=</span> <span class="fu">select</span><span class="op">(</span><span class="va">log2_all_exp_norm</span>, <span class="fu">ends_with</span><span class="op">(</span><span class="st">'_RNA'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>  <span class="fu"><a href="https://corrr.tidymodels.org/reference/correlate.html">correlate</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">'sp'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'term'</span><span class="op">)</span>
+<span class="va">cor_ribo</span><span class="op">=</span> <span class="fu">select</span><span class="op">(</span><span class="va">log2_all_exp_norm</span>, <span class="fu">ends_with</span><span class="op">(</span><span class="st">'_Ribo'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>  <span class="fu"><a href="https://corrr.tidymodels.org/reference/correlate.html">correlate</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">'sp'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'term'</span><span class="op">)</span>
 
-<span class="va">d</span><span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">cor_exp</span><span class="op">=</span> <span class="fu">tibble</span><span class="op">(</span>RNA <span class="op">=</span> <span class="va">cor_rna</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="va">cor_rna</span><span class="op">)</span><span class="op">]</span>,
+                Ribo <span class="op">=</span> <span class="va">cor_ribo</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="va">cor_ribo</span><span class="op">)</span><span class="op">]</span>,
+                Prot <span class="op">=</span> <span class="va">cor_prot</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="va">cor_prot</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>
+<span class="va">df_cor_exp</span> <span class="op">=</span> <span class="fu">pivot_longer</span><span class="op">(</span><span class="va">cor_exp</span>, <span class="fu">everything</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+              <span class="fu">arrange</span><span class="op">(</span><span class="va">name</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">mutate</span><span class="op">(</span>experiment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">name</span><span class="op">)</span><span class="op">)</span>
+<span class="va">pair_exp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">df_cor_exp</span><span class="op">$</span><span class="va">experiment</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span>
 
-<span class="va">a</span><span class="op">=</span> <span class="va">df_final2</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="st">'Prot'</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">df_final2</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
-<span class="va">d</span><span class="op">[[</span><span class="st">'prot'</span><span class="op">]</span><span class="op">]</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span><span class="op">(</span><span class="va">a</span>,method <span class="op">=</span> <span class="st">'s'</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span><span class="op">(</span><span class="va">a</span>,method <span class="op">=</span> <span class="st">'s'</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
-<span class="va">a</span><span class="op">=</span> <span class="va">df_final2</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="st">'RNA'</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">df_final2</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
-<span class="va">d</span><span class="op">[[</span><span class="st">'RNA'</span><span class="op">]</span><span class="op">]</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span><span class="op">(</span><span class="va">a</span>,method <span class="op">=</span> <span class="st">'s'</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span><span class="op">(</span><span class="va">a</span>,method <span class="op">=</span> <span class="st">'s'</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
-<span class="va">a</span> <span class="op">=</span> <span class="va">df_final2</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="st">'Ribo'</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">df_final2</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
-<span class="va">d</span><span class="op">[[</span><span class="st">'Ribo'</span><span class="op">]</span><span class="op">]</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span><span class="op">(</span><span class="va">a</span>,method <span class="op">=</span> <span class="st">'s'</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html">cor</a></span><span class="op">(</span><span class="va">a</span>,method <span class="op">=</span> <span class="st">'s'</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
-<span class="va">d</span><span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">d</span><span class="op">)</span>
-<span class="va">d</span><span class="op">=</span> <span class="fu">melt</span><span class="op">(</span><span class="va">d</span><span class="op">)</span>
-<span class="va">d</span><span class="op">$</span><span class="va">variable</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">variable</span>,levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'RNA'</span>,<span class="st">'Ribo'</span>,<span class="st">'prot'</span><span class="op">)</span><span class="op">)</span>
-<span class="va">b</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span>,<span class="fl">2</span><span class="op">)</span>
-<span class="va">b</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">b</span>,<span class="fl">2</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">i</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,<span class="va">i</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">b</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">&lt;&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">b</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-
-
-<span class="fu">ggplot</span><span class="op">(</span><span class="va">d</span>,<span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">variable</span>, y<span class="op">=</span><span class="va">value</span>,fill<span class="op">=</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
+<span class="fu">ggplot</span><span class="op">(</span><span class="va">df_cor_exp</span>,<span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">experiment</span>, y<span class="op">=</span><span class="va">value</span>,fill<span class="op">=</span><span class="va">experiment</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">geom_boxplot</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">theme_classic</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">xlab</span><span class="op">(</span><span class="st">''</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">ylab</span><span class="op">(</span><span class="st">'Rho'</span><span class="op">)</span><span class="op">+</span>
-  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">b</span><span class="op">)</span>
+  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span><span class="va">pair_exp</span><span class="op">)</span>
+<span class="co">#remotes::install_github("TimTeaFan/dplyover")</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/TimTeaFan/dplyover">dplyover</a></span><span class="op">)</span>
+<span class="co"># calculate fold change pairwise for each experiment</span>
+<span class="va">fc_prot</span> <span class="op">=</span> <span class="fu">select</span><span class="op">(</span><span class="va">log2_all_exp_norm</span>,<span class="fu">ends_with</span><span class="op">(</span><span class="st">'_Prot'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">rename_with</span><span class="op">(</span>.fn<span class="op">=</span><span class="va">str_remove_all</span>,pattern <span class="op">=</span> <span class="st">"_Prot"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
+  <span class="fu">transmute</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/dplyover/man/across2.html">across2x</a></span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span>, <span class="fu">everything</span><span class="op">(</span><span class="op">)</span>,.fns <span class="op">=</span> <span class="op">~</span><span class="fu">foldchange</span><span class="op">(</span><span class="va">.x</span>,<span class="va">.y</span><span class="op">)</span>,.comb <span class="op">=</span> <span class="st">'minimal'</span><span class="op">)</span>,
+            experiment<span class="op">=</span><span class="st">'Prot'</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">pivot_longer</span><span class="op">(</span><span class="op">-</span><span class="va">experiment</span>,names_to<span class="op">=</span><span class="st">'pair'</span>,values_to <span class="op">=</span> <span class="st">'fc'</span><span class="op">)</span>
+<span class="va">fc_rna</span> <span class="op">=</span> <span class="fu">select</span><span class="op">(</span><span class="va">log2_all_exp_norm</span>,<span class="fu">ends_with</span><span class="op">(</span><span class="st">'_RNA'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">rename_with</span><span class="op">(</span>.fn<span class="op">=</span><span class="va">str_remove_all</span>,pattern <span class="op">=</span> <span class="st">"_RNA"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
+  <span class="fu">transmute</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/dplyover/man/across2.html">across2x</a></span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span>, <span class="fu">everything</span><span class="op">(</span><span class="op">)</span>,.fns <span class="op">=</span> <span class="op">~</span><span class="fu">foldchange</span><span class="op">(</span><span class="va">.x</span>,<span class="va">.y</span><span class="op">)</span>,.comb <span class="op">=</span> <span class="st">'minimal'</span><span class="op">)</span>,
+            experiment<span class="op">=</span><span class="st">'RNA'</span><span class="op">)</span><span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">pivot_longer</span><span class="op">(</span><span class="op">-</span><span class="va">experiment</span>,names_to<span class="op">=</span><span class="st">'pair'</span>,values_to <span class="op">=</span> <span class="st">'fc'</span><span class="op">)</span>
+<span class="va">fc_ribo</span> <span class="op">=</span> <span class="fu">select</span><span class="op">(</span><span class="va">log2_all_exp_norm</span>,<span class="fu">ends_with</span><span class="op">(</span><span class="st">'_Ribo'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">rename_with</span><span class="op">(</span>.fn<span class="op">=</span><span class="va">str_remove_all</span>,pattern <span class="op">=</span> <span class="st">"_Ribo"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
+  <span class="fu">transmute</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/dplyover/man/across2.html">across2x</a></span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span>, <span class="fu">everything</span><span class="op">(</span><span class="op">)</span>,.fns <span class="op">=</span> <span class="op">~</span><span class="fu">foldchange</span><span class="op">(</span><span class="va">.x</span>,<span class="va">.y</span><span class="op">)</span>,.comb <span class="op">=</span> <span class="st">'minimal'</span><span class="op">)</span>,
+            experiment<span class="op">=</span><span class="st">'Ribo'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+  <span class="fu">pivot_longer</span><span class="op">(</span><span class="op">-</span><span class="va">experiment</span>,names_to<span class="op">=</span><span class="st">'pair'</span>,values_to <span class="op">=</span> <span class="st">'fc'</span><span class="op">)</span>
 
-<span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span><span class="va">isolates</span>,<span class="fl">2</span><span class="op">)</span>
+<span class="co"># combine all pairwise foldchange</span>
+<span class="va">fc_exp</span> <span class="op">=</span> <span class="fu">bind_rows</span><span class="op">(</span><span class="va">fc_prot</span>,<span class="va">fc_rna</span>,<span class="va">fc_ribo</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">arrange</span><span class="op">(</span><span class="va">experiment</span>,<span class="va">pair</span><span class="op">)</span>
 
-<span class="va">b</span> <span class="op">=</span> <span class="fu">pbapply</span><span class="op">(</span><span class="va">a</span>,<span class="fl">2</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">i</span><span class="op">&lt;&lt;-</span><span class="va">i</span>
-  <span class="va">d</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
-  <span class="va">e</span> <span class="op">=</span> <span class="va">df_final2</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span>pattern <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span><span class="op">(</span><span class="va">i</span>,collapse <span class="op">=</span> <span class="st">'|'</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">df_final2</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
-  
-  <span class="va">c</span> <span class="op">=</span> <span class="va">e</span><span class="op">[</span>,<span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">]</span>
-  <span class="va">c</span><span class="op">=</span> <span class="va">c</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">/</span><span class="va">c</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>
-  <span class="va">c</span><span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span><span class="op">)</span>
-  
-  <span class="va">d</span><span class="op">[[</span><span class="st">'prot'</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="va">c</span>
-  
-  <span class="va">c</span> <span class="op">=</span> <span class="va">e</span><span class="op">[</span>,<span class="fl">3</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span>
-  <span class="va">c</span><span class="op">=</span> <span class="va">c</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">/</span><span class="va">c</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>
-  <span class="va">c</span><span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span><span class="op">)</span>
-  
-  <span class="va">d</span><span class="op">[[</span><span class="st">'RNA'</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="va">c</span>
-  
-  <span class="va">c</span> <span class="op">=</span> <span class="va">e</span><span class="op">[</span>,<span class="fl">5</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>
-  <span class="va">c</span><span class="op">=</span> <span class="va">c</span><span class="op">[</span>,<span class="fl">1</span><span class="op">]</span><span class="op">/</span><span class="va">c</span><span class="op">[</span>,<span class="fl">2</span><span class="op">]</span>
-  <span class="va">c</span><span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span><span class="op">)</span>
-  
-  <span class="va">d</span><span class="op">[[</span><span class="st">'Ribo'</span><span class="op">]</span><span class="op">]</span> <span class="op">=</span> <span class="va">c</span>
-  <span class="va">c</span> <span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="va">d</span>,<span class="kw">function</span><span class="op">(</span><span class="va">j</span><span class="op">)</span><span class="op">{</span>
-    <span class="va">j</span><span class="op">&lt;&lt;-</span><span class="va">j</span>
-    
-  <span class="op">}</span><span class="op">)</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
+<span class="va">pair_exp</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">fc_exp</span><span class="op">$</span><span class="va">experiment</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span>
 
-<span class="fu">pblapply</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">i</span><span class="op">&lt;&lt;-</span><span class="va">i</span>
-  <span class="va">b</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">b</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="st">''</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-
-<span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="va">b</span><span class="op">)</span>
-<span class="va">a</span> <span class="op">=</span> <span class="fu">melt</span><span class="op">(</span><span class="va">a</span><span class="op">)</span>
-
-<span class="va">a</span><span class="op">$</span><span class="va">variable</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">a</span><span class="op">$</span><span class="va">variable</span>,levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'RNA'</span>,<span class="st">'Ribo'</span>,<span class="st">'prot'</span><span class="op">)</span><span class="op">)</span>
-<span class="va">b</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">a</span><span class="op">$</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span>,<span class="fl">2</span><span class="op">)</span>
-<span class="va">b</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">b</span>,<span class="fl">2</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">i</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,<span class="va">i</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">b</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">&lt;&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">b</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-
-<span class="fu">ggplot</span><span class="op">(</span><span class="va">a</span>,<span class="fu">aes</span><span class="op">(</span><span class="va">variable</span>,<span class="va">value</span>, fill<span class="op">=</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
+<span class="fu">ggplot</span><span class="op">(</span><span class="va">fc_exp</span>,<span class="fu">aes</span><span class="op">(</span><span class="va">experiment</span>, <span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="va">fc</span><span class="op">)</span>, fill<span class="op">=</span><span class="va">experiment</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">geom_boxplot</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">scale_y_log10</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
-  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">b</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">pair_exp</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">theme_classic</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">xlab</span><span class="op">(</span><span class="st">''</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">ylab</span><span class="op">(</span><span class="st">'|log2(FC)|'</span><span class="op">)</span>
 
+<span class="co"># dist_exp = log2_all_exp_norm %&gt;% add_column(id=all_exp$ID) %&gt;%</span>
+<span class="co">#   pivot_longer(cols = -id,</span>
+<span class="co">#                names_to = c('strain','experiment'), </span>
+<span class="co">#                names_pattern = '(.+)_(.+)', </span>
+<span class="co">#                values_to = 'exp') %&gt;% </span>
+<span class="co">#   pivot_wider(id_cols = c('id','experiment'),names_from='strain', values_from = 'exp') %&gt;%</span>
+<span class="co">#   group_by(experiment) %&gt;% </span>
+<span class="co">#   mutate( across2x(AMH:CQC, AMH:CQC, .fns =dist, method= 'euclidean', .comb = 'minimal'))     </span>
+<span class="co">#            </span>
 
-<span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/dist.html">dist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">df_final2</span><span class="op">)</span><span class="op">)</span>
-<span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span>
-<span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span>
 <span class="va">b</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'RNA'</span>,<span class="st">'Ribo'</span>,<span class="st">'Prot'</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
   <span class="va">i</span><span class="op">&lt;&lt;-</span><span class="va">i</span>
-  <span class="va">a</span> <span class="op">=</span> <span class="va">df_final2</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="va">i</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">df_final2</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
+  <span class="va">a</span> <span class="op">=</span> <span class="va">log2_all_exp_norm</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="va">i</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">log2_all_exp_norm</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
   <span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/dist.html">dist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op">)</span>
   <span class="va">a</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html">as.matrix</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span>
   <span class="va">a</span><span class="op">=</span> <span class="va">a</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span><span class="op">]</span>
@@ -352,25 +311,19 @@
 <span class="va">b</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">b</span><span class="op">)</span>
 <span class="va">b</span> <span class="op">=</span> <span class="fu">melt</span><span class="op">(</span><span class="va">b</span><span class="op">)</span>
 
-<span class="va">c</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">b</span><span class="op">$</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span>,<span class="fl">2</span><span class="op">)</span>
-<span class="va">c</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">2</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">i</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,<span class="va">i</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">c</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">&lt;&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">c</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
+<span class="va">pair_exp</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">b</span><span class="op">$</span><span class="va">variable</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span>
 
 <span class="fu">ggplot</span><span class="op">(</span><span class="va">b</span>,<span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">variable</span>,y<span class="op">=</span><span class="va">value</span>, fill<span class="op">=</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">geom_boxplot</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">theme_classic</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">ylab</span><span class="op">(</span><span class="st">'Euclidean distance'</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">xlab</span><span class="op">(</span><span class="st">''</span><span class="op">)</span><span class="op">+</span>
-  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">c</span><span class="op">)</span>
+  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">pair_exp</span><span class="op">)</span>
 
 
 <span class="va">a</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'RNA'</span>,<span class="st">'Ribo'</span>,<span class="st">'Prot'</span><span class="op">)</span>, <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
   <span class="va">i</span><span class="op">&lt;&lt;-</span><span class="va">i</span>
-  <span class="va">a</span> <span class="op">=</span> <span class="va">df_final2</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="va">i</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">df_final2</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
+  <span class="va">a</span> <span class="op">=</span> <span class="va">log2_all_exp_norm</span><span class="op">[</span>,<span class="fu"><a href="https://rdrr.io/r/base/grep.html">grep</a></span><span class="op">(</span><span class="va">i</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">log2_all_exp_norm</span><span class="op">)</span><span class="op">)</span><span class="op">]</span>
   <span class="va">a</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">a</span>,<span class="fl">1</span> ,<span class="va">var</span><span class="op">)</span>
   <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span>
 <span class="op">}</span><span class="op">)</span>
@@ -378,20 +331,15 @@
 <span class="va">a</span> <span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="va">a</span><span class="op">)</span>
 <span class="va">b</span><span class="op">=</span><span class="va">a</span>
 <span class="va">b</span> <span class="op">=</span> <span class="fu">melt</span><span class="op">(</span><span class="va">b</span><span class="op">)</span>
-<span class="va">c</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">b</span><span class="op">$</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span>,<span class="fl">2</span><span class="op">)</span>
-<span class="va">c</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">c</span>,<span class="fl">2</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="kw"><a href="https://rdrr.io/r/base/function.html">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="va">i</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>,<span class="va">i</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">c</span><span class="op">)</span>,<span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span><span class="op">{</span>
-  <span class="va">c</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">&lt;&lt;-</span><span class="fu"><a href="https://rdrr.io/r/base/unlist.html">unlist</a></span><span class="op">(</span><span class="va">c</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="op">}</span><span class="op">)</span>
+
+<span class="va">pair_exp</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">b</span><span class="op">$</span><span class="va">variable</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span>
 
 <span class="fu">ggplot</span><span class="op">(</span><span class="va">b</span>,<span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">variable</span>,y<span class="op">=</span><span class="va">value</span>, fill<span class="op">=</span><span class="va">variable</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">geom_boxplot</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">theme_classic</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">ylab</span><span class="op">(</span><span class="st">'Variance'</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">xlab</span><span class="op">(</span><span class="st">''</span><span class="op">)</span><span class="op">+</span>
-  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">c</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">pair_exp</span><span class="op">)</span><span class="op">+</span>
   <span class="fu">scale_y_log10</span><span class="op">(</span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/r/base/save.html">save.image</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html">here</a></span><span class="op">(</span><span class="st">'output'</span>,<span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span><span class="op">(</span><span class="va">chap_num</span>,<span class="st">"transcriptomics.rdata"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
@@ -967,7 +915,7 @@ Asia/Jerusalem
 date
 </td>
 <td style="text-align:left;">
-2022-06-01
+2022-06-02
 </td>
 </tr>
 <tr>
@@ -1098,6 +1046,17 @@ data.table
 </td>
 <td style="text-align:left;">
 2021-09-27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+dplyover
+</td>
+<td style="text-align:left;">
+0.0.8.9002
+</td>
+<td style="text-align:left;">
+2022-06-02
 </td>
 </tr>
 <tr>
@@ -1656,7 +1615,7 @@ XVector
 for loading/installing the necessary packages:</p>
 <p>Copy paste the code below to your rsession:</p>
 <p>install.packages(‘xfun’)</p>
-<p>xfun::pkg_load2(c(“ape,” “BiocGenerics,” “BiocManager,” “Biostrings,” “corrplot,” “corrr,” “cowplot,” “d3Tree,” “data.table,” “dplyr,” “DT,” “forcats,” “formattable,” “GenomeInfoDb,” “geomtextpath,” “GGally,” “ggcorrplot,” “ggfortify,” “ggplot2,” “ggplotify,” “ggpubr,” “ggrepel,” “ggsci,” “ggsignif,” “ggtext,” “ggthemes,” “ggtree,” “gplots,” “gridExtra,” “gtools,” “hablar,” “here,” “hrbrthemes,” “hutils,” “IRanges,” “janitor,” “kableExtra,” “limma,” “NormalyzerDE,” “openxlsx,” “pbapply,” “performance,” “plotly,” “purrr,” “RColorBrewer,” “RCurl,” “readr,” “rio,” “S4Vectors,” “see,” “sessioninfo,” “stringr,” “tibble,” “tictoc,” “tidyr,” “tidyverse,” “treemap,” “xfun,” “XVector”))</p>
+<p>xfun::pkg_load2(c(“ape,” “BiocGenerics,” “BiocManager,” “Biostrings,” “corrplot,” “corrr,” “cowplot,” “d3Tree,” “data.table,” “dplyover,” “dplyr,” “DT,” “forcats,” “formattable,” “GenomeInfoDb,” “geomtextpath,” “GGally,” “ggcorrplot,” “ggfortify,” “ggplot2,” “ggplotify,” “ggpubr,” “ggrepel,” “ggsci,” “ggsignif,” “ggtext,” “ggthemes,” “ggtree,” “gplots,” “gridExtra,” “gtools,” “hablar,” “here,” “hrbrthemes,” “hutils,” “IRanges,” “janitor,” “kableExtra,” “limma,” “NormalyzerDE,” “openxlsx,” “pbapply,” “performance,” “plotly,” “purrr,” “RColorBrewer,” “RCurl,” “readr,” “rio,” “S4Vectors,” “see,” “sessioninfo,” “stringr,” “tibble,” “tictoc,” “tidyr,” “tidyverse,” “treemap,” “xfun,” “XVector”))</p>
 <p>Pay attention to the error message you might get.</p>
 <p>Common errors could be due to:</p>
 <ul>
@@ -3528,6 +3487,44 @@ FALSE
 </td>
 <td style="text-align:left;">
 CRAN (R 4.1.2)
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+dplyover
+</td>
+<td style="text-align:left;">
+dplyover
+</td>
+<td style="text-align:left;">
+0.0.8.9002
+</td>
+<td style="text-align:left;">
+0.0.8.9002
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/dplyover
+</td>
+<td style="text-align:left;">
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/dplyover
+</td>
+<td style="text-align:left;">
+TRUE
+</td>
+<td style="text-align:left;">
+FALSE
+</td>
+<td style="text-align:left;">
+2022-06-02
+</td>
+<td style="text-align:left;">
+Github (<a href="mailto:TimTeaFan/dplyover@f0cd984586bafdc0dc78fc4ead2d76ba50d9370e" class="email">TimTeaFan/dplyover@f0cd984586bafdc0dc78fc4ead2d76ba50d9370e</a>)
 </td>
 <td style="text-align:left;">
 NA
@@ -8300,10 +8297,10 @@ rstatix
 0.7.0
 </td>
 <td style="text-align:left;">
-/usr/local/lib/R/site-library/rstatix
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/rstatix
 </td>
 <td style="text-align:left;">
-/usr/local/lib/R/site-library/rstatix
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1/rstatix
 </td>
 <td style="text-align:left;">
 FALSE
@@ -8321,7 +8318,7 @@ CRAN (R 4.1.2)
 NA
 </td>
 <td style="text-align:left;">
-/usr/local/lib/R/site-library
+/home/benjamin/R/x86_64-pc-linux-gnu-library/4.1
 </td>
 </tr>
 <tr>
@@ -10205,234 +10202,235 @@ NA
 <span class="co">#&gt;  collate  en_IL.UTF-8</span>
 <span class="co">#&gt;  ctype    en_IL.UTF-8</span>
 <span class="co">#&gt;  tz       Asia/Jerusalem</span>
-<span class="co">#&gt;  date     2022-06-01</span>
+<span class="co">#&gt;  date     2022-06-02</span>
 <span class="co">#&gt;  pandoc   2.14.0.3 @ /usr/lib/rstudio/bin/pandoc/ (via rmarkdown)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; ─ Packages ───────────────────────────────────────────────</span>
-<span class="co">#&gt;  package              * version  date (UTC) lib source</span>
-<span class="co">#&gt;  abind                  1.4-5    2016-07-21 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  affy                   1.72.0   2021-10-26 [1] Bioconductor</span>
-<span class="co">#&gt;  affyio                 1.64.0   2021-10-26 [1] Bioconductor</span>
-<span class="co">#&gt;  ape                  * 5.6-2    2022-03-02 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  aplot                  0.1.2    2022-01-10 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  assertthat             0.2.1    2019-03-21 [3] CRAN (R 4.0.0)</span>
-<span class="co">#&gt;  backports              1.4.1    2021-12-13 [3] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  base64enc              0.1-3    2015-07-28 [3] CRAN (R 4.0.0)</span>
-<span class="co">#&gt;  beeswarm               0.4.0    2021-06-01 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  Biobase                2.54.0   2021-10-26 [1] Bioconductor</span>
-<span class="co">#&gt;  BiocGenerics         * 0.40.0   2021-10-26 [1] Bioconductor</span>
-<span class="co">#&gt;  BiocManager          * 1.30.16  2021-06-15 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  Biostrings           * 2.62.0   2021-10-26 [1] Bioconductor</span>
-<span class="co">#&gt;  bit                    4.0.4    2020-08-04 [3] CRAN (R 4.0.2)</span>
-<span class="co">#&gt;  bit64                  4.0.5    2020-08-30 [3] CRAN (R 4.0.2)</span>
-<span class="co">#&gt;  bitops                 1.0-7    2021-04-24 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  bookdown               0.26     2022-04-15 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  brio                   1.1.3    2021-11-30 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  broom                  0.7.11   2022-01-03 [3] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  bslib                  0.3.1    2021-10-06 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  cachem                 1.0.6    2021-08-19 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  callr                  3.7.0    2021-04-20 [3] CRAN (R 4.0.5)</span>
-<span class="co">#&gt;  car                    3.0-12   2021-11-06 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  carData                3.0-5    2022-01-06 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  caTools                1.18.2   2021-03-28 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  cellranger             1.1.0    2016-07-27 [3] CRAN (R 4.0.0)</span>
-<span class="co">#&gt;  checkmate              2.0.0    2020-02-06 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  class                  7.3-20   2022-01-13 [4] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  cli                    3.3.0    2022-04-25 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  cluster                2.1.2    2021-04-17 [4] CRAN (R 4.0.5)</span>
-<span class="co">#&gt;  codetools              0.2-18   2020-11-04 [4] CRAN (R 4.0.3)</span>
-<span class="co">#&gt;  colorspace             2.0-3    2022-02-21 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  ComplexUpset           1.3.3    2021-12-11 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  corrplot             * 0.92     2021-11-18 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  corrr                * 0.4.3    2020-11-24 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  cowplot              * 1.1.1    2020-12-30 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  crayon                 1.5.1    2022-03-26 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  crosstalk              1.2.0    2021-11-04 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  curl                   4.3.2    2021-06-23 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  d3Tree               * 0.2.2    2020-12-10 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  data.table           * 1.14.2   2021-09-27 [3] CRAN (R 4.1.1)</span>
-<span class="co">#&gt;  DBI                    1.1.2    2021-12-20 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  dbplyr                 2.1.1    2021-04-06 [3] CRAN (R 4.0.5)</span>
-<span class="co">#&gt;  DelayedArray           0.20.0   2021-10-26 [1] Bioconductor</span>
-<span class="co">#&gt;  desc                   1.4.1    2022-03-06 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  devtools               2.4.3    2021-11-30 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  digest                 0.6.29   2021-12-01 [3] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  downlit                0.4.0    2021-10-29 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  dplyr                * 1.0.9    2022-04-28 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  DT                   * 0.22     2022-03-28 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  e1071                  1.7-9    2021-09-16 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  ellipsis               0.3.2    2021-04-29 [3] CRAN (R 4.0.5)</span>
-<span class="co">#&gt;  evaluate               0.14     2019-05-28 [3] CRAN (R 4.0.0)</span>
-<span class="co">#&gt;  extrafont              0.17     2014-12-08 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  extrafontdb            1.0      2012-06-11 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  fansi                  1.0.3    2022-03-24 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  farver                 2.1.0    2021-02-28 [3] CRAN (R 4.0.4)</span>
-<span class="co">#&gt;  fastmap                1.1.0    2021-01-25 [3] CRAN (R 4.0.3)</span>
-<span class="co">#&gt;  fastmatch              1.1-3    2021-07-23 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  forcats              * 0.5.1    2021-01-27 [3] CRAN (R 4.0.3)</span>
-<span class="co">#&gt;  foreign                0.8-82   2022-01-13 [4] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  formattable          * 0.2.1    2021-01-07 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  Formula                1.2-4    2020-10-16 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  fs                     1.5.2    2021-12-08 [3] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  gdtools                0.2.3    2021-01-06 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  generics               0.1.2    2022-01-31 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  GenomeInfoDb         * 1.30.1   2022-01-30 [1] Bioconductor</span>
-<span class="co">#&gt;  GenomeInfoDbData       1.2.7    2022-01-25 [1] Bioconductor</span>
-<span class="co">#&gt;  GenomicRanges          1.46.1   2021-11-18 [1] Bioconductor</span>
-<span class="co">#&gt;  geomtextpath         * 0.1.0    2022-01-24 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  GGally               * 2.1.2    2021-06-21 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  ggbeeswarm             0.6.0    2017-08-07 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  ggcorrplot           * 0.1.3    2019-05-19 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  ggfortify            * 0.4.14   2022-01-03 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  ggfun                  0.0.5    2022-01-20 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  ggplot2              * 3.3.5    2021-06-25 [3] CRAN (R 4.1.0)</span>
-<span class="co">#&gt;  ggplotify            * 0.1.0    2021-09-02 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  ggpubr               * 0.4.0    2020-06-27 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  ggrepel              * 0.9.1    2021-01-15 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  ggsci                * 2.9      2018-05-14 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  ggsignif             * 0.6.3    2021-09-09 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  ggtext               * 0.1.1    2020-12-17 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  ggthemes             * 4.2.4    2021-01-20 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  ggtree               * 3.2.1    2021-11-16 [1] Bioconductor</span>
-<span class="co">#&gt;  glue                   1.6.2    2022-02-24 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  gplots               * 3.1.3    2022-04-25 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  gridBase               0.4-7    2014-02-24 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  gridExtra            * 2.3      2017-09-09 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  gridGraphics           0.5-1    2020-12-13 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  gridtext               0.1.4    2020-12-10 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  gtable                 0.3.0    2019-03-25 [3] CRAN (R 4.0.0)</span>
-<span class="co">#&gt;  gtools               * 3.9.2    2021-06-06 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  hablar               * 0.3.0    2020-03-19 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  haven                  2.4.3    2021-08-04 [3] CRAN (R 4.1.0)</span>
-<span class="co">#&gt;  here                 * 1.0.1    2020-12-13 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  highr                  0.9      2021-04-16 [3] CRAN (R 4.0.5)</span>
-<span class="co">#&gt;  Hmisc                  4.6-0    2021-10-07 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  hms                    1.1.1    2021-09-26 [3] CRAN (R 4.1.1)</span>
-<span class="co">#&gt;  hrbrthemes           * 0.8.0    2020-03-06 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  htmlTable              2.4.0    2022-01-04 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  htmltools              0.5.2    2021-08-25 [3] CRAN (R 4.1.1)</span>
-<span class="co">#&gt;  htmlwidgets            1.5.4    2021-09-08 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  httpuv                 1.6.5    2022-01-05 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  httr                   1.4.2    2020-07-20 [3] CRAN (R 4.0.2)</span>
-<span class="co">#&gt;  hutils               * 1.7.1    2021-07-22 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  igraph                 1.2.11   2022-01-04 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  insight                0.15.0   2022-01-07 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  IRanges              * 2.28.0   2021-10-26 [1] Bioconductor</span>
-<span class="co">#&gt;  janitor              * 2.1.0    2021-01-05 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  jpeg                   0.1-9    2021-07-24 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  jquerylib              0.1.4    2021-04-26 [3] CRAN (R 4.0.5)</span>
-<span class="co">#&gt;  jsonlite               1.8.0    2022-02-22 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  kableExtra           * 1.3.4    2021-02-20 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  KernSmooth             2.23-20  2021-05-03 [4] CRAN (R 4.0.5)</span>
-<span class="co">#&gt;  knitr                  1.37     2021-12-16 [3] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  labeling               0.4.2    2020-10-20 [3] CRAN (R 4.0.3)</span>
-<span class="co">#&gt;  later                  1.3.0    2021-08-18 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  lattice                0.20-45  2021-09-22 [4] CRAN (R 4.1.1)</span>
-<span class="co">#&gt;  latticeExtra           0.6-29   2019-12-19 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  lazyeval               0.2.2    2019-03-15 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  lifecycle              1.0.1    2021-09-24 [3] CRAN (R 4.1.1)</span>
-<span class="co">#&gt;  limma                * 3.50.3   2022-04-07 [1] Bioconductor</span>
-<span class="co">#&gt;  lubridate              1.8.0    2021-10-07 [3] CRAN (R 4.1.1)</span>
-<span class="co">#&gt;  magrittr               2.0.3    2022-03-30 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  MASS                   7.3-55   2022-01-13 [4] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  Matrix                 1.4-0    2021-12-08 [4] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  MatrixGenerics         1.6.0    2021-10-26 [1] Bioconductor</span>
-<span class="co">#&gt;  matrixStats            0.61.0   2021-09-17 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  memoise                2.0.1    2021-11-26 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  mgcv                   1.8-38   2021-10-06 [4] CRAN (R 4.1.1)</span>
-<span class="co">#&gt;  mime                   0.12     2021-09-28 [3] CRAN (R 4.1.1)</span>
-<span class="co">#&gt;  modelr                 0.1.8    2020-05-19 [3] CRAN (R 4.0.0)</span>
-<span class="co">#&gt;  munsell                0.5.0    2018-06-12 [3] CRAN (R 4.0.0)</span>
-<span class="co">#&gt;  nlme                   3.1-155  2022-01-13 [4] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  nnet                   7.3-17   2022-01-13 [4] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  NormalyzerDE         * 1.12.0   2021-10-26 [1] Bioconductor</span>
-<span class="co">#&gt;  nortest                1.0-4    2015-07-30 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  openxlsx             * 4.2.5    2021-12-14 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  patchwork              1.1.1    2020-12-17 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  pbapply              * 1.5-0    2021-09-16 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  performance          * 0.8.0    2021-10-01 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  pheatmap               1.0.12   2019-01-04 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  pillar                 1.7.0    2022-02-01 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  pkgbuild               1.3.1    2021-12-20 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  pkgconfig              2.0.3    2019-09-22 [3] CRAN (R 4.0.0)</span>
-<span class="co">#&gt;  pkgload                1.2.4    2021-11-30 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  plotly               * 4.10.0   2021-10-09 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  plyr                   1.8.6    2020-03-03 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  png                    0.1-7    2013-12-03 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  preprocessCore         1.56.0   2021-10-26 [1] Bioconductor</span>
-<span class="co">#&gt;  prettyunits            1.1.1    2020-01-24 [3] CRAN (R 4.0.0)</span>
-<span class="co">#&gt;  processx               3.5.2    2021-04-30 [3] CRAN (R 4.0.5)</span>
-<span class="co">#&gt;  promises               1.2.0.1  2021-02-11 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  proxy                  0.4-26   2021-06-07 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  ps                     1.6.0    2021-02-28 [3] CRAN (R 4.0.4)</span>
-<span class="co">#&gt;  purrr                * 0.3.4    2020-04-17 [3] CRAN (R 4.0.0)</span>
-<span class="co">#&gt;  R6                     2.5.1    2021-08-19 [3] CRAN (R 4.1.1)</span>
-<span class="co">#&gt;  raster                 3.5-15   2022-01-22 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  RcmdrMisc              2.7-2    2022-01-05 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  RColorBrewer         * 1.1-3    2022-04-03 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  Rcpp                   1.0.8    2022-01-13 [3] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  RCurl                * 1.98-1.5 2021-09-17 [3] CRAN (R 4.1.1)</span>
-<span class="co">#&gt;  readr                * 2.1.1    2021-11-30 [3] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  readxl                 1.3.1    2019-03-13 [3] CRAN (R 4.0.0)</span>
-<span class="co">#&gt;  remotes                2.4.2    2021-11-30 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  reprex                 2.0.1    2021-08-05 [3] CRAN (R 4.1.0)</span>
-<span class="co">#&gt;  reshape                0.8.8    2018-10-23 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  reshape2               1.4.4    2020-04-09 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  rio                  * 0.5.29   2021-11-22 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  rlang                  1.0.2    2022-03-04 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  rmarkdown              2.14     2022-04-25 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  rpart                  4.1.16   2022-01-24 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  rprojroot              2.0.2    2020-11-15 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  rstatix                0.7.0    2021-02-13 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  rstudioapi             0.13     2020-11-12 [3] CRAN (R 4.0.3)</span>
-<span class="co">#&gt;  Rttf2pt1               1.3.8    2020-01-10 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  rvest                  1.0.2    2021-10-16 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  S4Vectors            * 0.32.3   2021-11-21 [1] Bioconductor</span>
-<span class="co">#&gt;  sandwich               3.0-1    2021-05-18 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  sass                   0.4.0    2021-05-12 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  scales                 1.2.0    2022-04-13 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  see                  * 0.6.8    2021-10-03 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  sessioninfo          * 1.2.2    2021-12-06 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  shiny                  1.7.1    2021-10-02 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  snakecase              0.11.0   2019-05-25 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  sp                     1.4-6    2021-11-14 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  statmod                1.4.36   2021-05-10 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  stringi                1.7.6    2021-11-29 [3] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  stringr              * 1.4.0    2019-02-10 [3] CRAN (R 4.0.0)</span>
-<span class="co">#&gt;  SummarizedExperiment   1.24.0   2021-10-26 [1] Bioconductor</span>
-<span class="co">#&gt;  survival               3.2-13   2021-08-24 [4] CRAN (R 4.1.1)</span>
-<span class="co">#&gt;  svglite                2.0.0    2021-02-20 [3] CRAN (R 4.0.4)</span>
-<span class="co">#&gt;  systemfonts            1.0.3    2021-10-13 [3] CRAN (R 4.1.1)</span>
-<span class="co">#&gt;  terra                  1.5-21   2022-02-17 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  testthat               3.1.2    2022-01-20 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  textshaping            0.3.6    2021-10-13 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  tibble               * 3.1.6    2021-11-07 [3] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  tictoc               * 1.0.1    2021-04-19 [2] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  tidyr                * 1.2.0    2022-02-01 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  tidyselect             1.1.2    2022-02-21 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  tidytree               0.3.9    2022-03-04 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  tidyverse            * 1.3.1    2021-04-15 [3] CRAN (R 4.0.5)</span>
-<span class="co">#&gt;  treeio                 1.18.1   2021-11-14 [1] Bioconductor</span>
-<span class="co">#&gt;  treemap              * 2.4-3    2021-08-22 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  tzdb                   0.2.0    2021-10-27 [3] CRAN (R 4.1.1)</span>
-<span class="co">#&gt;  usethis                2.1.5    2021-12-09 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  utf8                   1.2.2    2021-07-24 [3] CRAN (R 4.1.0)</span>
-<span class="co">#&gt;  vctrs                  0.4.1    2022-04-13 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  vipor                  0.4.5    2017-03-22 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  viridisLite            0.4.0    2021-04-13 [3] CRAN (R 4.0.5)</span>
-<span class="co">#&gt;  vroom                  1.5.7    2021-11-30 [3] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  vsn                    3.62.0   2021-10-26 [1] Bioconductor</span>
-<span class="co">#&gt;  webshot                0.5.2    2019-11-22 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  withr                  2.5.0    2022-03-03 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  xfun                 * 0.31     2022-05-10 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  xml2                   1.3.3    2021-11-30 [3] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  xtable                 1.8-4    2019-04-21 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  XVector              * 0.34.0   2021-10-26 [1] Bioconductor</span>
-<span class="co">#&gt;  yaml                   2.2.1    2020-02-01 [3] CRAN (R 4.0.0)</span>
-<span class="co">#&gt;  yulab.utils            0.0.4    2021-10-09 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  zip                    2.2.0    2021-05-31 [1] CRAN (R 4.1.2)</span>
-<span class="co">#&gt;  zlibbioc               1.40.0   2021-10-26 [1] Bioconductor</span>
-<span class="co">#&gt;  zoo                    1.8-10   2022-04-15 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  package              * version    date (UTC) lib source</span>
+<span class="co">#&gt;  abind                  1.4-5      2016-07-21 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  affy                   1.72.0     2021-10-26 [1] Bioconductor</span>
+<span class="co">#&gt;  affyio                 1.64.0     2021-10-26 [1] Bioconductor</span>
+<span class="co">#&gt;  ape                  * 5.6-2      2022-03-02 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  aplot                  0.1.2      2022-01-10 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  assertthat             0.2.1      2019-03-21 [3] CRAN (R 4.0.0)</span>
+<span class="co">#&gt;  backports              1.4.1      2021-12-13 [3] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  base64enc              0.1-3      2015-07-28 [3] CRAN (R 4.0.0)</span>
+<span class="co">#&gt;  beeswarm               0.4.0      2021-06-01 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  Biobase                2.54.0     2021-10-26 [1] Bioconductor</span>
+<span class="co">#&gt;  BiocGenerics         * 0.40.0     2021-10-26 [1] Bioconductor</span>
+<span class="co">#&gt;  BiocManager          * 1.30.16    2021-06-15 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  Biostrings           * 2.62.0     2021-10-26 [1] Bioconductor</span>
+<span class="co">#&gt;  bit                    4.0.4      2020-08-04 [3] CRAN (R 4.0.2)</span>
+<span class="co">#&gt;  bit64                  4.0.5      2020-08-30 [3] CRAN (R 4.0.2)</span>
+<span class="co">#&gt;  bitops                 1.0-7      2021-04-24 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  bookdown               0.26       2022-04-15 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  brio                   1.1.3      2021-11-30 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  broom                  0.7.11     2022-01-03 [3] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  bslib                  0.3.1      2021-10-06 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  cachem                 1.0.6      2021-08-19 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  callr                  3.7.0      2021-04-20 [3] CRAN (R 4.0.5)</span>
+<span class="co">#&gt;  car                    3.0-12     2021-11-06 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  carData                3.0-5      2022-01-06 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  caTools                1.18.2     2021-03-28 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  cellranger             1.1.0      2016-07-27 [3] CRAN (R 4.0.0)</span>
+<span class="co">#&gt;  checkmate              2.0.0      2020-02-06 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  class                  7.3-20     2022-01-13 [4] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  cli                    3.3.0      2022-04-25 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  cluster                2.1.2      2021-04-17 [4] CRAN (R 4.0.5)</span>
+<span class="co">#&gt;  codetools              0.2-18     2020-11-04 [4] CRAN (R 4.0.3)</span>
+<span class="co">#&gt;  colorspace             2.0-3      2022-02-21 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  ComplexUpset           1.3.3      2021-12-11 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  corrplot             * 0.92       2021-11-18 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  corrr                * 0.4.3      2020-11-24 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  cowplot              * 1.1.1      2020-12-30 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  crayon                 1.5.1      2022-03-26 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  crosstalk              1.2.0      2021-11-04 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  curl                   4.3.2      2021-06-23 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  d3Tree               * 0.2.2      2020-12-10 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  data.table           * 1.14.2     2021-09-27 [3] CRAN (R 4.1.1)</span>
+<span class="co">#&gt;  DBI                    1.1.2      2021-12-20 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  dbplyr                 2.1.1      2021-04-06 [3] CRAN (R 4.0.5)</span>
+<span class="co">#&gt;  DelayedArray           0.20.0     2021-10-26 [1] Bioconductor</span>
+<span class="co">#&gt;  desc                   1.4.1      2022-03-06 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  devtools               2.4.3      2021-11-30 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  digest                 0.6.29     2021-12-01 [3] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  downlit                0.4.0      2021-10-29 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  dplyover             * 0.0.8.9002 2022-06-02 [1] Github (TimTeaFan/dplyover@f0cd984)</span>
+<span class="co">#&gt;  dplyr                * 1.0.9      2022-04-28 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  DT                   * 0.22       2022-03-28 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  e1071                  1.7-9      2021-09-16 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  ellipsis               0.3.2      2021-04-29 [3] CRAN (R 4.0.5)</span>
+<span class="co">#&gt;  evaluate               0.14       2019-05-28 [3] CRAN (R 4.0.0)</span>
+<span class="co">#&gt;  extrafont              0.17       2014-12-08 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  extrafontdb            1.0        2012-06-11 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  fansi                  1.0.3      2022-03-24 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  farver                 2.1.0      2021-02-28 [3] CRAN (R 4.0.4)</span>
+<span class="co">#&gt;  fastmap                1.1.0      2021-01-25 [3] CRAN (R 4.0.3)</span>
+<span class="co">#&gt;  fastmatch              1.1-3      2021-07-23 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  forcats              * 0.5.1      2021-01-27 [3] CRAN (R 4.0.3)</span>
+<span class="co">#&gt;  foreign                0.8-82     2022-01-13 [4] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  formattable          * 0.2.1      2021-01-07 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  Formula                1.2-4      2020-10-16 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  fs                     1.5.2      2021-12-08 [3] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  gdtools                0.2.3      2021-01-06 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  generics               0.1.2      2022-01-31 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  GenomeInfoDb         * 1.30.1     2022-01-30 [1] Bioconductor</span>
+<span class="co">#&gt;  GenomeInfoDbData       1.2.7      2022-01-25 [1] Bioconductor</span>
+<span class="co">#&gt;  GenomicRanges          1.46.1     2021-11-18 [1] Bioconductor</span>
+<span class="co">#&gt;  geomtextpath         * 0.1.0      2022-01-24 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  GGally               * 2.1.2      2021-06-21 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  ggbeeswarm             0.6.0      2017-08-07 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  ggcorrplot           * 0.1.3      2019-05-19 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  ggfortify            * 0.4.14     2022-01-03 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  ggfun                  0.0.5      2022-01-20 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  ggplot2              * 3.3.5      2021-06-25 [3] CRAN (R 4.1.0)</span>
+<span class="co">#&gt;  ggplotify            * 0.1.0      2021-09-02 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  ggpubr               * 0.4.0      2020-06-27 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  ggrepel              * 0.9.1      2021-01-15 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  ggsci                * 2.9        2018-05-14 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  ggsignif             * 0.6.3      2021-09-09 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  ggtext               * 0.1.1      2020-12-17 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  ggthemes             * 4.2.4      2021-01-20 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  ggtree               * 3.2.1      2021-11-16 [1] Bioconductor</span>
+<span class="co">#&gt;  glue                   1.6.2      2022-02-24 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  gplots               * 3.1.3      2022-04-25 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  gridBase               0.4-7      2014-02-24 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  gridExtra            * 2.3        2017-09-09 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  gridGraphics           0.5-1      2020-12-13 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  gridtext               0.1.4      2020-12-10 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  gtable                 0.3.0      2019-03-25 [3] CRAN (R 4.0.0)</span>
+<span class="co">#&gt;  gtools               * 3.9.2      2021-06-06 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  hablar               * 0.3.0      2020-03-19 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  haven                  2.4.3      2021-08-04 [3] CRAN (R 4.1.0)</span>
+<span class="co">#&gt;  here                 * 1.0.1      2020-12-13 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  highr                  0.9        2021-04-16 [3] CRAN (R 4.0.5)</span>
+<span class="co">#&gt;  Hmisc                  4.6-0      2021-10-07 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  hms                    1.1.1      2021-09-26 [3] CRAN (R 4.1.1)</span>
+<span class="co">#&gt;  hrbrthemes           * 0.8.0      2020-03-06 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  htmlTable              2.4.0      2022-01-04 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  htmltools              0.5.2      2021-08-25 [3] CRAN (R 4.1.1)</span>
+<span class="co">#&gt;  htmlwidgets            1.5.4      2021-09-08 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  httpuv                 1.6.5      2022-01-05 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  httr                   1.4.2      2020-07-20 [3] CRAN (R 4.0.2)</span>
+<span class="co">#&gt;  hutils               * 1.7.1      2021-07-22 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  igraph                 1.2.11     2022-01-04 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  insight                0.15.0     2022-01-07 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  IRanges              * 2.28.0     2021-10-26 [1] Bioconductor</span>
+<span class="co">#&gt;  janitor              * 2.1.0      2021-01-05 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  jpeg                   0.1-9      2021-07-24 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  jquerylib              0.1.4      2021-04-26 [3] CRAN (R 4.0.5)</span>
+<span class="co">#&gt;  jsonlite               1.8.0      2022-02-22 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  kableExtra           * 1.3.4      2021-02-20 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  KernSmooth             2.23-20    2021-05-03 [4] CRAN (R 4.0.5)</span>
+<span class="co">#&gt;  knitr                  1.37       2021-12-16 [3] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  labeling               0.4.2      2020-10-20 [3] CRAN (R 4.0.3)</span>
+<span class="co">#&gt;  later                  1.3.0      2021-08-18 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  lattice                0.20-45    2021-09-22 [4] CRAN (R 4.1.1)</span>
+<span class="co">#&gt;  latticeExtra           0.6-29     2019-12-19 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  lazyeval               0.2.2      2019-03-15 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  lifecycle              1.0.1      2021-09-24 [3] CRAN (R 4.1.1)</span>
+<span class="co">#&gt;  limma                * 3.50.3     2022-04-07 [1] Bioconductor</span>
+<span class="co">#&gt;  lubridate              1.8.0      2021-10-07 [3] CRAN (R 4.1.1)</span>
+<span class="co">#&gt;  magrittr               2.0.3      2022-03-30 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  MASS                   7.3-55     2022-01-13 [4] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  Matrix                 1.4-0      2021-12-08 [4] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  MatrixGenerics         1.6.0      2021-10-26 [1] Bioconductor</span>
+<span class="co">#&gt;  matrixStats            0.61.0     2021-09-17 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  memoise                2.0.1      2021-11-26 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  mgcv                   1.8-38     2021-10-06 [4] CRAN (R 4.1.1)</span>
+<span class="co">#&gt;  mime                   0.12       2021-09-28 [3] CRAN (R 4.1.1)</span>
+<span class="co">#&gt;  modelr                 0.1.8      2020-05-19 [3] CRAN (R 4.0.0)</span>
+<span class="co">#&gt;  munsell                0.5.0      2018-06-12 [3] CRAN (R 4.0.0)</span>
+<span class="co">#&gt;  nlme                   3.1-155    2022-01-13 [4] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  nnet                   7.3-17     2022-01-13 [4] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  NormalyzerDE         * 1.12.0     2021-10-26 [1] Bioconductor</span>
+<span class="co">#&gt;  nortest                1.0-4      2015-07-30 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  openxlsx             * 4.2.5      2021-12-14 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  patchwork              1.1.1      2020-12-17 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  pbapply              * 1.5-0      2021-09-16 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  performance          * 0.8.0      2021-10-01 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  pheatmap               1.0.12     2019-01-04 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  pillar                 1.7.0      2022-02-01 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  pkgbuild               1.3.1      2021-12-20 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  pkgconfig              2.0.3      2019-09-22 [3] CRAN (R 4.0.0)</span>
+<span class="co">#&gt;  pkgload                1.2.4      2021-11-30 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  plotly               * 4.10.0     2021-10-09 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  plyr                   1.8.6      2020-03-03 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  png                    0.1-7      2013-12-03 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  preprocessCore         1.56.0     2021-10-26 [1] Bioconductor</span>
+<span class="co">#&gt;  prettyunits            1.1.1      2020-01-24 [3] CRAN (R 4.0.0)</span>
+<span class="co">#&gt;  processx               3.5.2      2021-04-30 [3] CRAN (R 4.0.5)</span>
+<span class="co">#&gt;  promises               1.2.0.1    2021-02-11 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  proxy                  0.4-26     2021-06-07 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  ps                     1.6.0      2021-02-28 [3] CRAN (R 4.0.4)</span>
+<span class="co">#&gt;  purrr                * 0.3.4      2020-04-17 [3] CRAN (R 4.0.0)</span>
+<span class="co">#&gt;  R6                     2.5.1      2021-08-19 [3] CRAN (R 4.1.1)</span>
+<span class="co">#&gt;  raster                 3.5-15     2022-01-22 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  RcmdrMisc              2.7-2      2022-01-05 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  RColorBrewer         * 1.1-3      2022-04-03 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  Rcpp                   1.0.8      2022-01-13 [3] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  RCurl                * 1.98-1.5   2021-09-17 [3] CRAN (R 4.1.1)</span>
+<span class="co">#&gt;  readr                * 2.1.1      2021-11-30 [3] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  readxl                 1.3.1      2019-03-13 [3] CRAN (R 4.0.0)</span>
+<span class="co">#&gt;  remotes                2.4.2      2021-11-30 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  reprex                 2.0.1      2021-08-05 [3] CRAN (R 4.1.0)</span>
+<span class="co">#&gt;  reshape                0.8.8      2018-10-23 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  reshape2               1.4.4      2020-04-09 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  rio                  * 0.5.29     2021-11-22 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  rlang                  1.0.2      2022-03-04 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  rmarkdown              2.14       2022-04-25 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  rpart                  4.1.16     2022-01-24 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  rprojroot              2.0.2      2020-11-15 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  rstatix                0.7.0      2021-02-13 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  rstudioapi             0.13       2020-11-12 [3] CRAN (R 4.0.3)</span>
+<span class="co">#&gt;  Rttf2pt1               1.3.8      2020-01-10 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  rvest                  1.0.2      2021-10-16 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  S4Vectors            * 0.32.3     2021-11-21 [1] Bioconductor</span>
+<span class="co">#&gt;  sandwich               3.0-1      2021-05-18 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  sass                   0.4.0      2021-05-12 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  scales                 1.2.0      2022-04-13 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  see                  * 0.6.8      2021-10-03 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  sessioninfo          * 1.2.2      2021-12-06 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  shiny                  1.7.1      2021-10-02 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  snakecase              0.11.0     2019-05-25 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  sp                     1.4-6      2021-11-14 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  statmod                1.4.36     2021-05-10 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  stringi                1.7.6      2021-11-29 [3] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  stringr              * 1.4.0      2019-02-10 [3] CRAN (R 4.0.0)</span>
+<span class="co">#&gt;  SummarizedExperiment   1.24.0     2021-10-26 [1] Bioconductor</span>
+<span class="co">#&gt;  survival               3.2-13     2021-08-24 [4] CRAN (R 4.1.1)</span>
+<span class="co">#&gt;  svglite                2.0.0      2021-02-20 [3] CRAN (R 4.0.4)</span>
+<span class="co">#&gt;  systemfonts            1.0.3      2021-10-13 [3] CRAN (R 4.1.1)</span>
+<span class="co">#&gt;  terra                  1.5-21     2022-02-17 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  testthat               3.1.2      2022-01-20 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  textshaping            0.3.6      2021-10-13 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  tibble               * 3.1.6      2021-11-07 [3] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  tictoc               * 1.0.1      2021-04-19 [2] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  tidyr                * 1.2.0      2022-02-01 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  tidyselect             1.1.2      2022-02-21 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  tidytree               0.3.9      2022-03-04 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  tidyverse            * 1.3.1      2021-04-15 [3] CRAN (R 4.0.5)</span>
+<span class="co">#&gt;  treeio                 1.18.1     2021-11-14 [1] Bioconductor</span>
+<span class="co">#&gt;  treemap              * 2.4-3      2021-08-22 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  tzdb                   0.2.0      2021-10-27 [3] CRAN (R 4.1.1)</span>
+<span class="co">#&gt;  usethis                2.1.5      2021-12-09 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  utf8                   1.2.2      2021-07-24 [3] CRAN (R 4.1.0)</span>
+<span class="co">#&gt;  vctrs                  0.4.1      2022-04-13 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  vipor                  0.4.5      2017-03-22 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  viridisLite            0.4.0      2021-04-13 [3] CRAN (R 4.0.5)</span>
+<span class="co">#&gt;  vroom                  1.5.7      2021-11-30 [3] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  vsn                    3.62.0     2021-10-26 [1] Bioconductor</span>
+<span class="co">#&gt;  webshot                0.5.2      2019-11-22 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  withr                  2.5.0      2022-03-03 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  xfun                 * 0.31       2022-05-10 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  xml2                   1.3.3      2021-11-30 [3] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  xtable                 1.8-4      2019-04-21 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  XVector              * 0.34.0     2021-10-26 [1] Bioconductor</span>
+<span class="co">#&gt;  yaml                   2.2.1      2020-02-01 [3] CRAN (R 4.0.0)</span>
+<span class="co">#&gt;  yulab.utils            0.0.4      2021-10-09 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  zip                    2.2.0      2021-05-31 [1] CRAN (R 4.1.2)</span>
+<span class="co">#&gt;  zlibbioc               1.40.0     2021-10-26 [1] Bioconductor</span>
+<span class="co">#&gt;  zoo                    1.8-10     2022-04-15 [1] CRAN (R 4.1.2)</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt;  [1] /home/benjamin/R/x86_64-pc-linux-gnu-library/4.1</span>
 <span class="co">#&gt;  [2] /usr/local/lib/R/site-library</span>
@@ -10472,7 +10470,7 @@ NA
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 01-Jun-2022 16:45.</p>
+    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 02-Jun-2022 12:32.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

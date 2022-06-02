@@ -103,14 +103,7 @@ are not suitable for analysis:</p>
             <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'uniprot'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
             <span class="fu">rename_with</span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span>,.fn<span class="op">=</span><span class="va">gsub</span>, pattern<span class="op">=</span><span class="st">'intensity_'</span>, replacement<span class="op">=</span><span class="st">''</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
             <span class="fu">rename_with</span><span class="op">(</span>.fn <span class="op">=</span> <span class="va">str_to_upper</span><span class="op">)</span>
-<span class="co">#&gt; Total number of proteins hits: 3635</span>
-<span class="co">#&gt; *   104 = less than 2 unique peptides</span>
-<span class="co">#&gt; *    20 = contaminated hits</span>
-<span class="co">#&gt; *    52 = reversed sequences</span>
-<span class="co">#&gt; *    57 = multi-protein hits</span>
-<span class="co">#&gt; -----------------------------------------</span>
-<span class="co">#&gt;  -&gt; 206   hits eliminated</span>
-<span class="co">#&gt;  =&gt; 3429  remaining hits for analysis</span></code></pre></div>
+<span class="co">#&gt; Total number of proteins hits: 3635</span></code></pre></div>
 <div id="processing-quantified-intensities" class="section level2" number="5.1">
 <h2>
 <span class="header-section-number">5.1</span> Processing quantified intensities<a class="anchor" aria-label="anchor" href="#processing-quantified-intensities"><i class="fas fa-link"></i></a>
@@ -221,7 +214,7 @@ We filter out hits that contains missing values for either strains or replicates
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 01-Jun-2022 16:45.</p>
+    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 02-Jun-2022 12:32.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
