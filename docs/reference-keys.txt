@@ -46,8 +46,12 @@ principle-component-analysis-1
 differential-expression
 volcano-plots
 differentially-expressed-genes
-functional-map-for-diffentially-expressed-genes
+heatmap-of-expression-for-differentially-expressed-genes
 heatmap-of-expression-differences
+cluster-genes-based-on-their-profile-of-differential-expression-strain-pairwise
+functional-map-for-differentially-expressed-genes
+functional-enrichment-for-differentially-expressed-genes
+comparison-of-functional-enrichment-for-clusters-of-differentially-expressed-genes
 session-info
 appendix-all-code-for-this-report
 platform-info

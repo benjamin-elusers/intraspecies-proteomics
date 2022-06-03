@@ -1,20 +1,16 @@
-
 ### LARGE data files (>100Mb)
 data/checkpoint-snp.rdata
-
-data/Y8-CDS.rds 
+data/Y8-CDS.rds
 data/Y8-PROT.rds
-
 data/YK11-CDS.rds
 data/YK11-SNP_AA.rds
 data/YK11-SNP_NT.rds
-
 data/Raw_files/combined/txt/allPeptides.txt
 data/Raw_files/combined/txt/evidence.txt
 data/Raw_files/combined/txt/msms.txt
 data/Raw_files/combined/txt/msmsScans.txt
-
 output/evolution-fungi-residue.tsv
 output/evolution-snp-residue.tsv
 output/*.rdata
 .Rproj.user/**
+.Rhistory

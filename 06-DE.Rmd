@@ -18,7 +18,9 @@ pairwise comparison.
 
 ```{r volcano-plots, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
 #ind_na_rows  = find_na_rows(int_norm,as.indices = T)
-df_imputed = tibble( uniprot = int_norm$uniprot, is_imputed = rowSums( is.na(int_norm))>0)
+df_imputed = tibble( uniprot = int_norm$uniprot,
+                     is_imputed = (rowSums( is.na(int_norm))>0)* 1, 
+                     imputed = factor(is_imputed, levels = c(0,1), labels = c("not", "is_imputed")))
 #int_norm_bpca$imputed = rowSums( is.na(int_norm))>0
 volcPlot(INPUT=int_norm_bpca, IMPUTED=df_imputed,MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20)
 
@@ -138,7 +140,78 @@ ft_dt
 
 ```
 
-## Functional map for diffentially expressed genes
+
+## Heatmap of expression for differentially expressed genes
+```{r heatmap-exp, fig.height=25, fig.ext=c('pdf','png'), fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
+
+dat_scaled = int_scaled_strains %>% as.data.frame() %>% rownames_to_column('uniprot') 
+
+dfe_exp = dat_scaled %>% dplyr::filter( uniprot %in% dfe$ID) %>% 
+          left_join(sc_identifiers,by=c('uniprot'='UNIPROT'))  %>% 
+          dplyr::filter(!duplicated(GENENAME)) %>%
+          mutate(GENENAME=if_na(GENENAME,uniprot))%>%
+          column_to_rownames(var = 'GENENAME') %>%
+          dplyr::select(-ORF,-uniprot,-SGD)
+
+p_dfe_exp=pheatmap::pheatmap(dfe_exp,
+                             fontsize = 5,cellwidth = 5,cellheight =5,border_color = NA,treeheight_col = 10,
+                             filename = here('plot','heatmap-exp.pdf'))
+knitr::include_graphics(here('plot','heatmap-exp.pdf'))
+```
+
+
+## Heatmap of expression differences
+
+```{r heatmap-diffexp, fig.height=25, fig.path='plot/',  fig.ext=c('pdf','png'), fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
+
+
+dfe_lfc = get_volcano_data(input_data=int_norm_bpca, which='both',min_lfc=2, min_pval=0.01, topn = 20) %>% 
+          bind_rows %>% as_tibble() %>%
+          pivot_wider(id_cols=ID, names_from = 'comparison', values_from = 'EffectSize') %>% 
+          dplyr::filter(ID %in% dfe$ID) %>% 
+          left_join(sc_identifiers,by=c('ID'='UNIPROT')) %>%
+          dplyr::filter(!duplicated(GENENAME)) %>%
+          mutate(GENENAME=if_na(GENENAME,ID))%>%
+          column_to_rownames('GENENAME')
+
+dfe_lfc_mat = dfe_lfc %>% dplyr::select(-ORF,-ID,-SGD)
+# Heatmap of differentially expressed genes
+pheatmap::pheatmap(dfe_lfc_mat,fontsize = 5,cutree_rows = 10,cellwidth = 5,cellheight =5,border_color = NA,
+                          treeheight_col = 10, filename = here('plot','heatmap-lfc.pdf')  )
+knitr::include_graphics(here('plot','heatmap-lfc.pdf'))
+```
+
+## Cluster genes based on their profile of differential expression strain-pairwise 
+
+```{r clust-prot, fig.height=20, fig.path='plot/',  fig.ext=c('pdf','png'), fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
+# Transpose the matrix to calculate distance between experiments row-wise
+d_strain <- dfe_lfc_mat %>% t() %>% dist(.,method = "euclidean", diag = FALSE, upper = FALSE)
+# Calculate the distance between proteins row-wise 
+d_prot <- dfe_lfc_mat %>% dist(.,method = "euclidean", diag = FALSE, upper= FALSE)
+
+hc_prot = hclust(d_prot,method='ward.D2')
+cl_prot = hc_prot %>% cutree(k=10)
+library(dendextend)
+dend_prot = as.dendrogram(hc_prot)
+dend_prot = rotate(dend_prot,seq_along(cl_prot))
+dend_prot <- color_branches(dend_prot, k=10)
+dend_prot <- color_labels(dend_prot, k=10)
+
+#labels_colors(dend) <-rainbow_hcl(3)[sort_levels_values( as.numeric(dend_prot[,5])[order.dendrogram(dend)] )]
+dend_prot <- hang.dendrogram(dend_prot,hang_height=0.1)
+dend_prot <- set(dend_prot, "labels_cex", 0.5)
+# And plot:
+par(mar = c(2,3,0,3))
+plot(dend_prot,horiz =  TRUE,  nodePar = list(cex = .007))
+
+#legend("topleft", legend = iris_species, fill = rainbow_hcl(10))
+par(mar = rep(0,4))
+circlize_dendrogram(dend_prot)
+
+```
+
+
+## Functional map for differentially expressed genes
 
 ```{r treemap-bioprocess, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
 library(treemap)
@@ -147,61 +220,89 @@ treemap(df_dfe_annot, index=c("BIOPROCESS_all", "comparison"), vSize='regulated'
 treemap(df_dfe_annot, index=c("BIOPROCESS_all", "GENENAME"), vSize="regulated", vColor="EffectSize", type="value",)
 ```
 
-## Heatmap of expression differences
-```{r heatmap-diffexp, fig.height=18, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
-dat_scaled = int_scaled_strains %>% as.data.frame() %>% rownames_to_column('uniprot') 
+## Functional enrichment for differentially expressed genes
 
-# Transpose the matrix to calculate distance between experiments, row-wise
-d_pair <- dat_scaled[,-1] %>% t() %>%
-  dist(.,method = "euclidean", diag = FALSE, upper = FALSE)
-# Calculate the distance between proteins row-wise 
-d_prot <- dat_scaled %>% dplyr::filter( uniprot %in% dfe$ID) %>% dplyr::select(-uniprot) %>% dist(.,method = "euclidean", diag = FALSE, upper = FALSE)
+```{r func-enrich, fig.height=20, fig.path='plot/',  fig.ext=c('pdf','png'), fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
+library(enrichplot)
+library(clusterProfiler)
 
-dfe_lfc = bind_rows(volcano_data) %>% 
-          pivot_wider(id_cols=ID, names_from = 'comparison', values_from = 'EffectSize') %>% 
-          dplyr::filter(ID %in% dfe$ID) %>% left_join(sc_identifiers,by=c('ID'='UNIPROT')) %>%
-          column_to_rownames('GENENAME') %>% dplyr::select(-ORF,-ID,-SGD)
+all_genes = int_scaled_strains %>%
+            as.data.frame() %>%
+            rownames_to_column('ID') %>% 
+            left_join(sc_identifiers,by=c('ID'='UNIPROT')) %>%
+            dplyr::filter(!duplicated(GENENAME)) %>%
+            mutate(GENENAME=if_na(GENENAME,ID)) %>% 
+            as_tibble() %>% 
+            dplyr::select(where(is.character))
 
-# Heatmap of differentially expressed genes
-p_dfe= pheatmap::pheatmap(dfe_lfc,fontsize = 5,cutree_rows = 10,cellwidth = 5,cellheight =5,border_color = NA) %>% 
-        ggplotify::as.ggplot()
 
-dfe_exp = dat_scaled %>% dplyr::filter( uniprot %in% dfe$ID) %>% 
-          left_join(sc_identifiers,by=c('uniprot'='UNIPROT'))  %>% 
-          dplyr::filter(!duplicated(GENENAME)) %>%
-          mutate(GENENAME=if_na(GENENAME,uniprot))%>%
-          column_to_rownames(var = 'GENENAME')
+genes_proteomics = all_genes$ORF
+genes_dfe = dfe_lfc$ORF
+genes_dfe_uni = dfe_lfc$ID
 
-p_dfe_exp=pheatmap::pheatmap(dfe_exp %>% dplyr::select(-ORF,-uniprot,-SGD) ,
-                             fontsize = 8,cellwidth = 5,cellheight =5,border_color = NA,treeheight_col = 10)
+genes_dfe_list = df_dfe_annot %>% group_by(ORF) %>% summarize( mean_lfc = mean(EffectSize)) %>% arrange(desc(mean_lfc)) %>% pull(mean_lfc,ORF) 
+genes_dfe_list_uni = df_dfe_annot %>% group_by(uniprot) %>% summarize( mean_lfc = mean(EffectSize)) %>% arrange(desc(mean_lfc)) %>% pull(mean_lfc,uniprot)
 
-textcol <- "grey40"
-# further modified ggplot
-# p_exp <- ggplot(dfe_exp%>%pivot_longer(where(is.numeric), names_to = 'strain', values_to='exp') %>% rownames_to_column('GENENAME'), 
-#             aes(x=strain, y=GENENAME, fill=exp))+
-#   geom_tile(colour="white", size=0.1)+
-#   labs(x="", y="")+
-#   scale_fill_gradientn(colours = colorRampPalette(rev(brewer.pal(n = 7, name =
-#   "RdYlBu")))(100))+
-#   #scale_fill_manual(values=c("#d53e4f", "#f46d43", "#fdae61", "#fee08b", "#e6f598", "#abdda4", "#ddf1da"), na.value = "grey90")+
-#   theme_grey(base_size=10)+
-#   theme(legend.position="right", legend.direction="vertical",
-#         legend.title=element_text(colour=textcol),
-#         legend.margin=margin(grid::unit(0, "cm")),
-#         legend.text=element_text(colour=textcol, size=7, face="bold"),
-#         legend.key.height=grid::unit(0.8, "cm"),
-#         legend.key.width=grid::unit(0.2, "cm"),
-#         axis.text.x=element_text(size=8, angle=90,colour=textcol,hjust = 1),
-#         axis.text.y=element_text(vjust=0.2, colour=textcol),
-#         axis.ticks=element_line(size=0.4),
-#         plot.background=element_blank(),
-#         panel.border=element_blank(),
-#         plot.margin=margin(0.7, 0.4, 0.1, 0.2, "cm"),
-#         plot.title=element_text(colour=textcol, hjust=0, size=14, face="bold")
-#         ) + coord_fixed(ratio = 1)
-# p_exp
+
+# ggo <- groupGO(gene     = gene,
+#                OrgDb    = org.Sc.sgd.db,
+#                ont      = "CC",
+#                level    = 3,
+#                readable = TRUE)
+library(org.Sc.sgd.db)
+# ego <- enrichGO(gene          = genes_dfe,
+#                 keyType       = "ORF",
+#                 universe      = genes_proteomics,
+#                 OrgDb         = org.Sc.sgd.db,
+#                 ont           = "ALL",
+#                 pAdjustMethod = "BH",
+#                 pvalueCutoff  = 0.01,
+#                 qvalueCutoff  = 0.05,
+#                 readable      = F,
+#                 pool=T)
+# dotplot(ego)
+
+ego3 <- gseGO(geneList     = genes_dfe_list,
+              OrgDb        = org.Sc.sgd.db,
+              keyType       = "ORF",
+              ont          = "ALL",
+              minGSSize    = 20,
+              maxGSSize    = 500,
+              pvalueCutoff = 0.05,
+              verbose      = FALSE)
+dotplot(ego3)
+heatplot(ego3,foldChange = genes_dfe_list)
+
+#kk <- enrichKEGG(gene         = gene,organism     = 'sce', pvalueCutoff = 0.05)
+kk2 <- gseKEGG(geneList     = genes_dfe_list_uni,organism     = 'sce', minGSSize    = 20,keyType = 'uniprot',
+               pvalueCutoff = 0.05,verbose      = FALSE)
+heatplot(kk2, foldChange=genes_dfe_list_uni)
+
+mkk <- enrichMKEGG(gene = genes_dfe_uni,
+                    organism = 'sce',
+                    pvalueCutoff = 1,
+                    qvalueCutoff = 1,
+                    keyType = 'uniprot')
+dotplot(mkk)
+
 ```
 
+## Comparison of functional enrichment for clusters of differentially expressed genes
+
+
+```{r func-enrich-clust}
+genes_dfe_cluster = split(dfe_lfc$ORF,cl_prot)
+
+ck <- compareCluster(geneCluster = genes_dfe_cluster, fun = enrichGO,
+                     keyType= "ORF",
+                     ont='ALL',
+                     universe=genes_proteomics,
+                     OrgDb= org.Sc.sgd.db,
+                     pAdjustMethod = "BH",
+                     pvalueCutoff  = 0.01,
+                     qvalueCutoff  = 0.05,pool=F)
+dotplot(ck)
+```
 
 ```{r save-data-diffexp, echo=F}
 save.image(here('output',sprintf("%02d-differential-expression.rdata",chap_cur)))
