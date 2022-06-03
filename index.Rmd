@@ -114,13 +114,15 @@ suppressPackageStartupMessages({
 # turn off annoying messages from dplyr::summarise
 options(dplyr.summarise.inform = FALSE)
 graphics.off()
+```
 
+```{r yeast-data, include=F, echo=F, warnings=F, message=F}
 # Yeast data
 sc_annofile = here('data','yeast-annotations.rds')
 sc_annotation = preload(sc_annofile, load.annotation(),doing='loading annotations data for yeast...')
 sc_annotation_orf = dplyr::select(sc_annotation,-c(SGD,GENENAME,ROLE,LOC,COMPLEX,node,nprot,nsp,taxon))
-sc_identifiers = sc_annotation %>% dplyr::select(SGD,ORF,UNIPROT,GENENAME)
-
+sc_identifiers = sc_annotation %>% dplyr::select(SGD,ORF,UNIPROT,GENENAME) %>% 
+                  dplyr::filter(!duplicated(UNIPROT) & !duplicated(SGD) & !duplicated(GENENAME))
 riboseq_strains = c('AMH','BAN','BED','BPL','BTT','CMP','CPI','CQC') # Strains with riboseq data (on 14/01/21)
 strains.info = load.peter2018.data(1) %>%  # strains info from supp mat of Science paper
                  mutate( has_riboseq = standardized_name %in% riboseq_strains)

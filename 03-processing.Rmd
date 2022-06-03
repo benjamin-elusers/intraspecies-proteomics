@@ -72,8 +72,18 @@ TAB_NORM = kbl(names(INT_NORM@normalizations),row.names = T,col.names = 'Normali
 int_norm = int_md_norm %>% rownames_to_column('uniprot') 
 int_norm_ids = int_norm %>% dplyr::left_join(sc_identifiers,by=c('uniprot'='UNIPROT')) %>% filter(!duplicated(uniprot))
 #compare_exp(log2(int_raw),int_loess_norm, all=T)
+```
 
-long_int_norm = pivot_longer(int_norm  , cols=-uniprot, values_to='int2use',
+```{r impute-na}
+library(MsCoreUtils)
+int_norm_nona = int_norm %>% drop_na()
+int_norm_bpca = impute_bpca(int_norm) %>% as_tibble() %>% add_column(uniprot = int_norm_ids$uniprot)
+#colSums(is.na(int_norm_nona))
+#draw_scatterplots(int_norm_nona)
+```
+
+```{r int-strains}
+long_int_norm = pivot_longer(int_norm_bpca  , cols=-uniprot, values_to='int2use',
                              names_to = c('strain','bio','tech','day'),
                              names_pattern = "([^_]+)_([^_]+)_([^_]+)_([^_]+)") %>%
                 group_by(strain,uniprot) %>% mutate(na_rep = sum.na(int2use))
@@ -99,7 +109,7 @@ df_strains= left_join(int_by_strain,na_by_strain) %>%
   rowwise %>%
   mutate( na_strains = sum.na(c_across(cols = starts_with('lfq_int'))) )
 
-int_all = int_norm  %>% column_to_rownames('uniprot') %>% as.data.frame()
+int_all = int_norm_bpca  %>% column_to_rownames('uniprot') %>% as.data.frame()
 
 # Removing hits with missing values for more than one strain (using average intensities over replicates)
 ms2= df_strains %>% filter(na_strains < 1)
@@ -107,15 +117,6 @@ int_filt_strains = ms2 %>% dplyr::select(-starts_with('na')) %>% column_to_rowna
 
 # Save processed & normalized intensities data
 #write_rds(df_strains,here::here('output',sprintf("%02d-normalized-intensities.rds",chap_cur)))
-```
-
-
-```{r impute-na}
-library(MsCoreUtils)
-int_norm_nona = int_norm %>% drop_na()
-int_norm_bpca = impute_bpca(int_norm) %>% as_tibble() %>% add_column(uniprot = int_norm_ids$uniprot)
-#colSums(is.na(int_norm_nona))
-#draw_scatterplots(int_norm_nona)
 ```
 
 ```{r 02-save-data, echo=F}

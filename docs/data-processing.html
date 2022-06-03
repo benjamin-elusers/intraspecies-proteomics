@@ -149,9 +149,27 @@ We filter out hits that contains missing values for either strains or replicates
             
 <span class="va">int_norm</span> <span class="op">=</span> <span class="va">int_md_norm</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">rownames_to_column</span><span class="op">(</span><span class="st">'uniprot'</span><span class="op">)</span> 
 <span class="va">int_norm_ids</span> <span class="op">=</span> <span class="va">int_norm</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html">left_join</a></span><span class="op">(</span><span class="va">sc_identifiers</span>,by<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'uniprot'</span><span class="op">=</span><span class="st">'UNIPROT'</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span><span class="op">(</span><span class="va">uniprot</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#compare_exp(log2(int_raw),int_loess_norm, all=T)</span>
-
-<span class="va">long_int_norm</span> <span class="op">=</span> <span class="fu">pivot_longer</span><span class="op">(</span><span class="va">int_norm</span>  , cols<span class="op">=</span><span class="op">-</span><span class="va">uniprot</span>, values_to<span class="op">=</span><span class="st">'int2use'</span>,
+<span class="co">#compare_exp(log2(int_raw),int_loess_norm, all=T)</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RforMassSpectrometry/MsCoreUtils">MsCoreUtils</a></span><span class="op">)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Attaching package: 'MsCoreUtils'</span>
+<span class="co">#&gt; The following objects are masked from 'package:data.table':</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;     %between%, between</span>
+<span class="co">#&gt; The following object is masked from 'package:dplyr':</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;     between</span>
+<span class="co">#&gt; The following object is masked from 'package:stats':</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;     smooth</span>
+<span class="va">int_norm_nona</span> <span class="op">=</span> <span class="va">int_norm</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">drop_na</span><span class="op">(</span><span class="op">)</span>
+<span class="va">int_norm_bpca</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/MsCoreUtils/man/imputation.html">impute_bpca</a></span><span class="op">(</span><span class="va">int_norm</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">add_column</span><span class="op">(</span>uniprot <span class="op">=</span> <span class="va">int_norm_ids</span><span class="op">$</span><span class="va">uniprot</span><span class="op">)</span>
+<span class="co">#&gt; Loading required namespace: pcaMethods</span>
+<span class="co">#colSums(is.na(int_norm_nona))</span>
+<span class="co">#draw_scatterplots(int_norm_nona)</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">long_int_norm</span> <span class="op">=</span> <span class="fu">pivot_longer</span><span class="op">(</span><span class="va">int_norm_bpca</span>  , cols<span class="op">=</span><span class="op">-</span><span class="va">uniprot</span>, values_to<span class="op">=</span><span class="st">'int2use'</span>,
                              names_to <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'strain'</span>,<span class="st">'bio'</span>,<span class="st">'tech'</span>,<span class="st">'day'</span><span class="op">)</span>,
                              names_pattern <span class="op">=</span> <span class="st">"([^_]+)_([^_]+)_([^_]+)_([^_]+)"</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
                 <span class="fu">group_by</span><span class="op">(</span><span class="va">strain</span>,<span class="va">uniprot</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">mutate</span><span class="op">(</span>na_rep <span class="op">=</span> <span class="fu">sum.na</span><span class="op">(</span><span class="va">int2use</span><span class="op">)</span><span class="op">)</span>
@@ -178,7 +196,7 @@ We filter out hits that contains missing values for either strains or replicates
   <span class="fu">mutate</span><span class="op">(</span> na_strains <span class="op">=</span> <span class="fu">sum.na</span><span class="op">(</span><span class="fu">c_across</span><span class="op">(</span>cols <span class="op">=</span> <span class="fu">starts_with</span><span class="op">(</span><span class="st">'lfq_int'</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">)</span>
 <span class="co">#&gt; Joining, by = "uniprot"</span>
 
-<span class="va">int_all</span> <span class="op">=</span> <span class="va">int_norm</span>  <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'uniprot'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span>
+<span class="va">int_all</span> <span class="op">=</span> <span class="va">int_norm_bpca</span>  <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'uniprot'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span><span class="op">(</span><span class="op">)</span>
 
 <span class="co"># Removing hits with missing values for more than one strain (using average intensities over replicates)</span>
 <span class="va">ms2</span><span class="op">=</span> <span class="va">df_strains</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/stats/filter.html">filter</a></span><span class="op">(</span><span class="va">na_strains</span> <span class="op">&lt;</span> <span class="fl">1</span><span class="op">)</span>
@@ -186,24 +204,6 @@ We filter out hits that contains missing values for either strains or replicates
 
 <span class="co"># Save processed &amp; normalized intensities data</span>
 <span class="co">#write_rds(df_strains,here::here('output',sprintf("%02d-normalized-intensities.rds",chap_cur)))</span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/RforMassSpectrometry/MsCoreUtils">MsCoreUtils</a></span><span class="op">)</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Attaching package: 'MsCoreUtils'</span>
-<span class="co">#&gt; The following objects are masked from 'package:data.table':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     %between%, between</span>
-<span class="co">#&gt; The following object is masked from 'package:dplyr':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     between</span>
-<span class="co">#&gt; The following object is masked from 'package:stats':</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt;     smooth</span>
-<span class="va">int_norm_nona</span> <span class="op">=</span> <span class="va">int_norm</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">drop_na</span><span class="op">(</span><span class="op">)</span>
-<span class="va">int_norm_bpca</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/MsCoreUtils/man/imputation.html">impute_bpca</a></span><span class="op">(</span><span class="va">int_norm</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">add_column</span><span class="op">(</span>uniprot <span class="op">=</span> <span class="va">int_norm_ids</span><span class="op">$</span><span class="va">uniprot</span><span class="op">)</span>
-<span class="co">#&gt; Loading required namespace: pcaMethods</span>
-<span class="co">#colSums(is.na(int_norm_nona))</span>
-<span class="co">#draw_scatterplots(int_norm_nona)</span></code></pre></div>
 
 </div>
 </div>
@@ -232,7 +232,7 @@ We filter out hits that contains missing values for either strains or replicates
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 03-Jun-2022 02:59.</p>
+    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 03-Jun-2022 03:59.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">

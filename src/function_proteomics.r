@@ -702,8 +702,8 @@ volcPlot = function(INPUT=int_norm, IMPUTED, MIN_LFC=2, MIN_PVAL=0.01, WHICH='bo
     
   plotList <- list()
   if(missing(IMPUTED)){ 
-    IMPUTED = tibble( uniprot = int_norm$uniprot, 
-                      is_imputed = (rowSums( is.na(int_norm))>0 )* 1, 
+    IMPUTED = tibble( uniprot = INPUT$uniprot, 
+                      is_imputed = (rowSums( is.na(INPUT))>0 )* 1, 
                       imputed = factor(is_imputed,levels = c(0,1), labels = c('not','is_imputed')))
   }
   #dlist <- get_volcano_data(input_data=INPUT, min_lfc=MIN_LFC, min_pval=MIN_PVAL, WHICH, topn = TOPN, id_col=use_label)
@@ -721,7 +721,7 @@ volcPlot = function(INPUT=int_norm, IMPUTED, MIN_LFC=2, MIN_PVAL=0.01, WHICH='bo
   for( comp in comps ){
     data_comp = subset(all_data, comparison == comp )
     p = draw_volcano(data_comp,comp)
-    p = p + geom_point(data=subset(data_comp,is_imputed), aes(col=imputed), fill=NA, stroke=1,shape=21,show.legend = F)
+    p = p + geom_point(data=subset(data_comp,is_imputed==1), aes(col=imputed), fill=NA, stroke=1,shape=21,show.legend = F)
     p = p + geom_vline(aes(xintercept = (MIN_LFC*-1)), lty = 'dashed', colour = 'red',lwd=0.5) +
             geom_vline(aes(xintercept = (MIN_LFC)), lty = 'dashed', colour = 'blue',lwd=0.5) +
             geom_hline(aes(yintercept = -log10(MIN_PVAL)), lty = 'dashed', colour = 'black',lwd=0.5) 

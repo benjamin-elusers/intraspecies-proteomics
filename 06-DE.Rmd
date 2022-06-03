@@ -18,9 +18,9 @@ pairwise comparison.
 
 ```{r volcano-plots, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
 #ind_na_rows  = find_na_rows(int_norm,as.indices = T)
-df_imputed = tibble( uniprot = rownames(int_norm), is_imputed = rowSums( is.na(int_norm))>0)
+df_imputed = tibble( uniprot = int_norm$uniprot, is_imputed = rowSums( is.na(int_norm))>0)
 #int_norm_bpca$imputed = rowSums( is.na(int_norm))>0
-volcPlot(INPUT=int_norm_bpca, IMPUTED=df_imputed, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20)
+volcPlot(INPUT=int_norm_bpca, IMPUTED=df_imputed,MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20)
 
 ```
 
@@ -86,16 +86,16 @@ df_dfe_annot = df_dfe %>%
                   GENENAME,ORF,PNAME,'FUNCTION','BIOPROCESS_all','ORTHO','OTHER')
 ```
 
-We get *`r NPROT_DFE_NONA`* genes differentially expressed when
+We get **`r NPROT_DFE_NONA`** genes differentially expressed when
 excluding genes with missing expression in any samples. 
 
-On average, each gene is detected in `r NPROT_DFE_NONA/N_DFE_NONA` unique pairwise strain comparison.
+On average, each gene is detected in `r N_DFE_NONA/NPROT_DFE_NONA` unique pairwise strain comparison.
 
 
 After imputation of missing expression with bpca (Bayesian missing value imputation),
-we get *`r NPROT_DFE_IMPUTE-NPROT_DFE_NONA`* more genes differentially expressed (*`r NPROT_DFE_IMPUTE`*).
+we get **`r NPROT_DFE_IMPUTE-NPROT_DFE_NONA`** more genes differentially expressed (n=**`r NPROT_DFE_IMPUTE`**).
 
-On average, each gene is detected in `r NPROT_DFE_IMPUTE/N_DFE_IMPUTE` unique pairwise strain comparison.
+On average, each gene is detected in `r N_DFE_IMPUTE/NPROT_DFE_IMPUTE` unique pairwise strain comparison.
 
 
 The following table shows the list of differentially expressed genes across all unique pairwise comparison,
@@ -149,7 +149,7 @@ treemap(df_dfe_annot, index=c("BIOPROCESS_all", "GENENAME"), vSize="regulated", 
 
 ## Heatmap of expression differences
 ```{r heatmap-diffexp, fig.height=18, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
-dat_scaled = int_scaled_strains %>% as.data.frame() %>% rownames_to_column('uniprot')
+dat_scaled = int_scaled_strains %>% as.data.frame() %>% rownames_to_column('uniprot') 
 
 # Transpose the matrix to calculate distance between experiments, row-wise
 d_pair <- dat_scaled[,-1] %>% t() %>%
@@ -166,36 +166,40 @@ dfe_lfc = bind_rows(volcano_data) %>%
 p_dfe= pheatmap::pheatmap(dfe_lfc,fontsize = 5,cutree_rows = 10,cellwidth = 5,cellheight =5,border_color = NA) %>% 
         ggplotify::as.ggplot()
 
-dfe_exp = dat_scaled %>% dplyr::filter( uniprot %in% dfe$ID) %>%  left_join(sc_identifiers,by=c('uniprot'='UNIPROT'))  
+dfe_exp = dat_scaled %>% dplyr::filter( uniprot %in% dfe$ID) %>% 
+          left_join(sc_identifiers,by=c('uniprot'='UNIPROT'))  %>% 
+          dplyr::filter(!duplicated(GENENAME)) %>%
+          mutate(GENENAME=if_na(GENENAME,uniprot))%>%
+          column_to_rownames(var = 'GENENAME')
 
-#p_dfe_exp=pheatmap::pheatmap(dfe_exp %>% dplyr::select(-ORF,-uniprot,-SGD) %>%column_to_rownames('GENENAME'),
-#                             fontsize = 8,cellwidth = 4,cellheight =4,border_color = NA,treeheight_col = 10)
+p_dfe_exp=pheatmap::pheatmap(dfe_exp %>% dplyr::select(-ORF,-uniprot,-SGD) ,
+                             fontsize = 8,cellwidth = 5,cellheight =5,border_color = NA,treeheight_col = 10)
 
 textcol <- "grey40"
 # further modified ggplot
-p_exp <- ggplot(dfe_exp%>%pivot_longer(where(is.numeric), names_to = 'strain', values_to='exp'), 
-            aes(x=strain, y=GENENAME, fill=exp))+
-  geom_tile(colour="white", size=0.1)+
-  labs(x="", y="")+
-  scale_fill_gradientn(colours = colorRampPalette(rev(brewer.pal(n = 7, name =
-  "RdYlBu")))(100))+
-  #scale_fill_manual(values=c("#d53e4f", "#f46d43", "#fdae61", "#fee08b", "#e6f598", "#abdda4", "#ddf1da"), na.value = "grey90")+
-  theme_grey(base_size=10)+
-  theme(legend.position="right", legend.direction="vertical",
-        legend.title=element_text(colour=textcol),
-        legend.margin=margin(grid::unit(0, "cm")),
-        legend.text=element_text(colour=textcol, size=7, face="bold"),
-        legend.key.height=grid::unit(0.8, "cm"),
-        legend.key.width=grid::unit(0.2, "cm"),
-        axis.text.x=element_text(size=8, angle=90,colour=textcol,hjust = 1),
-        axis.text.y=element_text(vjust=0.2, colour=textcol),
-        axis.ticks=element_line(size=0.4),
-        plot.background=element_blank(),
-        panel.border=element_blank(),
-        plot.margin=margin(0.7, 0.4, 0.1, 0.2, "cm"),
-        plot.title=element_text(colour=textcol, hjust=0, size=14, face="bold")
-        ) + coord_equal()
-p_exp
+# p_exp <- ggplot(dfe_exp%>%pivot_longer(where(is.numeric), names_to = 'strain', values_to='exp') %>% rownames_to_column('GENENAME'), 
+#             aes(x=strain, y=GENENAME, fill=exp))+
+#   geom_tile(colour="white", size=0.1)+
+#   labs(x="", y="")+
+#   scale_fill_gradientn(colours = colorRampPalette(rev(brewer.pal(n = 7, name =
+#   "RdYlBu")))(100))+
+#   #scale_fill_manual(values=c("#d53e4f", "#f46d43", "#fdae61", "#fee08b", "#e6f598", "#abdda4", "#ddf1da"), na.value = "grey90")+
+#   theme_grey(base_size=10)+
+#   theme(legend.position="right", legend.direction="vertical",
+#         legend.title=element_text(colour=textcol),
+#         legend.margin=margin(grid::unit(0, "cm")),
+#         legend.text=element_text(colour=textcol, size=7, face="bold"),
+#         legend.key.height=grid::unit(0.8, "cm"),
+#         legend.key.width=grid::unit(0.2, "cm"),
+#         axis.text.x=element_text(size=8, angle=90,colour=textcol,hjust = 1),
+#         axis.text.y=element_text(vjust=0.2, colour=textcol),
+#         axis.ticks=element_line(size=0.4),
+#         plot.background=element_blank(),
+#         panel.border=element_blank(),
+#         plot.margin=margin(0.7, 0.4, 0.1, 0.2, "cm"),
+#         plot.title=element_text(colour=textcol, hjust=0, size=14, face="bold")
+#         ) + coord_fixed(ratio = 1)
+# p_exp
 ```
 
 
