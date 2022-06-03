@@ -146,9 +146,10 @@ strains_rate = evo_snp %>% dplyr::select(r4s:leisr_local) %>% as.matrix
 er_fungi_cor = cor(fungi_rate,use='pairwise.complete',met='spearman')
 er_strains_cor = cor(strains_rate,use='pairwise.complete',met='spearman')
 
-ggcorrplot(er_fungi_cor,type='upper',method='circle',lab = T,lab_size = 3, title='fungi evo. rate')
-ggcorrplot(er_strains_cor,type='upper',method='circle',lab = T,lab_size = 3, title='strains evo. rate')
-
+p_fungi  =ggcorrplot(er_fungi_cor,type='upper',method='circle',lab = T,lab_size = 3, title='fungi evo. rate',ggtheme = theme_classic())
+p_snp = ggcorrplot(er_strains_cor,type='upper',method='circle',lab = T,lab_size = 3, title='strains evo. rate',ggtheme = theme_classic())
+ggsave(p_fungi, path = here('plot'),filename='cor-evolution-fungi.png',scale=1.2)
+ggsave(p_snp, path = here('plot'),filename='cor-evolution-snp.png',scale=1.2)
 er_fungi_worst   = colnames(er_fungi_cor)[ abs(er_fungi_cor[1,]) < 0.7 ]
 er_strains_worst = colnames(er_strains_cor)[ abs(er_strains_cor[1,]) < 0.7 ]
 

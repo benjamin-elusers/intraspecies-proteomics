@@ -81,7 +81,7 @@
 <span class="header-section-number">7.1</span> Scatterplots<a class="anchor" aria-label="anchor" href="#scatterplots-1"><i class="fas fa-link"></i></a>
 </h2>
 <p>Initially, we can look at the scatterplots of intensities all-versus-all samples.</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># scatterplots between strains</span>
 <span class="va">scmat_strains</span><span class="op">=</span><span class="fu">draw_scatterplots</span><span class="op">(</span>datain<span class="op">=</span><span class="va">int_filt_strains</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/print.html">print</a></span><span class="op">(</span><span class="va">scmat_strains</span><span class="op">)</span></code></pre></div>
@@ -92,7 +92,7 @@
 <span class="header-section-number">7.2</span> Heatmap Correlation<a class="anchor" aria-label="anchor" href="#heatmap-correlation-1"><i class="fas fa-link"></i></a>
 </h2>
 <p>We then compute spearman rank correlations of intensities between all samples.</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># heatmap correlation</span>
 <span class="va">cs_strains</span><span class="op">=</span><span class="fu">compute_samples_correlation</span><span class="op">(</span><span class="va">int_filt_strains</span><span class="op">)</span>
 <span class="co">#&gt; Compute pairwise samples correlation (Spearman)...</span>
@@ -111,7 +111,7 @@
 <span class="header-section-number">7.3</span> Principle Component Analysis<a class="anchor" aria-label="anchor" href="#principle-component-analysis-1"><i class="fas fa-link"></i></a>
 </h2>
 <p>Finally, the PCA reveals the distance between each sample.</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">int_scaled_strains</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/scale.html">scale</a></span><span class="op">(</span><span class="va">int_filt_strains</span>,center<span class="op">=</span><span class="cn">T</span>, scale <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
 <span class="fu">make_pca</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/na.fail.html">na.omit</a></span><span class="op">(</span><span class="va">int_scaled_strains</span><span class="op">)</span>, with_labels<span class="op">=</span><span class="cn">F</span>,col_by_group<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">2</span><span class="op">)</span></code></pre></div>
 <div class="inline-figure"><img src="Intraspecies-proteome-expression_files/figure-html/pca-strains-1.png" width="100%"></div>
@@ -145,7 +145,7 @@
 <footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
 
   <div class="col-12 col-md-6 mt-3">
-    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 02-Jun-2022 14:29.</p>
+    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 03-Jun-2022 02:59.</p>
   </div>
 
   <div class="col-12 col-md-6 mt-3">
