@@ -750,9 +750,11 @@ draw_volcano = function(data2plot,plot_title){
   return(p)
 }
 
-volcPlot = function(INPUT=int_norm, IMPUTED, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20, plot=F, use_plotly=T, use_label='genename'){
+volcPlot = function(INPUT=int_norm, IMPUTED, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20, 
+                    plot=F, use_plotly=T, use_label='genename'){
     
   plotList <- list()
+  
   if(missing(IMPUTED)){ 
     IMPUTED = tibble( uniprot = INPUT$uniprot, 
                       is_imputed = (rowSums( is.na(INPUT))>0 )* 1, 
@@ -764,8 +766,9 @@ volcPlot = function(INPUT=int_norm, IMPUTED, MIN_LFC=2, MIN_PVAL=0.01, WHICH='bo
     dplyr::left_join(sc_identifiers, by=c('ID'='UNIPROT'), keep=T ) %>% 
     dplyr::left_join(IMPUTED,by=c('ID'='uniprot'))
   
-  label2use=match.arg(tolower(use_label),tolower(names(sc_identifiers))) 
-  col_label = grep(label2use,names(sc_identifiers),ignore.case = T,v=T)
+  id2show = names(sc_identifiers)
+  label2use=match.arg(tolower(use_label),tolower(id2show)) 
+  col_label = grep(label2use,id2show,ignore.case = T,v=T)
   all_data$ID = all_data[[col_label]]
   
   comps = unique(all_data$comparison)
@@ -796,7 +799,6 @@ volcPlot = function(INPUT=int_norm, IMPUTED, MIN_LFC=2, MIN_PVAL=0.01, WHICH='bo
       button <- list(method = 'restyle', args = list("text",list(as.formula(paste0("~",id)))),label = id  )
     })
     
-    id2show = names(sc_identifiers)
     
     count_data = all_data %>%
                  group_by(comparison) %>% 
