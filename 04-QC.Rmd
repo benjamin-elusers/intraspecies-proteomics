@@ -1,6 +1,6 @@
 ```{r load-data-processed, echo=F}
 chap_cur=04
-#load(here('output',sprintf("%02d-processed-data.rdata",chap_cur-1)))
+load(here('output',sprintf("%02d-processed-data.rdata",chap_cur-1)))
 ```
 
 # Quality control {#qc}
@@ -192,7 +192,7 @@ na_int= intensities %>%
         summarize(across(all_of(paste0("lfq_intensity_",samples)), is.na ) )
 colnames(na_int) = c('uniprot',samples)
 
-ComplexUpset::upset(data=as.data.frame(1-na_int[,-1]),intersect=samples,
+p_upset = ComplexUpset::upset(data=as.data.frame(1-na_int[,-1]),intersect=samples,
       name='intensity quantified', min_degree=5, sort_sets=F, 
       width_ratio=0.1,min_size=10, keep_empty_groups=F, wrap=TRUE,
          base_annotations=list(
@@ -201,6 +201,10 @@ ComplexUpset::upset(data=as.data.frame(1-na_int[,-1]),intersect=samples,
          ),
 )
 
+ggsave(p_upset,path=here('plot'),filename = 'upset-samples-combination-nacount.pdf', device = 'pdf',scale = 2)
+ggsave(p_upset,path=here('plot'),filename = 'upset-samples-combination-nacount.png', device = 'png',scale = 2)
+
+knitr::include_graphics(here('plot','upset-samples-combination-nacount.png'),auto_pdf = T)
 ```
 
 
@@ -210,20 +214,25 @@ Coefficient of variations correspond to the percent of variance relative to the 
 The following boxplots show how variable protein expression is, across strains
 or across biological replicates, before and after normalization.
 
-```{r boxplot-cv, echo=F, fig.cap='Coefficient of variations (%) in each sample and per strains before and after processing data (filtering and normalization)', fig.height=10, fig.width=10}
+```{r boxplot-cv, echo=F, fig.cap='Coefficient of variations (%) across samples for each normalization method', fig.height=10, fig.width=10}
 
-CV_raw = calculate_cv(long_int_all,by_bio = T)
-box_cv_raw = draw_boxcv(CV_raw,by_bio = T)
-CV_norm = calculate_cv(long_int_norm,by_bio = T)
-box_cv_norm = draw_boxcv(CV_norm,by_bio = T)
+# CV_raw = calculate_cv(long_int_all,by_bio = F)
+# box_cv_raw = draw_boxcv(CV_raw,by_bio = F)
+#CV_norm = calculate_cv(long_int_norm,by_bio = F)
+# box_cv_norm = draw_boxcv(CV_norm,by_bio = F)
+# plot(box_cv_raw / box_cv_norm)
 
-plot(box_cv_raw / box_cv_norm)
+CV_norm = INT_NORM@ner@avgcvmem %>% as_tibble() %>%
+          pivot_longer(everything(), names_to = 'normalization', values_to='CV' )
 
-show_table_cv(CV_raw,by_bio = F)
-show_table_cv(CV_raw,by_bio = T)
+box_cv_norm = ggplot(CV_norm, aes(x=fct_relevel(normalization,'log2'),y=CV)) + 
+  geom_boxplot(fill='gray') + xlab('Normalization method') + ylab('%CV samples')
+box_cv_norm
 
-show_table_cv(CV_norm,by_bio = F)
-show_table_cv(CV_norm,by_bio = T)
+#show_table_cv(CV_raw,by_bio = F)
+#show_table_cv(CV_raw,by_bio = T)
+#show_table_cv(CV_norm,by_bio = F)
+#show_table_cv(CV_norm,by_bio = T)
 ```
 
 ## Expression distributions

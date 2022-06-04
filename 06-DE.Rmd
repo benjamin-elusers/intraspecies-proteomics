@@ -22,61 +22,41 @@ df_imputed = tibble( uniprot = int_norm$uniprot,
                      is_imputed = (rowSums( is.na(int_norm))>0)* 1, 
                      imputed = factor(is_imputed, levels = c(0,1), labels = c("not", "is_imputed")))
 #int_norm_bpca$imputed = rowSums( is.na(int_norm))>0
-volcPlot(INPUT=int_norm_bpca, IMPUTED=df_imputed,MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20)
-
+volcPlot(INPUT=int_norm_bpca, IMPUTED=df_imputed, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20,plot = F,use_plotly = T)
 ```
 
 ## Differentially expressed genes
 
 ```{r dfe-gene }
 # Without NA
-volcano_data =  get_volcano_data(input_data=int_norm_nona, which='both',
-                            min_lfc=2, min_pval=0.01, topn = 20)
-df_limma = bind_rows(volcano_data) %>% as_tibble()
-dfe_nona = subset(df_limma,sig!='Non significant')
+volcano_data =  get_volcano_data(input_data=int_norm_nona, min_lfc=2, min_pval=0.01, topn = 100) %>%
+                bind_rows() %>% as_tibble()
+dfe_nona = subset(volcano_data,sig!='Non significant')
 N_DFE_NONA = nrow(dfe_nona)
 NPROT_DFE_NONA =  n_distinct(dfe_nona$ID)
-
+R_NONA = N_DFE_NONA/NPROT_DFE_NONA %>% round
 # With imputed expression to replace NA
-dfe =  get_volcano_data(input_data=int_norm_bpca, which='both',
-                            min_lfc=2, min_pval=0.01, topn = 20) %>% 
-                bind_rows %>% as_tibble() %>% filter(sig!='Non significant')
+dfe =  get_dfe(INPUT=int_norm_bpca, WHICH='both',MIN_LFC=2, MIN_PVAL=0.01, TOPN = 20, 
+               count_up=T, count_down=T)
 
 N_DFE_IMPUTE = nrow(dfe)
 NPROT_DFE_IMPUTE =  n_distinct(dfe$ID)
+R_IMPUTE= N_DFE_IMPUTE/NPROT_DFE_IMPUTE %>% round
 
-down = dfe %>% group_by(ID) %>% dplyr::filter(sig=='Downregulated') %>%
-       summarize( strains_down = paste0(comparison,collapse=' '),
-                  down_AMH = str_count(strains_down,'AMH-'),
-                  down_BAN = str_count(strains_down,'BAN-'),
-                  down_BED = str_count(strains_down,'BED-'),
-                  down_BPL = str_count(strains_down,'BPL-'),
-                  down_BTT = str_count(strains_down,'BTT-'),
-                  down_CMP = str_count(strains_down,'CMP-'),
-                  down_CPI = str_count(strains_down,'CPI-'),
-                  down_CQC = str_count(strains_down,'CQC-'))
-up = dfe %>% group_by(ID) %>% dplyr::filter(sig=='Upregulated') %>%  
-      summarize( strains_up = paste0(comparison,collapse=' '),
-                  up_AMH = str_count(strains_up,'AMH-'),
-                  up_BAN = str_count(strains_up,'BAN-'),
-                  up_BED = str_count(strains_up,'BED-'),
-                  up_BPL = str_count(strains_up,'BPL-'),
-                  up_BTT = str_count(strains_up,'BTT-'),
-                  up_CMP = str_count(strains_up,'CMP-'),
-                  up_CPI = str_count(strains_up,'CPI-'),
-                  up_CQC = str_count(strains_up,'CQC-'))
 # get_dfe(int_norm, MIN_LFC=2, MIN_PVAL=0.01,  WHICH='both', TOPN = 20) %>% remove_rownames() %>% 
 #   dplyr::left_join(sc_identifiers, by=c('ID'='UNIPROT'))
 
 # Number of times a hit is differentially expressed
-df_dfe = dfe %>% left_join(janitor::tabyl(dfe,ID,sig)) %>%
-         left_join(down) %>% left_join(up) %>%
+df_dfe = dfe %>% 
+         left_join(janitor::tabyl(dfe,ID,sig)) %>%
          rename(uniprot=ID) %>% 
          group_by(uniprot,comparison) %>% 
-        mutate( n_strains_up = sum(c_across(starts_with('up_')) !=0 ),
+          mutate( n_strains_up = sum(c_across(starts_with('up_')) !=0 ),
                 n_strains_down = sum(c_across(starts_with('down_'))!=0)) %>%
         replace_na(list(n_strains_up=0,n_strains_down=0)) %>%
-        left_join(evo_yeast, by=c('uniprot'='UNIPROT')) 
+        left_join(evo_yeast, by=c('uniprot'='UNIPROT')) %>% 
+        relocate(uniprot,GENENAME,sig,pValue,qValue,EffectSize,comparison,
+                 Downregulated,Upregulated,n_strains_up,n_strains_down,orf)
   
 
 df_dfe_annot = df_dfe %>%
@@ -91,36 +71,36 @@ df_dfe_annot = df_dfe %>%
 We get **`r NPROT_DFE_NONA`** genes differentially expressed when
 excluding genes with missing expression in any samples. 
 
-On average, each gene is detected in `r N_DFE_NONA/NPROT_DFE_NONA` unique pairwise strain comparison.
+On average, each gene is detected in `r R_NONA` unique pairwise strain comparison.
 
 
 After imputation of missing expression with bpca (Bayesian missing value imputation),
 we get **`r NPROT_DFE_IMPUTE-NPROT_DFE_NONA`** more genes differentially expressed (n=**`r NPROT_DFE_IMPUTE`**).
 
-On average, each gene is detected in `r N_DFE_IMPUTE/NPROT_DFE_IMPUTE` unique pairwise strain comparison.
+On average, each gene is detected in `r R_IMPUTE` unique pairwise strain comparison.
 
 
 The following table shows the list of differentially expressed genes across all unique pairwise comparison,
 with annotations data and conservation/snp information.
 
-```{r dfe-table,fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T}
+```{r dfe-table, echo=T, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T}
 library(kableExtra)
 library(formattable)
 library(DT)
 
-ft_dt = df_dfe_annot %>% 
-  formattable(
-    list(
-      `Downregulated` = color_tile("white", "red"),
-      `Upregulated` = color_tile("white", "blue"),
-      `regulated` = color_tile("white", "gray")
-    )
-) %>% as.datatable(
+  # formattable(
+  #   list(
+  #     `Downregulated` = color_tile("white", "red"),
+  #     `Upregulated` = color_tile("white", "blue"),
+  #     `regulated` = color_tile("white", "gray")
+  #   )
+  # ) %>% 
+
+ft_dt = DT::datatable(df_dfe_annot,
         options = list(
-            fixedHeader=T,
             paging = TRUE, pageLength = 20,  ## paginate the output and #rows for each page
             scrollY = TRUE,   ## enable scrolling on X/Y axis
-            #autoWidth = TRUE, ## use smart column width handling
+            autoWidth = TRUE, ## use smart column width handling
             server = FALSE,   ## use client-side processing
             dom = 'Bfrtip', buttons = list('csv', 'excel', list(extend = 'colvis')),
             fixedColumns = list(leftColumns = 1),
@@ -128,7 +108,7 @@ ft_dt = df_dfe_annot %>%
           ),
   extensions = c('FixedHeader','FixedColumns','Buttons'),
   selection = 'single',           ## enable selection of a single row
-  filter = 'bottom',              ## include column filters at the bottom
+  filter = 'top',              ## include column filters at the bottom
   rownames = FALSE,               ## don't show row numbers/names
   width = NULL, 
   height = NULL,
@@ -142,7 +122,7 @@ ft_dt
 
 
 ## Heatmap of expression for differentially expressed genes
-```{r heatmap-exp, fig.height=25, fig.ext=c('pdf','png'), fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
+```{r heatmap-exp, fig.height=25, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
 
 dat_scaled = int_scaled_strains %>% as.data.frame() %>% rownames_to_column('uniprot') 
 
@@ -155,15 +135,14 @@ dfe_exp = dat_scaled %>% dplyr::filter( uniprot %in% dfe$ID) %>%
 
 p_dfe_exp=pheatmap::pheatmap(dfe_exp,
                              fontsize = 5,cellwidth = 5,cellheight =5,border_color = NA,treeheight_col = 10,
-                             filename = here('plot','heatmap-exp.pdf'))
-knitr::include_graphics(here('plot','heatmap-exp.pdf'))
+                             filename = here('plot','heatmap-exp.png'))
+knitr::include_graphics('plot/heatmap-exp.png',auto_pdf = T)
 ```
 
 
 ## Heatmap of expression differences
 
-```{r heatmap-diffexp, fig.height=25, fig.path='plot/',  fig.ext=c('pdf','png'), fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
-
+```{r heatmap-diffexp, fig.height=25, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
 
 dfe_lfc = get_volcano_data(input_data=int_norm_bpca, which='both',min_lfc=2, min_pval=0.01, topn = 20) %>% 
           bind_rows %>% as_tibble() %>%
@@ -177,13 +156,13 @@ dfe_lfc = get_volcano_data(input_data=int_norm_bpca, which='both',min_lfc=2, min
 dfe_lfc_mat = dfe_lfc %>% dplyr::select(-ORF,-ID,-SGD)
 # Heatmap of differentially expressed genes
 pheatmap::pheatmap(dfe_lfc_mat,fontsize = 5,cutree_rows = 10,cellwidth = 5,cellheight =5,border_color = NA,
-                          treeheight_col = 10, filename = here('plot','heatmap-lfc.pdf')  )
-knitr::include_graphics(here('plot','heatmap-lfc.pdf'))
+                          treeheight_col = 10, filename = here('plot','heatmap-lfc.png')  )
+knitr::include_graphics('plot/heatmap-lfc.png',auto_pdf = T)
 ```
 
 ## Cluster genes based on their profile of differential expression strain-pairwise 
 
-```{r clust-prot, fig.height=20, fig.path='plot/',  fig.ext=c('pdf','png'), fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
+```{r clust-prot, fig.height=20, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
 # Transpose the matrix to calculate distance between experiments row-wise
 d_strain <- dfe_lfc_mat %>% t() %>% dist(.,method = "euclidean", diag = FALSE, upper = FALSE)
 # Calculate the distance between proteins row-wise 
@@ -213,7 +192,7 @@ circlize_dendrogram(dend_prot)
 
 ## Functional map for differentially expressed genes
 
-```{r treemap-bioprocess, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
+```{r treemap-bioprocess, fig.path='plot/', warning=F, out.width='100%'}
 library(treemap)
 library(d3Tree)
 treemap(df_dfe_annot, index=c("BIOPROCESS_all", "comparison"), vSize='regulated', vColor="EffectSize", type="value") 
@@ -222,10 +201,10 @@ treemap(df_dfe_annot, index=c("BIOPROCESS_all", "GENENAME"), vSize="regulated", 
 
 ## Functional enrichment for differentially expressed genes
 
-```{r func-enrich, fig.height=20, fig.path='plot/',  fig.ext=c('pdf','png'), fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
+```{r func-enrich, fig.path='plot/', warning=F, out.width='100%'}
 library(enrichplot)
 library(clusterProfiler)
-
+library(org.Sc.sgd.db)
 all_genes = int_scaled_strains %>%
             as.data.frame() %>%
             rownames_to_column('ID') %>% 
@@ -244,45 +223,17 @@ genes_dfe_list = df_dfe_annot %>% group_by(ORF) %>% summarize( mean_lfc = mean(E
 genes_dfe_list_uni = df_dfe_annot %>% group_by(uniprot) %>% summarize( mean_lfc = mean(EffectSize)) %>% arrange(desc(mean_lfc)) %>% pull(mean_lfc,uniprot)
 
 
-# ggo <- groupGO(gene     = gene,
-#                OrgDb    = org.Sc.sgd.db,
-#                ont      = "CC",
-#                level    = 3,
-#                readable = TRUE)
-library(org.Sc.sgd.db)
-# ego <- enrichGO(gene          = genes_dfe,
-#                 keyType       = "ORF",
-#                 universe      = genes_proteomics,
-#                 OrgDb         = org.Sc.sgd.db,
-#                 ont           = "ALL",
-#                 pAdjustMethod = "BH",
-#                 pvalueCutoff  = 0.01,
-#                 qvalueCutoff  = 0.05,
-#                 readable      = F,
-#                 pool=T)
-# dotplot(ego)
-
-ego3 <- gseGO(geneList     = genes_dfe_list,
-              OrgDb        = org.Sc.sgd.db,
-              keyType       = "ORF",
-              ont          = "ALL",
-              minGSSize    = 20,
-              maxGSSize    = 500,
-              pvalueCutoff = 0.05,
-              verbose      = FALSE)
+ego3 <- gseGO(geneList= genes_dfe_list, OrgDb = org.Sc.sgd.db, keyType = "ORF", 
+              ont = "ALL", minGSSize = 20, maxGSSize = 500, pvalueCutoff = 0.05)
 dotplot(ego3)
 heatplot(ego3,foldChange = genes_dfe_list)
 
-#kk <- enrichKEGG(gene         = gene,organism     = 'sce', pvalueCutoff = 0.05)
-kk2 <- gseKEGG(geneList     = genes_dfe_list_uni,organism     = 'sce', minGSSize    = 20,keyType = 'uniprot',
-               pvalueCutoff = 0.05,verbose      = FALSE)
+
+kk2 <- gseKEGG(geneList = genes_dfe_list_uni, organism  = 'sce', minGSSize = 20,
+               keyType = 'uniprot', pvalueCutoff = 0.05)
 heatplot(kk2, foldChange=genes_dfe_list_uni)
 
-mkk <- enrichMKEGG(gene = genes_dfe_uni,
-                    organism = 'sce',
-                    pvalueCutoff = 1,
-                    qvalueCutoff = 1,
-                    keyType = 'uniprot')
+mkk <- enrichMKEGG(gene = genes_dfe_uni, organism = 'sce', keyType = 'uniprot')
 dotplot(mkk)
 
 ```
@@ -293,14 +244,9 @@ dotplot(mkk)
 ```{r func-enrich-clust}
 genes_dfe_cluster = split(dfe_lfc$ORF,cl_prot)
 
-ck <- compareCluster(geneCluster = genes_dfe_cluster, fun = enrichGO,
-                     keyType= "ORF",
-                     ont='ALL',
-                     universe=genes_proteomics,
-                     OrgDb= org.Sc.sgd.db,
-                     pAdjustMethod = "BH",
-                     pvalueCutoff  = 0.01,
-                     qvalueCutoff  = 0.05,pool=F)
+ck <- compareCluster(geneCluster = genes_dfe_cluster, fun = enrichGO, universe=genes_proteomics,
+                     OrgDb= org.Sc.sgd.db, keyType= "ORF", ont='ALL', pool=F,
+                     pAdjustMethod = "BH", pvalueCutoff  = 0.01, qvalueCutoff  = 0.05)
 dotplot(ck)
 ```
 

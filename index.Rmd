@@ -106,6 +106,7 @@ suppressPackageStartupMessages({
   dep.pkg = c("corrplot", "ggtree", "gtools", "pbapply", "gridExtra", "GGally",
     "dplyr", "performance", "ggplot2",  "ggfortify", "tidyverse", "gplots",
     "data.table", "ggpubr", "ggcorrplot", "plotly", "ggsignif", "ape","kableExtra",
+    "dendextend","treemap","d3Tree","enrichplot","clusterProfiler","org.Sc.sgd.db",
     "ggcorrplot","formattable","DT","sessioninfo")
   xfun::pkg_attach2(dep.pkg)
   source(here("src","functions_transcriptomics.R"))
@@ -117,58 +118,26 @@ graphics.off()
 ```
 
 ```{r yeast-data, include=F, echo=F, warnings=F, message=F}
-# Yeast data
+# Yeast annotation data
 sc_annofile = here('data','yeast-annotations.rds')
 sc_annotation = preload(sc_annofile, load.annotation(),doing='loading annotations data for yeast...')
 sc_annotation_orf = dplyr::select(sc_annotation,-c(SGD,GENENAME,ROLE,LOC,COMPLEX,node,nprot,nsp,taxon))
 sc_identifiers = sc_annotation %>% dplyr::select(SGD,ORF,UNIPROT,GENENAME) %>% 
                   dplyr::filter(!duplicated(UNIPROT) & !duplicated(SGD) & !duplicated(GENENAME))
+# strains info from supp mat of Science paper
 riboseq_strains = c('AMH','BAN','BED','BPL','BTT','CMP','CPI','CQC') # Strains with riboseq data (on 14/01/21)
-strains.info = load.peter2018.data(1) %>%  # strains info from supp mat of Science paper
+strains.info = load.peter2018.data(1) %>%  
                  mutate( has_riboseq = standardized_name %in% riboseq_strains)
+# Genetic variants at nucleotide and amino acid levels
+# run get_yk11_variants.r
+sc_snp_aa = read_rds( here('data','YEAST_VAR_AA.rds') )
+sc_snp_nt = read_rds( here('data','YEAST_VAR_NT.rds') )
 
-yk11_all_snp = left_join(readRDS(here('data','YK11-SNP_NT.rds')),
-                         readRDS(here('data','YK11-SNP_AA.rds')), 
-                         by=c('id', "aa_pos"='ref_pos', 'alt_codon_aa' = 'alt_aa'), 
-                         suffix = c("_nt", "_aa") ) %>%
-    left_join(sc_identifiers,by=c('id'='ORF'))
-
-
-y8_all_snp = left_join(readRDS(here('data','Y8-SNP_NT.rds')),
-                       readRDS(here('data','Y8-SNP_AA.rds')), 
-                       by=c('id', "aa_pos"='ref_pos', 'alt_codon_aa' = 'alt_aa'),
-                       suffix = c("_nt", "_aa")) %>% 
-  left_join(sc_identifiers,by=c('id'='ORF'))
-
-# Conservation/evolutionary rate
-evo_fungi = read_delim(here('output','evolution-fungi-protein.tsv'),delim='\t') 
-evo_snp = read_delim(here('output','evolution-snp-protein.tsv'),delim='\t') 
-fungi_rate = evo_fungi %>% dplyr::select(r4s:leisr_local) %>% as.matrix
-strains_rate = evo_snp %>% dplyr::select(r4s:leisr_local) %>% as.matrix
-er_fungi_cor = cor(fungi_rate,use='pairwise.complete',met='spearman')
-er_strains_cor = cor(strains_rate,use='pairwise.complete',met='spearman')
-
-p_fungi  =ggcorrplot(er_fungi_cor,type='upper',method='circle',lab = T,lab_size = 3, title='fungi evo. rate',ggtheme = theme_classic())
-p_snp = ggcorrplot(er_strains_cor,type='upper',method='circle',lab = T,lab_size = 3, title='strains evo. rate',ggtheme = theme_classic())
-ggsave(p_fungi, path = here('plot'),filename='cor-evolution-fungi.png',scale=1.2)
-ggsave(p_snp, path = here('plot'),filename='cor-evolution-snp.png',scale=1.2)
-er_fungi_worst   = colnames(er_fungi_cor)[ abs(er_fungi_cor[1,]) < 0.7 ]
-er_strains_worst = colnames(er_strains_cor)[ abs(er_strains_cor[1,]) < 0.7 ]
-
-# Keep the best evolutionary rates (correlates with r4s > 0.7)
-evo_yeast = left_join(evo_snp,evo_fungi, by=c('id','len_ref'),suffix=c('.yk11','.fungi')) %>% 
-            mutate(HAS_ORTHOLOG = !is.na(len_msa.fungi) ) %>% 
-    left_join(sc_identifiers,by=c('id'='ORF')) %>% 
-    dplyr::mutate( f_snp = n_mismatched/len_msa.yk11, pid.fungi=1-f_mismatched) %>%
-    dplyr::rename(orf=id,n_snp = n_mismatched) %>%
-    dplyr::select(-f_mismatched) %>%
-    relocate(orf,UNIPROT,GENENAME,SGD,HAS_ORTHOLOG, len_ref,
-             len_msa.yk11, n_snp,f_snp, len_msa.fungi,pid.fungi) %>% 
-    dplyr::select(-paste0(er_fungi_worst,'.fungi'),-paste0(er_strains_worst,'.yk11'))
-
-# test = evo_yeast%>% dplyr::select(n_snp:leisr_local.fungi) %>% as.matrix()
-# test_cor = cor(test, use='pairwise.complete',method='spearman')
-# ggcorrplot(test_cor,type='upper',method='circle',lab = T,lab_size = 3, title='')
+# Conservation/evolutionary rate per protein (SNP or full sequence)
+# run get_yeast_conservation.r
+evo_fungi = read_delim(here('data','evolution-fungi-protein.tsv'),delim='\t') 
+evo_snp = read_delim(here('data','evolution-snp-protein.tsv'),delim='\t') 
+evo_yeast = read_rds(here('data','evolution-yeast-protein.rds'))
 ```
 
 ```{r save-yeast-data, echo=F}
