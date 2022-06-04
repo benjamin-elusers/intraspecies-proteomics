@@ -80,6 +80,16 @@ get_group = function(sample_names,sep="_",grp_num=1){
   }
   return(group)
 }
+
+exp2matrix = function(df_proteomics, int_col = 'intensity_', id_col = 'uniprot'){
+  
+  col_ids = df_proteomics %>% dplyr::select(where(is.character))
+  id = match.arg(id_col, col_ids, several.ok = F)
+  
+  intensities = df_proteomics %>% dplyr::select(starts_with(int_col),id) 
+  
+}
+
 # 
 # transpose = function(df){ 
 #   t_df = as.matrix(df) %>% as_tibble() %>%
@@ -182,8 +192,8 @@ filter_hits = function(MS0=ms0,id='majority_protein_i_ds',np=2,verbose=T){
 }
 #ms1=filter_hits(ms0)
 
-get_intensities = function(MS){
-  intensities = MS %>% dplyr::select(uniprot,matches(INTENSITIES)) %>% column_to_rownames("uniprot")
+get_intensities = function(MS,col_int=INTENSITIES,col_id='uniprot'){
+  intensities = MS %>% dplyr::select(uniprot,matches(INTENSITIES)) %>% column_to_rownames(col_id)
   return(intensities)
 }
 #int_all = get_intensities(ms1)
@@ -337,7 +347,7 @@ calculate_cv = function(intensity_long, by_bio=T){
   
   CV = intensity_long %>%
     drop_na() %>%
-    group_by(uniprot,strain) %>% mutate(cv_strain = 100*sd_(int2use)/mean_(int2use))
+    group_by(uniprot) %>% mutate(cv_strain = 100*sd_(int2use)/mean_(int2use))
   
   if(by_bio){
     CV = CV %>% 
@@ -586,7 +596,7 @@ pairwise_condition = function(conditions = all_strains,to_pair=T){
   true.pairs <- t(apply(cond_pair[,1:2], 1, sort))
   dup.pairs <- duplicated(true.pairs)
   unique.pairs <- true.pairs[!dup.pairs & true.pairs[,1]!=true.pairs[,2],] %>% 
-    as_tibble %>% rename(cond1=V1,cond2=V2)
+    as_tibble() %>% rename(cond1=V1,cond2=V2)
   
   if(to_pair){
     return( apply(unique.pairs,1,paste0,collapse='-') )
@@ -619,9 +629,19 @@ compare_conditions = function(input, id_col = "uniprot",
   return(fit3)
 }
 
-get_volcano_data = function(input_data=int_norm, min_lfc=2, min_pval=0.01, which=c('both','up','down'), topn = 20){
+get_volcano_data = function(input_data=int_norm,
+                            min_lfc=2, min_pval=0.01, which=c('both','up','down'), topn = 20){
   datList <- list()
   combination <- pairwise_condition(to_pair=T)
+  if(missing(topn)){
+    cat('selecting top 50 differentially expressed genes...\n')
+    topn = 50
+  }
+    
+  if(missing(which)){ 
+    cat('selecting both up and down regulated genes...\n')
+    which = 'both'
+  }
   
   for (i in 1:length(combination)) {
     
@@ -658,13 +678,45 @@ get_volcano_data = function(input_data=int_norm, min_lfc=2, min_pval=0.01, which
     datName <- combination[i]
     datList[[datName]] = d.out
   }
+
   return(datList)
 }
 
-get_dfe = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20){
+get_dfe = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20,
+                   count_up=T, count_down=T){
   dfe <- get_volcano_data(input_data=INPUT, min_lfc=MIN_LFC, min_pval=MIN_PVAL, WHICH, topn = TOPN) %>% 
             bind_rows %>% 
             dplyr::filter(sig!="Non significant")
+  
+  if(count_down){
+    down = dfe %>% group_by(ID) %>% dplyr::filter(sig=='Downregulated') %>%
+      summarize( strains_down = paste0(comparison,collapse=' '),
+                 down_AMH = str_count(strains_down,'AMH-'),
+                 down_BAN = str_count(strains_down,'BAN-'),
+                 down_BED = str_count(strains_down,'BED-'),
+                 down_BPL = str_count(strains_down,'BPL-'),
+                 down_BTT = str_count(strains_down,'BTT-'),
+                 down_CMP = str_count(strains_down,'CMP-'),
+                 down_CPI = str_count(strains_down,'CPI-'),
+                 down_CQC = str_count(strains_down,'CQC-'))
+    dfe = left_join(dfe,down)
+    dfe[ grep(x=colnames(dfe),'^down_')] = 0
+  }
+  
+  if(count_up){
+    up = dfe %>% group_by(ID) %>% dplyr::filter(sig=='Upregulated') %>%  
+      summarize( strains_up = paste0(comparison,collapse=' '),
+                 up_AMH = str_count(strains_up,'AMH-'),
+                 up_BAN = str_count(strains_up,'BAN-'),
+                 up_BED = str_count(strains_up,'BED-'),
+                 up_BPL = str_count(strains_up,'BPL-'),
+                 up_BTT = str_count(strains_up,'BTT-'),
+                 up_CMP = str_count(strains_up,'CMP-'),
+                 up_CPI = str_count(strains_up,'CPI-'),
+                 up_CQC = str_count(strains_up,'CQC-'))
+    dfe = left_join(dfe,up) 
+    dfe[ grep(x=colnames(dfe),'^up_')] = 0
+  }
   return(dfe)
 }
 
@@ -698,7 +750,7 @@ draw_volcano = function(data2plot,plot_title){
   return(p)
 }
 
-volcPlot = function(INPUT=int_norm, IMPUTED, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20, plot=F, use_dropdown=T, use_label='genename'){
+volcPlot = function(INPUT=int_norm, IMPUTED, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20, plot=F, use_plotly=T, use_label='genename'){
     
   plotList <- list()
   if(missing(IMPUTED)){ 
@@ -726,46 +778,32 @@ volcPlot = function(INPUT=int_norm, IMPUTED, MIN_LFC=2, MIN_PVAL=0.01, WHICH='bo
             geom_vline(aes(xintercept = (MIN_LFC)), lty = 'dashed', colour = 'blue',lwd=0.5) +
             geom_hline(aes(yintercept = -log10(MIN_PVAL)), lty = 'dashed', colour = 'black',lwd=0.5) 
     
-    if(plot && !use_dropdown)
+    if(plot && !use_plotly)
       plot(p)
     plotList[[comp]] = p
   }
   
-  if(use_dropdown){
+  if(use_plotly){
     library(plotly)
     
-    button_comparisons = lapply(comps,
-                               FUN = function(comp) {
-                                 button <- list(
-                                   method = 'restyle',
-                                   args = list('transforms[0].value', comp),
-                                   label = comp
-                                 )
-                               }
-    )
-    
+    button_comparisons = lapply(comps, FUN = function(comp) {
+     button <- list(method = 'restyle', args = list('transforms[0].value', comp), label = comp)
+    })
     button_imputed <- list(
       list( method = 'restyle', args = list('transforms[1].value', 1), label = 'with_impute'),
       list( method = 'restyle', args = list('transforms[1].value', 0), label = 'no_impute'))
-      
-
+    button_ids = lapply(id2show, FUN = function(id) {
+      button <- list(method = 'restyle', args = list("text",list(as.formula(paste0("~",id)))),label = id  )
+    })
+    
     id2show = names(sc_identifiers)
-    button_ids = lapply(id2show,
-                                FUN = function(id) {
-                                  button <- list(
-                                    method = 'restyle',
-                                    args = list("text",list(as.formula(paste0("~",id)))),
-                                    label = id
-                                  )
-                                }
-    )
     
     count_data = all_data %>%
                  group_by(comparison) %>% 
                  mutate(Y = max(log10_qvalue), Y_imp =Y - 1*is_imputed) %>%
                  ungroup() %>% mutate(X = fct_recode(factor(sig),"-2"="Downregulated","0"="Non significant","2"="Upregulated") %>% unfactor) %>%
                  group_by(comparison,sig) %>% mutate(n=n()) %>% 
-      add_count(is_imputed,name = 'n_imp')
+                 add_count(is_imputed,name = 'n_imp')
     
     #colnames(df) <- c("x", "y")
     fig <- plot_ly(data=all_data %>% arrange(sig) %>% dplyr::left_join(count_data),
@@ -774,18 +812,8 @@ volcPlot = function(INPUT=int_norm, IMPUTED, MIN_LFC=2, MIN_PVAL=0.01, WHICH='bo
                    text = ~ID, hoverinfo = 'text', alpha = 0.3, sizes = 0.8,
                    colors=c("Non significant" = 'gray', "Downregulated" = 'red', "Upregulated" = 'blue'),
                    transforms = list(
-                                  list(
-                                       type = 'filter',
-                                       target = ~comparison,
-                                       operation = '=',
-                                       value = sort(comps)[1]
-                                  ),
-                                  list(
-                                    type = 'filter',
-                                    target = ~is_imputed,
-                                    operation = '<=',
-                                    value = 1
-                                  )
+                        list(type = 'filter', target = ~comparison, operation = '=', value = sort(comps)[1]),
+                        list(type = 'filter', target = ~is_imputed, operation = '<=', value = 1)
                    )
                  ) %>%
       add_text(x=~X, y=~Y_imp, customdata =  ~n_imp,  showlegend=F, texttemplate = '%{customdata:.s}', textposition = 'outside', textfont = list(size=20), hovertemplate = ~sig) %>%
