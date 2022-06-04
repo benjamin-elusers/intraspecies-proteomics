@@ -1,6 +1,6 @@
 ```{r load-data-processed, echo=F}
 chap_cur=04
-load(here('output',sprintf("%02d-processed-data.rdata",chap_cur-1)))
+#load(here('output',sprintf("%02d-processed-data.rdata",chap_cur-1)))
 ```
 
 # Quality control {#qc}
