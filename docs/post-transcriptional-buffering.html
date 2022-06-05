@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<title>Chapter 3 Post transcriptional buffering | Intraspecies proteome expression</title>
+<meta name="author" content="Benjamin Dubreuil">
+<meta name="author" content="Elie Teyssonniere">
+<meta name="description" content="The post-transcriptional buffering (PTB) is a phenomenon where transcriptional variations tend to be buffered as the expression process progresses (add ref). It has been observed in different...">
+<meta name="generator" content="bookdown 0.26 with bs4_book()">
+<meta property="og:title" content="Chapter 3 Post transcriptional buffering | Intraspecies proteome expression">
+<meta property="og:type" content="book">
+<meta property="og:description" content="The post-transcriptional buffering (PTB) is a phenomenon where transcriptional variations tend to be buffered as the expression process progresses (add ref). It has been observed in different...">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chapter 3 Post transcriptional buffering | Intraspecies proteome expression">
+<meta name="twitter:description" content="The post-transcriptional buffering (PTB) is a phenomenon where transcriptional variations tend to be buffered as the expression process progresses (add ref). It has been observed in different...">
+<!-- JS --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://kit.fontawesome.com/6ecbd6c532.js" crossorigin="anonymous"></script><script src="libs/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link href="libs/bootstrap-4.6.0/bootstrap.min.css" rel="stylesheet">
+<script src="libs/bootstrap-4.6.0/bootstrap.bundle.min.js"></script><script src="libs/bs3compat-0.3.1/transition.js"></script><script src="libs/bs3compat-0.3.1/tabs.js"></script><script src="libs/bs3compat-0.3.1/bs3compat.js"></script><link href="libs/bs4_book-1.0.0/bs4_book.css" rel="stylesheet">
+<script src="libs/bs4_book-1.0.0/bs4_book.js"></script><script src="libs/htmlwidgets-1.5.4/htmlwidgets.js"></script><link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+<script src="libs/datatables-binding-0.22/datatables.js"></script><link href="libs/dt-core-1.11.3/css/jquery.dataTables.min.css" rel="stylesheet">
+<link href="libs/dt-core-1.11.3/css/jquery.dataTables.extra.css" rel="stylesheet">
+<script src="libs/dt-core-1.11.3/js/jquery.dataTables.min.js"></script><link href="libs/nouislider-7.0.10/jquery.nouislider.min.css" rel="stylesheet">
+<script src="libs/nouislider-7.0.10/jquery.nouislider.min.js"></script><link href="libs/selectize-0.12.0/selectize.bootstrap3.css" rel="stylesheet">
+<script src="libs/selectize-0.12.0/selectize.min.js"></script><link href="libs/crosstalk-1.2.0/css/crosstalk.min.css" rel="stylesheet">
+<script src="libs/crosstalk-1.2.0/js/crosstalk.min.js"></script><script src="libs/kePrint-0.0.1/kePrint.js"></script><link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<script src="libs/plotly-binding-4.10.0/plotly.js"></script><script src="libs/typedarray-0.1/typedarray.min.js"></script><link href="libs/plotly-htmlwidgets-css-2.5.1/plotly-htmlwidgets.css" rel="stylesheet">
+<script src="libs/plotly-main-2.5.1/plotly-latest.min.js"></script><link href="libs/dt-ext-fixedheader-1.11.3/css/fixedHeader.dataTables.min.css" rel="stylesheet">
+<script src="libs/dt-ext-fixedheader-1.11.3/js/dataTables.fixedHeader.min.js"></script><link href="libs/dt-ext-fixedcolumns-1.11.3/css/fixedColumns.dataTables.min.css" rel="stylesheet">
+<script src="libs/dt-ext-fixedcolumns-1.11.3/js/dataTables.fixedColumns.min.js"></script><script src="libs/jszip-1.11.3/jszip.min.js"></script><link href="libs/dt-ext-buttons-1.11.3/css/buttons.dataTables.min.css" rel="stylesheet">
+<script src="libs/dt-ext-buttons-1.11.3/js/dataTables.buttons.min.js"></script><script src="libs/dt-ext-buttons-1.11.3/js/buttons.html5.min.js"></script><script src="libs/dt-ext-buttons-1.11.3/js/buttons.colVis.min.js"></script><script src="libs/dt-ext-buttons-1.11.3/js/buttons.print.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- CSS --><style type="text/css">
+    
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  </style>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+<div class="container-fluid">
+<div class="row">
+  <header class="col-sm-12 col-lg-3 sidebar sidebar-book"><a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+
+    <div class="d-flex align-items-start justify-content-between">
+      <h1>
+        <a href="index.html" title="">Intraspecies proteome expression</a>
+      </h1>
+      <button class="btn btn-outline-primary d-lg-none ml-2 mt-1" type="button" data-toggle="collapse" data-target="#main-nav" aria-expanded="true" aria-controls="main-nav"><i class="fas fa-bars"></i><span class="sr-only">Show table of contents</span></button>
+    </div>
+
+    <div id="main-nav" class="collapse-lg">
+      <form role="search">
+        <input id="search" class="form-control" type="search" placeholder="Search" aria-label="Search">
+</form>
+
+      <nav aria-label="Table of contents"><h2>Table of contents</h2>
+        <ul class="book-toc list-unstyled">
+<li><a class="" href="index.html"><span class="header-section-number">1</span> Introduction</a></li>
+<li><a class="" href="transcriptomics.html"><span class="header-section-number">2</span> Transcriptomics</a></li>
+<li><a class="active" href="post-transcriptional-buffering.html"><span class="header-section-number">3</span> Post transcriptional buffering</a></li>
+<li><a class="" href="expression-evolution-on-the-different-layers.html"><span class="header-section-number">4</span> Expression evolution on the different layers</a></li>
+<li><a class="" href="proteomics-experiment.html"><span class="header-section-number">5</span> Proteomics experiment</a></li>
+<li><a class="" href="data-processing.html"><span class="header-section-number">6</span> Data processing</a></li>
+<li><a class="" href="qc.html"><span class="header-section-number">7</span> Quality control</a></li>
+<li><a class="" href="strains-expression-comparison.html"><span class="header-section-number">8</span> Strains expression comparison</a></li>
+<li><a class="" href="differential-expression.html"><span class="header-section-number">9</span> Differential Expression</a></li>
+<li><a class="" href="functional-analysis.html"><span class="header-section-number">10</span> Functional analysis</a></li>
+<li><a class="" href="session-info.html"><span class="header-section-number">11</span> Session Info</a></li>
+<li><a class="" href="references.html">References</a></li>
+</ul>
+
+        <div class="book-extra">
+          <p><a id="book-repo" href="https://github.com/benjamin-elusers/intraspecies-proteomics">View book source <i class="fab fa-github"></i></a></p>
+        </div>
+      </nav>
+</div>
+  </header><main class="col-sm-12 col-md-9 col-lg-7" id="content"><div id="post-transcriptional-buffering" class="section level1 tabset tabset-pills" number="3">
+<h1>
+<span class="header-section-number">3</span> Post transcriptional buffering<a class="anchor" aria-label="anchor" href="#post-transcriptional-buffering"><i class="fas fa-link"></i></a>
+</h1>
+<p>The post-transcriptional buffering (PTB) is a phenomenon where transcriptional variations tend to be buffered as the expression process progresses (add ref). It has been observed in different situations… To be completed</p>
+<p>It is possible to detect this phenomenon in different ways:</p>
+<div id="correlation-between-isolate" class="section level2" number="3.1">
+<h2>
+<span class="header-section-number">3.1</span> Correlation between isolate<a class="anchor" aria-label="anchor" href="#correlation-between-isolate"><i class="fas fa-link"></i></a>
+</h2>
+<p>Using the quantile normalized data, we performed Spearman correlation between all the isolate profile in each expression level separately (using the median value of the replicate for the proteomic data)</p>
+<p>Comparing the correlation values, it reveals that the profiles tended to be more and more similar as the expression process progresses (increasing of the correlation coefficient values), bringing a first proof of the presence of the phenomenon across our 8 isolates.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tidymodels/corrr">corrr</a></span><span class="op">)</span>
+<span class="va">cor_prot</span><span class="op">=</span> <span class="va">prot_norm</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>  <span class="fu"><a href="https://corrr.tidymodels.org/reference/correlate.html">correlate</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">'sp'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'term'</span><span class="op">)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Correlation method: 'sp'</span>
+<span class="co">#&gt; Missing treated using: 'pairwise.complete.obs'</span>
+<span class="va">cor_rna</span><span class="op">=</span> <span class="va">rna_norm</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>  <span class="fu"><a href="https://corrr.tidymodels.org/reference/correlate.html">correlate</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">'sp'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'term'</span><span class="op">)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Correlation method: 'sp'</span>
+<span class="co">#&gt; Missing treated using: 'pairwise.complete.obs'</span>
+<span class="va">cor_ribo</span><span class="op">=</span> <span class="va">ribo_norm</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>  <span class="fu"><a href="https://corrr.tidymodels.org/reference/correlate.html">correlate</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">'sp'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">column_to_rownames</span><span class="op">(</span><span class="st">'term'</span><span class="op">)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Correlation method: 'sp'</span>
+<span class="co">#&gt; Missing treated using: 'pairwise.complete.obs'</span>
+<span class="va">get_lower_tri</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">{</span> <span class="va">m</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lower.tri.html">lower.tri</a></span><span class="op">(</span><span class="va">m</span><span class="op">)</span><span class="op">]</span> <span class="op">}</span>
+
+<span class="va">cor_exp</span><span class="op">=</span> <span class="fu">tibble</span><span class="op">(</span>RNA <span class="op">=</span> <span class="fu">get_lower_tri</span><span class="op">(</span><span class="va">cor_rna</span><span class="op">)</span>, Ribo <span class="op">=</span> <span class="fu">get_lower_tri</span><span class="op">(</span><span class="va">cor_ribo</span><span class="op">)</span>, Prot <span class="op">=</span> <span class="fu">get_lower_tri</span><span class="op">(</span><span class="va">cor_prot</span><span class="op">)</span><span class="op">)</span>
+<span class="va">df_cor_exp</span> <span class="op">=</span> <span class="fu">pivot_longer</span><span class="op">(</span><span class="va">cor_exp</span>, <span class="fu">everything</span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+              <span class="fu">arrange</span><span class="op">(</span><span class="va">name</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">mutate</span><span class="op">(</span>experiment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span><span class="op">(</span><span class="va">name</span><span class="op">)</span><span class="op">)</span>
+<span class="va">pair_exp</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">df_cor_exp</span><span class="op">$</span><span class="va">experiment</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span>
+
+<span class="fu">ggplot</span><span class="op">(</span><span class="va">df_cor_exp</span>,<span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">experiment</span>, y<span class="op">=</span><span class="va">value</span>,fill<span class="op">=</span><span class="va">experiment</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">geom_boxplot</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">theme_classic</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">xlab</span><span class="op">(</span><span class="st">''</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">ylab</span><span class="op">(</span><span class="st">'Rho (spearman)'</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span><span class="va">pair_exp</span><span class="op">)</span></code></pre></div>
+<div class="inline-figure"><img src="Intraspecies-proteome-expression_files/figure-html/PTB1-1.png" width="100%"></div>
+</div>
+<div id="variation-quantification" class="section level2" number="3.2">
+<h2>
+<span class="header-section-number">3.2</span> Variation quantification<a class="anchor" aria-label="anchor" href="#variation-quantification"><i class="fas fa-link"></i></a>
+</h2>
+<p>It is also possible to explore PTB by quantifying the variation in each pairwise comparison. Basically, for each gene in each isolate pairwise comparison, we use the absolute value of the log2 transformed fold to represent the intensity of the expression variation between the 2 isolates. The more this value increases, the more a gene displays variable regulation between isolate.</p>
+<p>We calculated this value in each pairwise comparison, for each gene and at each expression level. We found that the intensities of the variations were decreasing as long as the expression process progresses, supporting once again the presence of the PTB phenomenon in our dataset.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co">#remotes::install_github("TimTeaFan/dplyover")</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/TimTeaFan/dplyover">dplyover</a></span><span class="op">)</span>
+
+<span class="co"># calculate fold change pairwise for each experiment</span>
+<span class="va">fc_prot</span> <span class="op">=</span> <span class="fu">transmute</span><span class="op">(</span><span class="va">prot_norm</span>, <span class="fu"><a href="https://rdrr.io/pkg/dplyover/man/across2.html">across2x</a></span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span>, <span class="fu">everything</span><span class="op">(</span><span class="op">)</span>,.fns <span class="op">=</span> <span class="op">~</span><span class="va">.x</span><span class="op">/</span><span class="va">.y</span>,.comb <span class="op">=</span> <span class="st">'minimal'</span><span class="op">)</span>,
+            experiment<span class="op">=</span><span class="st">'Prot'</span><span class="op">)</span>
+<span class="va">fc_rna</span> <span class="op">=</span> <span class="fu">transmute</span><span class="op">(</span><span class="va">rna_norm</span>, <span class="fu"><a href="https://rdrr.io/pkg/dplyover/man/across2.html">across2x</a></span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span>, <span class="fu">everything</span><span class="op">(</span><span class="op">)</span>,.fns <span class="op">=</span> <span class="op">~</span><span class="va">.x</span><span class="op">/</span><span class="va">.y</span>,.comb <span class="op">=</span> <span class="st">'minimal'</span><span class="op">)</span>,
+            experiment<span class="op">=</span><span class="st">'RNA'</span><span class="op">)</span>
+<span class="va">fc_ribo</span> <span class="op">=</span> <span class="fu">transmute</span><span class="op">(</span><span class="va">ribo_norm</span>, <span class="fu"><a href="https://rdrr.io/pkg/dplyover/man/across2.html">across2x</a></span><span class="op">(</span><span class="fu">everything</span><span class="op">(</span><span class="op">)</span>, <span class="fu">everything</span><span class="op">(</span><span class="op">)</span>,.fns <span class="op">=</span> <span class="op">~</span><span class="va">.x</span><span class="op">/</span><span class="va">.y</span>,.comb <span class="op">=</span> <span class="st">'minimal'</span><span class="op">)</span>,
+            experiment<span class="op">=</span><span class="st">'Ribo'</span><span class="op">)</span> 
+<span class="co"># combine all pairwise foldchange</span>
+<span class="va">fc_exp</span> <span class="op">=</span> <span class="fu">bind_rows</span><span class="op">(</span><span class="va">fc_prot</span>,<span class="va">fc_rna</span>,<span class="va">fc_ribo</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+          <span class="fu">pivot_longer</span><span class="op">(</span><span class="op">-</span><span class="va">experiment</span>,names_to<span class="op">=</span><span class="st">'pair'</span>,values_to <span class="op">=</span> <span class="st">'fc'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
+          <span class="fu">arrange</span><span class="op">(</span><span class="va">experiment</span>,<span class="va">pair</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+          <span class="fu">mutate</span><span class="op">(</span>log2fc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html">log2</a></span><span class="op">(</span><span class="va">fc</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+
+<span class="va">pair_exp</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">fc_exp</span><span class="op">$</span><span class="va">experiment</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span>
+
+<span class="fu">ggplot</span><span class="op">(</span><span class="va">fc_exp</span>,<span class="fu">aes</span><span class="op">(</span><span class="va">experiment</span>, <span class="va">log2fc</span>, fill<span class="op">=</span><span class="va">experiment</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">geom_boxplot</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">scale_y_log10</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">pair_exp</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">theme_classic</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">xlab</span><span class="op">(</span><span class="st">''</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">ylab</span><span class="op">(</span><span class="st">'|log2(FC)|'</span><span class="op">)</span></code></pre></div>
+<div class="inline-figure"><img src="Intraspecies-proteome-expression_files/figure-html/PTB2-1.png" width="100%"></div>
+</div>
+<div id="euclidean-distances-between-the-profiles" class="section level2" number="3.3">
+<h2>
+<span class="header-section-number">3.3</span> Euclidean distances between the profiles<a class="anchor" aria-label="anchor" href="#euclidean-distances-between-the-profiles"><i class="fas fa-link"></i></a>
+</h2>
+<p>Euclidean distances can also give information on how variable datasets can be. We once again used the quantile normalized data to calculate Euclidean distances between the profile in each expression level.</p>
+<p>Consistently to the previous results, we found that the distances were lower and lower as the expression process progresses, suggesting once again that the expression variations were decreased. This also supported the presence of the PTB phenomenon</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Calculate euclidean distance between normalized strains expression</span>
+<span class="va">dist_exp</span> <span class="op">=</span> <span class="fu">tibble</span><span class="op">(</span> 
+  <span class="st">'Prot'</span><span class="op">=</span> <span class="va">prot_norm</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="va">dist</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="va">as.matrix</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">get_lower_tri</span><span class="op">(</span><span class="op">)</span>,
+  <span class="st">'RNA'</span><span class="op">=</span> <span class="va">rna_norm</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="va">dist</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="va">as.matrix</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">get_lower_tri</span><span class="op">(</span><span class="op">)</span>,
+  <span class="st">'Ribo'</span><span class="op">=</span> <span class="va">ribo_norm</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/t.html">t</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="va">dist</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="va">as.matrix</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">get_lower_tri</span><span class="op">(</span><span class="op">)</span>
+<span class="op">)</span>
+<span class="co"># convert ot long format</span>
+<span class="va">df_dist_exp</span> <span class="op">=</span> <span class="fu">pivot_longer</span><span class="op">(</span><span class="va">dist_exp</span>, <span class="fu">everything</span><span class="op">(</span><span class="op">)</span>,names_to<span class="op">=</span><span class="st">'experiment'</span>,values_to <span class="op">=</span> <span class="st">'euclidean'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
+              <span class="fu">arrange</span><span class="op">(</span><span class="va">experiment</span><span class="op">)</span>
+
+<span class="va">pair_exp</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">df_dist_exp</span><span class="op">$</span><span class="va">experiment</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span>
+
+<span class="fu">ggplot</span><span class="op">(</span><span class="va">df_dist_exp</span>,<span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">experiment</span>,y<span class="op">=</span><span class="va">euclidean</span>, fill<span class="op">=</span><span class="va">experiment</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">geom_boxplot</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">theme_classic</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">ylab</span><span class="op">(</span><span class="st">'Euclidean distance'</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">xlab</span><span class="op">(</span><span class="st">''</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">pair_exp</span><span class="op">)</span></code></pre></div>
+<div class="inline-figure"><img src="Intraspecies-proteome-expression_files/figure-html/PTB3-1.png" width="100%"></div>
+</div>
+<div id="variance-comparison" class="section level2" number="3.4">
+<h2>
+<span class="header-section-number">3.4</span> Variance comparison<a class="anchor" aria-label="anchor" href="#variance-comparison"><i class="fas fa-link"></i></a>
+</h2>
+<p>A simple variance calculation can also give a clue on the variation intensity of gene expression. We calculated the variance in all dataset for each gene and found that it tended to be higher at the transcription level, lower at the protein abundance level (with the translation level being in the middle), which was in accordance with the previous exploration</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">var_exp</span> <span class="op">=</span> <span class="fu">tibble</span><span class="op">(</span> id <span class="op">=</span> <span class="va">id_exp</span>,
+                  Prot <span class="op">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">prot_norm</span>,<span class="fl">1</span>,<span class="va">var</span><span class="op">)</span>,
+                  RNA <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">rna_norm</span>,<span class="fl">1</span>,<span class="va">var</span><span class="op">)</span>,
+                  Ribo <span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/apply.html">apply</a></span><span class="op">(</span><span class="va">ribo_norm</span>,<span class="fl">1</span>,<span class="va">var</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> 
+          <span class="fu">pivot_longer</span><span class="op">(</span><span class="op">-</span><span class="va">id</span>, names_to<span class="op">=</span><span class="st">'experiment'</span>,values_to<span class="op">=</span><span class="st">'variance'</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span>
+          <span class="fu">arrange</span><span class="op">(</span><span class="va">experiment</span>,<span class="va">id</span><span class="op">)</span>
+
+<span class="va">pair_exp</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">var_exp</span><span class="op">$</span><span class="va">experiment</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/utils/combn.html">combn</a></span><span class="op">(</span>m <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/pkg/DT/man/DT-imports.html">%&gt;%</a></span> <span class="fu">as_tibble</span><span class="op">(</span><span class="op">)</span>
+
+<span class="fu">ggplot</span><span class="op">(</span><span class="va">var_exp</span>,<span class="fu">aes</span><span class="op">(</span>x<span class="op">=</span><span class="va">experiment</span>,y<span class="op">=</span><span class="va">variance</span>, fill<span class="op">=</span><span class="va">experiment</span><span class="op">)</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">geom_boxplot</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">theme_classic</span><span class="op">(</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">ylab</span><span class="op">(</span><span class="st">'Variance'</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">xlab</span><span class="op">(</span><span class="st">''</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">stat_compare_means</span><span class="op">(</span>comparisons <span class="op">=</span> <span class="va">pair_exp</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu">scale_y_log10</span><span class="op">(</span><span class="op">)</span></code></pre></div>
+<div class="inline-figure"><img src="Intraspecies-proteome-expression_files/figure-html/PTB4-1.png" width="100%"></div>
+</div>
+</div>
+  <div class="chapter-nav">
+<div class="prev"><a href="transcriptomics.html"><span class="header-section-number">2</span> Transcriptomics</a></div>
+<div class="next"><a href="expression-evolution-on-the-different-layers.html"><span class="header-section-number">4</span> Expression evolution on the different layers</a></div>
+</div></main><div class="col-md-3 col-lg-2 d-none d-md-block sidebar sidebar-chapter">
+    <nav id="toc" data-toggle="toc" aria-label="On this page"><h2>On this page</h2>
+      <ul class="nav navbar-nav">
+<li><a class="nav-link" href="#post-transcriptional-buffering"><span class="header-section-number">3</span> Post transcriptional buffering</a></li>
+<li><a class="nav-link" href="#correlation-between-isolate"><span class="header-section-number">3.1</span> Correlation between isolate</a></li>
+<li><a class="nav-link" href="#variation-quantification"><span class="header-section-number">3.2</span> Variation quantification</a></li>
+<li><a class="nav-link" href="#euclidean-distances-between-the-profiles"><span class="header-section-number">3.3</span> Euclidean distances between the profiles</a></li>
+<li><a class="nav-link" href="#variance-comparison"><span class="header-section-number">3.4</span> Variance comparison</a></li>
+</ul>
+
+      <div class="book-extra">
+        <ul class="list-unstyled">
+<li><a id="book-source" href="https://github.com/benjamin-elusers/intraspecies-proteomics/blob/master/01-transcriptomics.Rmd">View source <i class="fab fa-github"></i></a></li>
+          <li><a id="book-edit" href="https://github.com/benjamin-elusers/intraspecies-proteomics/edit/master/01-transcriptomics.Rmd">Edit this page <i class="fab fa-github"></i></a></li>
+        </ul>
+</div>
+    </nav>
+</div>
+
+</div>
+</div> <!-- .container -->
+
+<footer class="bg-primary text-light mt-5"><div class="container"><div class="row">
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>"<strong>Intraspecies proteome expression</strong>" was written by Benjamin Dubreuil<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a>, Elie Teyssonniere<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a>. It was last built on 05-Jun-2022 22:43.</p>
+  </div>
+
+  <div class="col-12 col-md-6 mt-3">
+    <p>This book was built by the <a class="text-light" href="https://bookdown.org">bookdown</a> R package.</p>
+  </div>
+
+</div></div>
+</footer><!-- dynamically load mathjax for compatibility with self-contained --><script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:")
+      if (/^https?:/.test(src))
+        src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script><script type="text/x-mathjax-config">const popovers = document.querySelectorAll('a.footnote-ref[data-toggle="popover"]');
+for (let popover of popovers) {
+  const div = document.createElement('div');
+  div.setAttribute('style', 'position: absolute; top: 0, left:0; width:0, height:0, overflow: hidden; visibility: hidden;');
+  div.innerHTML = popover.getAttribute('data-content');
+
+  var has_math = div.querySelector("span.math");
+  if (has_math) {
+    document.body.appendChild(div);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, div]);
+    MathJax.Hub.Queue(function() {
+      popover.setAttribute('data-content', div.innerHTML);
+      document.body.removeChild(div);
+    })
+  }
+}
+</script>
+</body>
+</html>

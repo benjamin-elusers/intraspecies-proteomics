@@ -10,12 +10,14 @@ chap_cur=07
 library(treemap)
 library(d3Tree)
 treemap(df_dfe_annot, index=c("BIOPROCESS_all", "comparison"), vSize='regulated', vColor="EffectSize", type="value") 
-treemap(df_dfe_annot, index=c("BIOPROCESS_all", "GENENAME"), vSize="regulated", vColor="EffectSize", type="value",)
+treemap(df_dfe_annot, index=c("BIOPROCESS_all", "GENENAME"), vSize="regulated", vColor="EffectSize", type="value")
+treemap(df_dfe_annot, index=c("BIOPROCESS_all", "ORF"), vSize="regulated", vColor="EffectSize", type="value")
+
 ```
 
-## Functional enrichment for differentially expressed genes
+## GO enrichment
 
-```{r func-enrich, fig.path='plot/', warning=F, out.width='100%'}
+```{r go-enrich, fig.path='plot/', warning=F, out.width='100%', fig.height=10}
 library(enrichplot)
 library(clusterProfiler)
 library(org.Sc.sgd.db)
@@ -31,36 +33,42 @@ all_genes = int_scaled_strains %>%
 
 genes_proteomics = all_genes$ORF
 genes_dfe = dfe_lfc$ORF
-genes_dfe_uni = dfe_lfc$ID
-
 genes_dfe_list = df_dfe_annot %>% group_by(ORF) %>% summarize( mean_lfc = mean(EffectSize)) %>% arrange(desc(mean_lfc)) %>% pull(mean_lfc,ORF) 
-genes_dfe_list_uni = df_dfe_annot %>% group_by(uniprot) %>% summarize( mean_lfc = mean(EffectSize)) %>% arrange(desc(mean_lfc)) %>% pull(mean_lfc,uniprot)
 
 ego3 <- gseGO(geneList= genes_dfe_list, OrgDb = org.Sc.sgd.db, keyType = "ORF", 
               ont = "ALL", minGSSize = 20, maxGSSize = 500, pvalueCutoff = 0.05)
-#dotplot(ego3)
-#heatplot(ego3,foldChange = genes_dfe_list)
+dotplot(ego3)
+heatplot(ego3,foldChange = genes_dfe_list)
 
-
-kk2 <- gseKEGG(geneList = genes_dfe_list_uni, organism  = 'sce', minGSSize = 20,
-               keyType = 'uniprot', pvalueCutoff = 0.05)
-#heatplot(kk2, foldChange=genes_dfe_list_uni)
-
-#mkk <- enrichMKEGG(gene = genes_dfe_uni, organism = 'sce', keyType = 'uniprot')
-#dotplot(mkk)
 
 ```
 
-## Comparison of functional enrichment for clusters of differentially expressed genes
+## KEGG pathway enrichment
 
+```{r kegg-enrich, fig.path='plot/', warning=F, out.width='100%', fig.height=10}
+genes_proteomics_uni = all_genes$ID
+genes_dfe_uni = dfe_lfc$ID
+genes_dfe_list_uni = df_dfe_annot %>% group_by(uniprot) %>% summarize( mean_lfc = mean(EffectSize)) %>% arrange(desc(mean_lfc)) %>% pull(mean_lfc,uniprot)
 
-```{r func-enrich-clust}
+kk2 <- gseKEGG(geneList = genes_dfe_list_uni, organism  = 'sce', minGSSize = 20,
+               keyType = 'uniprot', pvalueCutoff = 0.05)
+dotplot(kk2)
+heatplot(kk2, foldChange=genes_dfe_list_uni)
+
+```
+
+## GO enrichment for clusters of differentially expressed genes
+
+```{r func-enrich-clust, fig.path='plot/', warning=F, out.width='100%', fig.height=10}
 genes_dfe_cluster = split(dfe_lfc$ORF,cl_prot)
+genes_dfe_cluster_uni = split(dfe_lfc$ID,cl_prot)
 
-ck <- compareCluster(geneCluster = genes_dfe_cluster, fun = enrichGO, universe=genes_proteomics,
+ck_go <- compareCluster(geneCluster = genes_dfe_cluster, fun = enrichGO, universe=genes_proteomics,
                      OrgDb= org.Sc.sgd.db, keyType= "ORF", ont='ALL', pool=F,
-                     pAdjustMethod = "BH", pvalueCutoff  = 0.01, qvalueCutoff  = 0.05)
-dotplot(ck)
+                     pAdjustMethod = "BH", pvalueCutoff  = 0.05)
+
+dotplot(ck_go)
+
 ```
 
 

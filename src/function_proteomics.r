@@ -477,8 +477,6 @@ draw_scatterplots = function(datain=ms2){
                lower = list(continuous = wrap("smooth",col='dodgerblue',size=0.5,alpha=0.5,shape=19))
                ) + theme(axis.text = element_blank(),axis.line = element_blank(),axis.ticks = element_blank())
   p_(p2)
-  #save_plot(p2,filename=here::here('output','scatmat-norm.intensities.pdf'),base_aspect_ratio=1,base_height = 12,base_width = 12)
-  #save_plot(p2,filename=here::here('output','scatmat-norm.intensities.png'),base_aspect_ratio=1,base_height = 12,base_width = 12)
   return(p2)
 }
 

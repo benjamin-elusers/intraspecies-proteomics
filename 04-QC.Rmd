@@ -192,19 +192,28 @@ na_int= intensities %>%
         summarize(across(all_of(paste0("lfq_intensity_",samples)), is.na ) )
 colnames(na_int) = c('uniprot',samples)
 
-p_upset = ComplexUpset::upset(data=as.data.frame(1-na_int[,-1]),intersect=samples,
-      name='intensity quantified', min_degree=5, sort_sets=F, 
-      width_ratio=0.1,min_size=10, keep_empty_groups=F, wrap=TRUE,
-         base_annotations=list(
-          'Number of hits'=ComplexUpset::intersection_size(text_colors=c(on_background='red', on_bar='yellow'),text=list(angle=0,hjust=0.45,size=2.8))
-           + annotate( geom='text', x=Inf, y=Inf, label=paste('Total hits:', nrow(na_int)), vjust=1, hjust=1 )
-         ),
+p_upset = ComplexUpset::upset(
+  data=as.data.frame(1-na_int[,-1]),
+  intersect=samples,
+  name='intensity quantified', 
+  min_degree=5, min_size=10,
+  sort_sets=F, keep_empty_groups=F, wrap=TRUE,
+  width_ratio=0.1, 
+  base_annotations=list('Number of hits'=ComplexUpset::intersection_size(
+                              text_colors=c(on_background='red', on_bar='yellow'),
+                              text=list(angle=0,hjust=0.45,size=5)) +
+    annotate(geom='text', x=Inf, y=Inf, label=paste('Total hits:', nrow(na_int)), vjust=1,hjust=1 )
+  ), themes = ComplexUpset::upset_default_themes(text=element_text(size=26))
 )
 
-ggsave(p_upset,path=here('plot'),filename = 'upset-samples-combination-nacount.pdf', device = 'pdf',scale = 2)
-ggsave(p_upset,path=here('plot'),filename = 'upset-samples-combination-nacount.png', device = 'png',scale = 2)
+p_upset 
+# w1200px =  unit(1200,'px')
+ggsave(p_upset, path=here('plot'),
+        filename = 'upset-samples-combination-nacount.pdf', 
+        device = 'pdf',scale = 2, dpi=300,  width = 1200, units='px')
 
-knitr::include_graphics(here('plot','upset-samples-combination-nacount.png'),auto_pdf = T)
+ 
+knitr::include_graphics(here('plot','upset-samples-combination-nacount.pdf'),auto_pdf = T)
 ```
 
 
@@ -242,7 +251,7 @@ expression before and after normalization using each of the following normalizat
 
 `r TAB_NORM`
 
-```{r exp_density,fig.height=8, fig.width=8}
+```{r exp_density,fig.height=8, fig.width=5}
 draw_normalization_density(int_raw,int_lfq,df.group)
 ```
 
@@ -253,8 +262,11 @@ draw_normalization_density(int_raw,int_lfq,df.group)
 ```{r scatterplot-all, fig.path='plot/', fig.show='hold', warning=F, fig.height=15, fig.width=15, out.width='100%'}
 # scatterplots between all samples
 scmat_all=draw_scatterplots(datain=int_all)
-print(scmat_all)
+#print(scmat_all)
 
+ggsave(scmat_all,filename=here::here('plot','scatterplot-samples-intensities.pdf'),width = 1200, units='px')
+
+knitr::include_graphics(here('plot','scatterplot-samples-intensities.pdf'),auto_pdf = T)
 ```
 
 ### Heatmap correlation 

@@ -23,6 +23,8 @@ description: |
   strains from Saccharomyces cerevisiae.
 biblio-style: apalike
 csl: chicago-fullnote-bibliography.csl
+editor_options: 
+  chunk_output_type: console
 ---
 
 .updatemenu-dropdown-button-group{
@@ -124,20 +126,24 @@ sc_annotation = preload(sc_annofile, load.annotation(),doing='loading annotation
 sc_annotation_orf = dplyr::select(sc_annotation,-c(SGD,GENENAME,ROLE,LOC,COMPLEX,node,nprot,nsp,taxon))
 sc_identifiers = sc_annotation %>% dplyr::select(SGD,ORF,UNIPROT,GENENAME) %>% 
                   dplyr::filter(!duplicated(UNIPROT) & !duplicated(SGD) & !duplicated(GENENAME))
+
+
 # strains info from supp mat of Science paper
 riboseq_strains = c('AMH','BAN','BED','BPL','BTT','CMP','CPI','CQC') # Strains with riboseq data (on 14/01/21)
 strains.info = load.peter2018.data(1) %>%  
                  mutate( has_riboseq = standardized_name %in% riboseq_strains)
 # Genetic variants at nucleotide and amino acid levels
 # run get_yk11_variants.r
-sc_snp_aa = read_rds( here('data','YEAST_VAR_AA.rds') )
-sc_snp_nt = read_rds( here('data','YEAST_VAR_NT.rds') )
+#sc_snp_aa = read_rds( here('data','YEAST_VAR_AA.rds') )
+#sc_snp_nt = read_rds( here('data','YEAST_VAR_NT.rds') )
 
+yeast_orf_snp = read_rds( here('data','YEAST_ORF_VAR.rds') )
 # Conservation/evolutionary rate per protein (SNP or full sequence)
 # run get_yeast_conservation.r
-evo_fungi = read_delim(here('data','evolution-fungi-protein.tsv'),delim='\t') 
-evo_snp = read_delim(here('data','evolution-snp-protein.tsv'),delim='\t') 
-evo_yeast = read_rds(here('data','evolution-yeast-protein.rds'))
+evo_fungi = read_delim(here('data','evolution-fungi-protein.tsv.gz'),delim='\t') 
+evo_snp = read_delim(here('data','evolution-snp-protein.tsv.gz'),delim='\t') 
+evo_yeast = read_rds(here('data','evolution-yeast-protein.rds')) %>% 
+            left_join(yeast_orf_snp, by = c('orf'='id') )
 ```
 
 ```{r save-yeast-data, echo=F}

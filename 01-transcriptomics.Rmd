@@ -1,3 +1,8 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 ```{r load-setup-data, echo=F}
 chap_cur=01
 chap_num = sprintf("%02d-",chap_cur)
@@ -279,6 +284,176 @@ ggplot(var_exp,aes(x=experiment,y=variance, fill=experiment))+
   scale_y_log10()
 ```
 
+# Expression evolution on the different layers {.tabset .tabset-pills}
+
+Expression evolution can be explored in each layer using several methods. One of them uses the construction of phylogeny trees using the expression data at each expression layer (transcriptome, translatome, proteome). This method has been used previously for expression evolution exploration in mammals ([Wang et al., 2020](https://www.nature.com/articles/s41586-020-2899-z)). We tried to applied this method to our data sets. We used the quantile normalized data (encompassing **`r nrow(log2_all_exp_norm)`** genes).
+
+## Transcriptome, translatome and proteome trees
+
+```{r tree1}
+par(mfrow= c(1,3))
+
+tree_exp = tibble( 
+  'Prot'= prot_norm %>% t() %>% dist %>% nj %>% .[['edge.length']] %>% sum,
+  'RNA'= rna_norm %>% t() %>% dist %>% nj %>% .[['edge.length']] %>% sum,
+  'Ribo'= ribo_norm %>%  t() %>% dist %>% nj %>% .[['edge.length']] %>% sum
+)
+
+#test = modelr::bootstrap(log2_all_exp_norm,1000)
+
+a =lapply(c('Prot', 'RNA','Ribo'), function(i){
+  i<<-i
+b = dist(t(log2_all_exp_norm[, grep(i, colnames(log2_all_exp_norm))]))
+a = nj(b)
+c = sum(a$edge.length)
+
+d =lapply(1:1000, function(j){
+  b = dist(t(log2_all_exp_norm[sample(x=1:nrow(log2_all_exp_norm),size = nrow(log2_all_exp_norm),replace = T), grep(i, colnames(log2_all_exp_norm))]))
+  a = nj(b)
+  
+  sum(a$edge.length)
+})
+d= unlist(d)
+c=c(c,qnorm(0.975)*sd(d)/sqrt(length(d)))
+c= setNames(c,c('length', 'err'))
+
+plot(a,type='u', main = i)
+c
+})
+a= do.call(rbind,a)
+rownames(a)= c('Prot', 'RNA','Ribo')
+a= as.data.frame(a)
+a$level=rownames(a)
+a$level=factor(a$level,levels = c('RNA','Ribo','Prot'))
+```
+
+The measure of the global expression evolution can be achieved using the total length of the tree (see below, error bar correspond the to 95% confidence interval of the tree length using 1000 steps boot-straping)
+
+```{r tree2}
+
+ggplot(a, aes(level, fill=level, y= length))+
+  geom_bar(stat = 'identity',width = 0.5, alpha= 0.8)+
+  geom_errorbar(aes(x=level, ymin=length-err, ymax=length+err), width=0.1)+
+  theme_classic()
+
+```
+
+Consistently with the detection of the post-transcriptional buffering, the expression evolution seems to be more and more constrained at each step of gene expression (Constraint RNA < Constraint Ribo < Constraint Prot).
+
+## Characteristic influencing gene expression evolution
+
+It is possible to explore how some gene characteristics can influence gene expression evolution by comparing the length of a tree generated using the gene having these characteristics with tree lengths obtain with all or random set of genes. However, it necessary to first check if the number of genes used to generate a tree influence the final tree length. By sub sampling the number of gene to generate the trees (100 iterations with each possible number of gene starting from 10) it is possible to detect an effect on final tree length. It is therefore important to take into account the number of gene tested and compare this to trees generated with the same amount of genes. 
+
+```{r tree3}
+
+#d=lapply(rep(10:nrow(df_final2),100),function(j){
+ # 
+#  temp= df_final2[sample(1:nrow(df_final2),j),]
+#  a =lapply(c('Prot', 'RNA','Ribo'), function(i){
+#    i<<-i
+#    b = dist(t(temp[, grep(i, colnames(temp))]))
+#    a = nj(b)
+#    c = sum(a$edge.length)
+#    
+#  })
+#  a= t(data.frame(length=a))
+ # rownames(a)= c('Prot', 'RNA','Ribo')
+#  a= as.data.frame(a)
+  #a$num=j
+#  return(a)
+#})
+#d= do.call(rbind,d)
+#d$type= NA
+#d[grep('Prot', rownames(d)),"type"]='Prot'
+#d[grep('RNA', rownames(d)),"type"]='RNA'
+#d[grep('Ribo', rownames(d)),"type"]='Ribo'
+#d$type=factor(d$type,levels = c('RNA','Ribo','Prot'))
+#write_rds(d,'control_tree_length.RDS')
+ctrl_tree_len= read_rds(here('data','control_tree_length.RDS'))
+ggplot(ctrl_tree_len,aes(x=num,y=V1, col= type))+
+  geom_point(alpha=0.6)+
+  theme_classic()+
+  xlab('Number of genes')+
+  ylab("Tree length")
+
+
+control_tree_length = ctrl_tree_len
+gene_feature = read_rds(here('data',"PREDICTORS-fungi_orthologs-nomiss.rds"))
+a=gene_feature[,(sapply(gene_feature, class)=='logical')]
+a =as.data.frame(a)
+rownames(a)=gene_feature$ORF
+a = a[base::intersect(rownames(a), rownames(log2_all_exp_norm)),]
+a=a[,sapply(a,sum)>9]
+```
+
+
+
+We'll be using gene characteristics (quantified with Boolean values: TRUE or FALSE) generated with several databases (see [Yeastomic](https://github.com/benjamin-elusers/yeastomics)). Not all genes were encompassed and therefore we'll be using the gene overlapping between the expression datasets and the characteristic database (**`r nrow(a)`** genes). To detect whether or not a characteristic influences the gene expression evolution, we compared the length L of a tree obtained with N genes displaying the characteristic with lengths obtained with 100 trees generated by randomly select N genes. The 100 length being globally normally distributed, it is possible to obtain the Cumulative Distribution Function the length L compared to the lengths of the 100  random trees. For instance, the characteristic _cat_genomics.sgd.chr_A_ (which is: is the gene on the chromosome 1?) encompassed **`r sum(a[,1])`** gene in the our dataset (**`r sum(a[,1])`** out of **`r nrow(a)`** genes overlapping between our expression data and the characteristic database). 
+```{r tree4}
+
+b = nj(dist(t(log2_all_exp_norm[rownames(log2_all_exp_norm)%in%rownames(a)[a$cat_genomics.sgd.chr_A], grep('RNA', colnames(log2_all_exp_norm))])))
+b=sum(b$edge.length)
+c= pnorm(b,mean = mean(control_tree_length[control_tree_length$num==sum(a[,1])&control_tree_length$type=='RNA',"V1"]),sd =sd(control_tree_length[control_tree_length$num==sum(a[,1])&control_tree_length$type=='RNA',"V1"]) )
+```
+The length of the tree generated with these 30 gene using RNA-seq data is **`r b`**. The probability (not corrected) of getting this length with random trees = **`r c`**
+
+```{r tree5}
+par(mfrow=c(1,1))
+plot(density(control_tree_length[control_tree_length$num==sum(a[,1])&control_tree_length$type=='RNA',"V1"]),main = 'Tree length distribution')
+abline(v=b, col='red')
+```
+
+We performed this analysis for **`r ncol(a)`** characteristics at each expression level. We corrected the probability values (false discovery rate correction) and using a corrected probability value threshold of 0.01 to select the characteristic impacting gene expression.
+
+```{r tree6}
+b= apply(a,2, function(i){
+  i<<-i
+  b = rownames(a)[i]
+  c = log2_all_exp_norm[b,]
+  d =sapply(c('Prot', 'RNA','Ribo'), function(j){
+    j<<-j
+    b = dist(t(c[, grep(j, colnames(c))]))
+    a = nj(b)
+    e = sum(a$edge.length)
+    
+    return(e)
+  })
+  e =control_tree_length[control_tree_length$num== sum(i),]
+  
+  e=lapply(c('Prot', 'RNA','Ribo'), function(j){
+  c= e[e$type%in%j,"V1"]
+  b = d[j]
+  if(b>mean(c)){ a=pnorm(mean = mean(c),sd = sd(c),b,lower.tail = F)}
+  if(b<mean(c)){ a=pnorm(mean = mean(c),sd = sd(c),b)} 
+  return(c(a, b/mean(c)))
+  })
+  e    
+})
+
+b=lapply(b, function(i){
+  i<<-i
+  unlist(i)
+})
+
+b= do.call(rbind,b)
+
+
+for(i in c(1,3,5)){
+  b[,i]=p.adjust(b[,i], method = 'fdr')
+}
+
+b = b[b[,1]<0.01|b[,5]<0.01|b[,3]<0.01,]
+
+```
+We detected **`r nrow(b)`** characteristics influencing gene expression evolution (either in one direction or another)
+
+```{r tree7}
+
+require(knitr)
+colnames(b)=c('P_prot','tree length charac/random (prot)','P_RNA','tree length charac/random (RNA)','P_Ribo','tree length charac/random (Ribo)')
+kable(b, caption = 'Characteristic influecing Gene expression evolution')
+
+```
 
 ```{r save-transcriptomics, echo=F}
 save.image(here::here('output',paste0(chap_num,"transcriptomics.rdata")))

@@ -136,7 +136,7 @@ dfe_exp = dat_scaled %>% dplyr::filter( uniprot %in% dfe$ID) %>%
 p_dfe_exp=pheatmap::pheatmap(dfe_exp,
                              fontsize = 5,cellwidth = 5,cellheight =5,border_color = NA,treeheight_col = 10,
                              filename = here('plot','heatmap-exp.png'))
-knitr::include_graphics('plot/heatmap-exp.png',auto_pdf = F)
+knitr::include_graphics('plot/heatmap-exp.png',auto_pdf = T)
 ```
 
 
@@ -157,7 +157,7 @@ dfe_lfc_mat = dfe_lfc %>% dplyr::select(-ORF,-ID,-SGD)
 # Heatmap of differentially expressed genes
 pheatmap::pheatmap(dfe_lfc_mat,fontsize = 5,cutree_rows = 10,cellwidth = 5,cellheight =5,border_color = NA,
                           treeheight_col = 10, filename = here('plot','heatmap-lfc.png')  )
-knitr::include_graphics('plot/heatmap-lfc.png',auto_pdf = F)
+knitr::include_graphics('plot/heatmap-lfc.png',auto_pdf = T)
 ```
 
 ## Cluster genes based on their profile of differential expression strain-pairwise 
