@@ -225,16 +225,16 @@ genes_dfe_list_uni = df_dfe_annot %>% group_by(uniprot) %>% summarize( mean_lfc 
 
 ego3 <- gseGO(geneList= genes_dfe_list, OrgDb = org.Sc.sgd.db, keyType = "ORF", 
               ont = "ALL", minGSSize = 20, maxGSSize = 500, pvalueCutoff = 0.05)
-dotplot(ego3)
-heatplot(ego3,foldChange = genes_dfe_list)
+#dotplot(ego3)
+#heatplot(ego3,foldChange = genes_dfe_list)
 
 
 kk2 <- gseKEGG(geneList = genes_dfe_list_uni, organism  = 'sce', minGSSize = 20,
                keyType = 'uniprot', pvalueCutoff = 0.05)
-heatplot(kk2, foldChange=genes_dfe_list_uni)
+#heatplot(kk2, foldChange=genes_dfe_list_uni)
 
-mkk <- enrichMKEGG(gene = genes_dfe_uni, organism = 'sce', keyType = 'uniprot')
-dotplot(mkk)
+#mkk <- enrichMKEGG(gene = genes_dfe_uni, organism = 'sce', keyType = 'uniprot')
+#dotplot(mkk)
 
 ```
 
