@@ -14,3 +14,4 @@ output/evolution-snp-residue.tsv
 output/*.rdata
 .Rproj.user/**
 .Rhistory
+.Rproj.user
