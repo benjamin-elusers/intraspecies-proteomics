@@ -65,5 +65,5 @@ dotplot(ck)
 
 
 ```{r save-data-func-analysis, echo=F}
-save.image(here('output',sprintf("%02d-func-analysis",chap_cur)))
+save.image(here('output',sprintf("%02d-func-analysis.rdata",chap_cur)))
 ```

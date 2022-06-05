@@ -21,7 +21,6 @@ pairwise comparison.
 df_imputed = tibble( uniprot = int_norm$uniprot,
                      is_imputed = (rowSums( is.na(int_norm))>0)* 1, 
                      imputed = factor(is_imputed, levels = c(0,1), labels = c("not", "is_imputed")))
-#int_norm_bpca$imputed = rowSums( is.na(int_norm))>0
 volcPlot(INPUT=int_norm_bpca, IMPUTED=df_imputed, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20, plot = F, use_plotly = T)
 ```
 
@@ -29,19 +28,19 @@ volcPlot(INPUT=int_norm_bpca, IMPUTED=df_imputed, MIN_LFC=2, MIN_PVAL=0.01, WHIC
 
 ```{r dfe-gene }
 # Without NA
-volcano_data =  get_volcano_data(input_data=int_norm_nona, min_lfc=2, min_pval=0.01, topn = 100) %>%
+volcano_data =  get_volcano_data(input_data=int_norm_nona, min_lfc=2, min_pval=0.01, topn = 50) %>%
                 bind_rows() %>% as_tibble()
 dfe_nona = subset(volcano_data,sig!='Non significant')
 N_DFE_NONA = nrow(dfe_nona)
 NPROT_DFE_NONA =  n_distinct(dfe_nona$ID)
-R_NONA = N_DFE_NONA/NPROT_DFE_NONA %>% round
+R_NONA = N_DFE_NONA/NPROT_DFE_NONA %>% round(0)
 # With imputed expression to replace NA
-dfe =  get_dfe(INPUT=int_norm_bpca, WHICH='both',MIN_LFC=2, MIN_PVAL=0.01, TOPN = 20, 
-               count_up=T, count_down=T)
+dfe = get_dfe(INPUT=int_norm_bpca, WHICH='both',MIN_LFC=2, MIN_PVAL=0.01, TOPN = 20, 
+              count_up=T, count_down=T)
 
 N_DFE_IMPUTE = nrow(dfe)
 NPROT_DFE_IMPUTE =  n_distinct(dfe$ID)
-R_IMPUTE= N_DFE_IMPUTE/NPROT_DFE_IMPUTE %>% round
+R_IMPUTE= N_DFE_IMPUTE/NPROT_DFE_IMPUTE %>% round(0)
 
 # get_dfe(int_norm, MIN_LFC=2, MIN_PVAL=0.01,  WHICH='both', TOPN = 20) %>% remove_rownames() %>% 
 #   dplyr::left_join(sc_identifiers, by=c('ID'='UNIPROT'))
@@ -122,6 +121,7 @@ ft_dt
 
 
 ## Heatmap of expression for differentially expressed genes
+
 ```{r heatmap-exp, fig.height=25, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
 
 dat_scaled = int_scaled_strains %>% as.data.frame() %>% rownames_to_column('uniprot') 
@@ -136,7 +136,7 @@ dfe_exp = dat_scaled %>% dplyr::filter( uniprot %in% dfe$ID) %>%
 p_dfe_exp=pheatmap::pheatmap(dfe_exp,
                              fontsize = 5,cellwidth = 5,cellheight =5,border_color = NA,treeheight_col = 10,
                              filename = here('plot','heatmap-exp.png'))
-knitr::include_graphics('plot/heatmap-exp.png',auto_pdf = T)
+knitr::include_graphics('plot/heatmap-exp.png',auto_pdf = F)
 ```
 
 
@@ -157,7 +157,7 @@ dfe_lfc_mat = dfe_lfc %>% dplyr::select(-ORF,-ID,-SGD)
 # Heatmap of differentially expressed genes
 pheatmap::pheatmap(dfe_lfc_mat,fontsize = 5,cutree_rows = 10,cellwidth = 5,cellheight =5,border_color = NA,
                           treeheight_col = 10, filename = here('plot','heatmap-lfc.png')  )
-knitr::include_graphics('plot/heatmap-lfc.png',auto_pdf = T)
+knitr::include_graphics('plot/heatmap-lfc.png',auto_pdf = F)
 ```
 
 ## Cluster genes based on their profile of differential expression strain-pairwise 
