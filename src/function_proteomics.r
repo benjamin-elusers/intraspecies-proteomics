@@ -120,7 +120,8 @@ read_proteomics_results = function(datain=ms.resfile,zero.to.na=T){
   return(MS)
 }
 
-read_maxquant = function(datain,zero.to.na=T, int_type='LFQ',pep_type='Peptides', sample_pattern="(wt|BTT[12]-[SL]L|(25|58))"){
+read_maxquant = function(datain,zero.to.na=T, int_type='LFQ',pep_type='Peptides',
+                         sample_pattern="(wt|BTT[12]-[SL]L|(25|58))"){
   MAXQ = rio::import(datain,showProgress=T)
   cat(sprintf("Total number of proteins hits: %s\n",nrow(MAXQ)))
   COLS = colnames(MAXQ)
@@ -129,20 +130,20 @@ read_maxquant = function(datain,zero.to.na=T, int_type='LFQ',pep_type='Peptides'
   
   # Intensities are the sums of all individual peptide intensities belonging to a particular protein group. 
   # Unique and razor peptide intensities are used as default.
-  intensity_type = match.arg(int_type,choices = c('LFQ','iBAQ','Intensity'), several.ok = F)
+  intensity_type = match.arg(int_type,choices = c('LFQ','iBAQ','Intensity'), several.ok = T)
   peptide_type = match.arg(pep_type,choices = c('Peptides','Unique peptides','Razor + unique peptides'), several.ok = F)
   
   # LFQ: 
   # iBAQ: Σ intensity/#theoretical peptides
   sample_names =  stringr::str_subset( COLS, "^Identification type") %>% str_replace('Identification type ' ,"")
-  col_int = stringr::str_subset( COLS, paste0("^",int_type))
+  col_int = stringr::str_subset(COLS,int_type,negate=F)
   col_pep = stringr::str_subset( COLS, paste0(peptide_type," "))
 
   nsel = sum( stringr::str_count(sample_names,sample_pattern) )
   
   if(nsel>0){
-    col_int = stringr::str_subset(col_int,sample_pattern)
-    col_pep = stringr::str_subset(col_pep,sample_pattern)
+    col_int = stringr::str_subset(col_int, sample_pattern)
+    col_pep = stringr::str_subset(col_pep, sample_pattern)
   }
 #  colnames(MS) = c('uniprot','major_uniprot','protein_names','gene_names','fasta_header','pep','upep',
 #                   col.ratios, col.samples,
