@@ -73,7 +73,8 @@ MAXQUANT.files = list(
   proteinGroups = here::here('data','Raw_files','combined/txt','proteinGroups.txt')
 )
 # Reading maxquant protein data
-ms0=read_maxquant(MAXQUANT.files$proteinGroups, zero.to.na = T, int_type = 'LFQ', pep_type = 'Unique peptides')
+ms0=read_maxquant(datain = MAXQUANT.files$proteinGroups, zero.to.na = T, 
+                  int_type = c('LFQ','Intensity'), pep_type = 'Unique peptides')
 
 keys_cols = c('majority_protein_i_ds','gene_names')
 
@@ -108,9 +109,6 @@ TAB_SAMPLES= kbl(samples,col.names = 'Sample Names:',row.names =T, centering = F
               kable_paper("striped", full_width = F) %>% 
               kable_styling(position='left')  
 
-#write_rds(ms0,here('output','01-expression.rds'))
-#write_rds(df.group,here('output','01-samples-group.rds'))
-#write_rds(col.group,here('output','01-samples-colors.rds'))
 ```
 
 `r TAB_SAMPLES`
