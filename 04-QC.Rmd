@@ -26,12 +26,58 @@ tot_int = pivot_longer(intensities,   -uniprot,
   summarize(total_intensity=sum_(as.numeric(int))) %>% 
   dplyr::left_join(df.group %>% mutate(sample=tolower(sample)))
 
+tot_int_raw = pivot_longer(int_raw %>% rownames_to_column('uniprot'),   -uniprot,
+                       names_to = c('sample','strain','bio','tech','day'),
+                       names_pattern = "(([^_]+)_([^_]+)_([^_]+)_([^_]+))",
+                       values_to='int') %>% 
+  group_by(sample) %>% 
+  summarize(total_intensity=sum_(as.numeric(int))) %>% 
+  dplyr::left_join(df.group)
+
+tot_int_norm = pivot_longer(int_norm,   -uniprot,
+                       names_to = c('sample','strain','bio','tech','day'),
+                       names_pattern = "(([^_]+)_([^_]+)_([^_]+)_([^_]+))",
+                       values_to='int') %>% 
+  group_by(sample) %>% 
+  summarize(total_intensity=sum_(as.numeric(int))) %>% 
+  dplyr::left_join(df.group)
+
+
+tot_int_bpca = pivot_longer(int_norm_bpca,   -uniprot,
+                       names_to = c('sample','strain','bio','tech','day'),
+                       names_pattern = "(([^_]+)_([^_]+)_([^_]+)_([^_]+))",
+                       values_to='int') %>% 
+  group_by(sample) %>% 
+  summarize(total_intensity=sum_(as.numeric(int))) %>% 
+  dplyr::left_join(df.group)
   
 bp_totint= ggplot( tot_int, aes(x=sample,y=total_intensity,fill=strain,label=sample)) + 
   geom_col() + 
-  geom_text(angle=90,check_overlap = T,hjust=-0.1,y=0) + 
-  theme(axis.text.x = element_blank(),axis.ticks = element_blank())
-plot(bp_totint)
+  geom_text(angle=90,check_overlap = T,hjust=-0.1,y=0,size=2) + 
+  ylab('Total intensity (lfq)') +
+  theme(axis.text.x = element_blank(),axis.ticks = element_blank(), legend.position='right')
+
+
+bp_totintraw= ggplot( tot_int_raw, aes(x=sample,y=total_intensity,fill=strain,label=sample)) + 
+  geom_col() + 
+  geom_text(angle=90,check_overlap = T,hjust=-0.1,y=0, size=2) + 
+  ylab('Total intensity (raw)') +
+  theme(axis.text.x = element_blank(),axis.ticks = element_blank(), legend.position='none')
+
+bp_totintnorm= ggplot( tot_int_norm, aes(x=sample,y=total_intensity,fill=strain,label=sample)) + 
+  geom_col() + 
+  geom_text(angle=90,check_overlap = T,hjust=-0.1,y=0, size=2) + 
+  ylab('Total intensity (normalized)') +
+  theme(axis.text.x = element_blank(),axis.ticks = element_blank(), legend.position='none')
+
+bp_totintbpca= ggplot( tot_int_bpca, aes(x=sample,y=total_intensity,fill=strain,label=sample)) + 
+  geom_col() + 
+  geom_text(angle=90,check_overlap = T,hjust=-0.1,y=0, size=2) + 
+  ylab('Total intensity (imputed)') +
+  theme(axis.text.x = element_blank(),axis.ticks = element_blank(), legend.position='none')
+
+plot( (bp_totintraw | bp_totint) / (bp_totintnorm | bp_totintbpca) )
+
 ```
 
 ## Boxplot of sample raw intensities
