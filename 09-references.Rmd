@@ -9,7 +9,9 @@
 6.	Schavemaker, P. E., Śmigiel, W. M. & Poolman, B. Ribosome surface properties may impose limits on the nature of the cytoplasmic proteome. Elife 6, (2017).
 7.	Yang, J. R., Liao, B. Y., Zhuang, S. M. & Zhang, J. Z. Protein misinteraction avoidance causes highly expressed proteins to evolve slowly. Proc. Natl. Acad. Sci. U. S. A. 109, E831–E840 (2012).
 8.	Plata, G. & Vitkup, D. Avoidance of toxic misfolding and protein stability do not explain the sequence constraints of highly expressed proteins. Mol. Biol. Evol. (2017). doi:10.1093/molbev/msx323
-9.  Cox J., Hein M.Y., Luber C.A., Paron I., Nagaraj N. and Mann M. Accurate Proteome-wide Label-free Quantification by Delayed Normalization and Maximal Peptide Ratio Extraction, Termed MaxLFQ. Mol Cell Proteomics. 2014 Sep; 13(9): 2513–2526. doi: 10.1074/mcp.M113.031591
+9.  Cox J., Hein M.Y., Luber C.A., Paron I., Nagaraj N. and Mann M. Accurate Proteome-wide Label-free Quantification by Delayed Normalization and Maximal Peptide Ratio Extraction, Termed MaxLFQ. Mol Cell Proteomics. (2014) 13(9): 2513–2526. doi: 10.1074/mcp.M113.031591
+10. Shigeyuki Oba, Masa-aki Sato, Ichiro Takemasa, Morito Monden, Ken-ichi Matsubara, Shin Ishii. A Bayesian missing value estimation method for gene expression profile data. Bioinformatics, (2003) 19(16):2088–2096, https://doi.org/10.1093/bioinformatics/btg287
+
 '`
 
 
