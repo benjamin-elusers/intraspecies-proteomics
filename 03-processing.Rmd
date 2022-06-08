@@ -38,100 +38,89 @@ Initially, samples may have large difference between raw peptide intensities
 for numerous technical and experimental reasons including but not limited to 
 protein digestion (length), sample preparation, sample processing...
 
-We typically use Label-Free Quantitation (LFQ) intensities [@maxlfq] which eliminates error
-between samples by reconstructing the abundance profile based on all available
+Typically, we use Label-Free Quantitation (LFQ) intensities [@maxlfq] which eliminates
+error between samples by reconstructing the abundance profile based on all available
 individual protein ratios.
 
+```{r process-intensities}
+# Process intensities
+# "majority_protein_i_ds"
+int_raw= get_intensities(ms1, regex_int='^intensity_', col_id=keys_cols[1], remove_prefix=T)
+int_lfq= get_intensities(ms1, regex_int='^lfq_intensity_', col_id=keys_cols[1], remove_prefix=T)
+
+longint_raw = make_intensities_long(ms1, regex_int='^intensity_', col_id=keys_cols[1], remove_prefix=T)
+longint_lfq = make_intensities_long(ms1, regex_int='^lfq_intensity_', col_id=keys_cols[1], remove_prefix=T)
 
 
+```
 
-Then, we discard proteins hits with missing values for XX strains or for YY replicates
-types of media. 
-
-Finally, we normalize the intensities by transforming to log2 and subtracting 
-each sample's median. (cf formula below)
-
+Then, we can normalize the LFQ intensities across samples using various methods
+(see @Normalyzer package for more details). A simple normalization technique consists
+in equalizing the median across samples. 
 
 **Normalization method = Equalizing medians**
 
 $$ norm.int_{sample} = log2(raw.int_{sample}) - log2(median_{sample}) $$
-We filter out hits that contains missing values for either strains or replicates
 
-```{r process-intensities}
-# Process intensities
+Here, we averaged the intensities over replicates to compare strains and transform 
+intensities to log2. Then we equalize their medians by subtracting the samples 
+median and adding the absolute minimum value across all samples. The hits that
+contain missing values for either strains or replicates are discarded then.
 
-int_raw= ms1 %>% dplyr::select(uniprot=majority_protein_i_ds,starts_with("intensity_")) %>% 
-            as.data.frame() %>% column_to_rownames('uniprot') %>%
-            rename_with(everything(),.fn=gsub, pattern='intensity_', replacement='') %>%
-            rename_with(.fn = str_to_upper)
+```{r normalize-intensities}
+int_md_norm = center_intensities(int_lfq, center='median', tolog2=T)
+int_norm = int_md_norm
+int_norm_nona = int_norm %>% drop_na()
+int_norm_ids = rownames(int_norm)
 
-int_lfq = ms1 %>% dplyr::select(uniprot=majority_protein_i_ds,starts_with("lfq")) %>% 
-            #mutate(across(where(is.integer64), ~as.integer(.))) %>% # make sure to use numeric and not integer
-            as.data.frame() %>% column_to_rownames('uniprot') %>%
-            rename_with(everything(),.fn=gsub, pattern='lfq_intensity_', replacement='') %>%
-            rename_with(.fn = str_to_upper)
-
-int_md_norm = center_intensities(int_lfq, center='median', tolog2=T) %>% 
-          as.data.frame() %>%
-          rename_with(everything(),.fn =gsub, pattern='lfq_intensity_', replacement='') %>% 
-          rename_with(.fn = str_to_upper)
-         
 # TRYING DIFFERENT NORMALIZATIONS SCHEME (NOT READY)
-INT_NORM = normalize_intensities(int = int_raw, design = df.group)
+INT_NORM = normalize_intensities(int = int_lfq, design = df.group)
+NORM_METHODS = names(INT_NORM@normalizations)
 df_all_norm <- INT_NORM@normalizations %>% 
-               map2_df(.y = names(INT_NORM@normalizations),~mutate(id=rownames(.x),as_tibble(.x),method=.y))
+               map2_df(.y = NORM_METHODS,~mutate(id=rownames(.x),as_tibble(.x),method=.y))
 
-TAB_NORM = kbl(names(INT_NORM@normalizations),row.names = T,col.names = 'Normalizations:',position = 'left') %>% 
+TAB_NORM = kbl(NORM_METHODS,row.names = T,col.names = 'Normalizations:',position = 'left') %>% 
             kable_paper("striped", full_width = F) %>% 
             kable_styling(position='left')  
 
-            
-int_norm = int_md_norm %>% rownames_to_column('uniprot') 
-int_norm_ids = int_norm %>% dplyr::left_join(sc_identifiers,by=c('uniprot'='UNIPROT')) %>% filter(!duplicated(uniprot))
-#compare_exp(log2(int_raw),int_loess_norm, all=T)
 ```
+
+
+Finally, we can try to rescue the hits with missing values by doing imputation with
+a Bayesian PCA method (see @MSCoreUtils).
 
 ```{r impute-na}
 library(MsCoreUtils)
-int_norm_nona = int_norm %>% drop_na()
-int_norm_bpca = MsCoreUtils::impute_bpca(int_norm) %>% as_tibble() %>% add_column(uniprot = int_norm_ids$uniprot)
+int_bpca = MsCoreUtils::impute_bpca(int_norm) %>% as_tibble() %>% add_column(uniprot = int_norm_ids$uniprot)
 ```
 
+We also convert expression matrix to long tabular format with intensities across
+samples and/or strains for further quality controls and plots.
+
 ```{r int-strains}
-long_int_norm = pivot_longer(int_norm_bpca  , cols=-uniprot, values_to='int2use',
+long_int_norm = pivot_longer(int_bpca  , cols=-uniprot, values_to='int2use',
                              names_to = c('strain','bio','tech','day'),
                              names_pattern = "([^_]+)_([^_]+)_([^_]+)_([^_]+)") %>%
                 group_by(strain,uniprot) %>% mutate(na_rep = sum.na(int2use))
 
 # Intensities across strains  (default is average)
-int_by_strain = pivot_wider(long_int_norm ,
-              id_cols=uniprot,
-              names_from = 'strain',
-              names_glue = "{strain}",
-              values_from = "int2use",
-              values_fn=mean_
-              )
+int_by_strain = pivot_wider(long_int_norm , id_cols=uniprot,
+              names_from = 'strain', names_glue = "{strain}",
+              values_from = "int2use", values_fn=mean_)
 
-na_by_strain = pivot_wider(long_int_norm,
-              id_cols=uniprot,
-              names_from = c('strain'),
-              names_glue = "na_rep_{strain}",
-              values_from = "int2use",
-              values_fn=sum.na
-              )
+na_by_strain = pivot_wider(long_int_norm, id_cols=uniprot,
+              names_from = c('strain'), names_glue = "na_rep_{strain}",
+              values_from = "int2use", values_fn=sum.na)
 
 df_strains= left_join(int_by_strain,na_by_strain) %>% 
-  rowwise %>%
-  mutate( na_strains = sum.na(c_across(cols = starts_with('lfq_int'))) )
+            rowwise %>%
+            mutate( na_strains = sum.na(c_across(cols = starts_with('lfq_int'))) )
 
-int_all = int_norm_bpca  %>% column_to_rownames('uniprot') %>% as.data.frame()
+int_all = int_bpca  %>% column_to_rownames('uniprot') %>% as.data.frame()
 
 # Removing hits with missing values for more than one strain (using average intensities over replicates)
 ms2= df_strains %>% filter(na_strains < 1)
 int_filt_strains = ms2 %>% dplyr::select(-starts_with('na')) %>% column_to_rownames('uniprot') %>% as.data.frame()
-
-# Save processed & normalized intensities data
-#saveRDS(df_strains,here::here('output',sprintf("%02d-normalized-intensities.rds",chap_cur)))
 ```
 
 ```{r 02-save-data, echo=F}
