@@ -17,66 +17,18 @@ long_int_all = get_long_intensities(intensities) %>% mutate(int2use = log10_int)
 ## Total sample intensities
 
 ```{r tot_int,echo=F, fig.cap='Total intensities per sample',out.width='100%'}
-tot_int = pivot_longer(intensities,   -uniprot,
-                       names_to = c('sample','strain','bio','tech','day'),
-                       names_pattern = "(([^_]+)_([^_]+)_([^_]+)_([^_]+))",
-                       names_prefix = 'lfq_intensity_',
-                       values_to='int') %>% 
-  group_by(sample) %>% 
-  summarize(total_intensity=sum_(as.numeric(int))) %>% 
-  dplyr::left_join(df.group %>% mutate(sample=tolower(sample)))
+# Sum of intensities per samples
 
-tot_int_raw = pivot_longer(int_raw %>% rownames_to_column('uniprot'),   -uniprot,
-                       names_to = c('sample','strain','bio','tech','day'),
-                       names_pattern = "(([^_]+)_([^_]+)_([^_]+)_([^_]+))",
-                       values_to='int') %>% 
-  group_by(sample) %>% 
-  summarize(total_intensity=sum_(as.numeric(int))) %>% 
-  dplyr::left_join(df.group)
+tot_int_raw  = sum_intensities(int_raw)
+tot_int_lfq  = sum_intensities(int_lfq,'lfq_intensity')
+tot_int_norm = sum_intensities(int_md_norm)
+tot_int_imp = sum_intensities(int_bpca)
 
-tot_int_norm = pivot_longer(int_norm,   -uniprot,
-                       names_to = c('sample','strain','bio','tech','day'),
-                       names_pattern = "(([^_]+)_([^_]+)_([^_]+)_([^_]+))",
-                       values_to='int') %>% 
-  group_by(sample) %>% 
-  summarize(total_intensity=sum_(as.numeric(int))) %>% 
-  dplyr::left_join(df.group)
-
-
-tot_int_bpca = pivot_longer(int_norm_bpca,   -uniprot,
-                       names_to = c('sample','strain','bio','tech','day'),
-                       names_pattern = "(([^_]+)_([^_]+)_([^_]+)_([^_]+))",
-                       values_to='int') %>% 
-  group_by(sample) %>% 
-  summarize(total_intensity=sum_(as.numeric(int))) %>% 
-  dplyr::left_join(df.group)
-  
-bp_totint= ggplot( tot_int, aes(x=sample,y=total_intensity,fill=strain,label=sample)) + 
-  geom_col() + 
-  geom_text(angle=90,check_overlap = T,hjust=-0.1,y=0,size=2) + 
-  ylab('Total intensity (lfq)') +
-  theme(axis.text.x = element_blank(),axis.ticks = element_blank(), legend.position='right')
-
-
-bp_totintraw= ggplot( tot_int_raw, aes(x=sample,y=total_intensity,fill=strain,label=sample)) + 
-  geom_col() + 
-  geom_text(angle=90,check_overlap = T,hjust=-0.1,y=0, size=2) + 
-  ylab('Total intensity (raw)') +
-  theme(axis.text.x = element_blank(),axis.ticks = element_blank(), legend.position='none')
-
-bp_totintnorm= ggplot( tot_int_norm, aes(x=sample,y=total_intensity,fill=strain,label=sample)) + 
-  geom_col() + 
-  geom_text(angle=90,check_overlap = T,hjust=-0.1,y=0, size=2) + 
-  ylab('Total intensity (normalized)') +
-  theme(axis.text.x = element_blank(),axis.ticks = element_blank(), legend.position='none')
-
-bp_totintbpca= ggplot( tot_int_bpca, aes(x=sample,y=total_intensity,fill=strain,label=sample)) + 
-  geom_col() + 
-  geom_text(angle=90,check_overlap = T,hjust=-0.1,y=0, size=2) + 
-  ylab('Total intensity (imputed)') +
-  theme(axis.text.x = element_blank(),axis.ticks = element_blank(), legend.position='none')
-
-plot( (bp_totintraw | bp_totint) / (bp_totintnorm | bp_totintbpca) )
+b1=draw_barplot_sumint(tot_int_raw,'Total intensity (raw)')
+b2=draw_barplot_sumint(tot_int_lfq,'Total intensity (lfq)')
+b3=draw_barplot_sumint(tot_int_norm,'Total intensity (normalized)')
+b4=draw_barplot_sumint(tot_int_imp,'Total intensity (imputed)')
+plot( (b1| b2) / (b3 | b4) )
 
 ```
 
