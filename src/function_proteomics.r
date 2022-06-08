@@ -121,7 +121,7 @@ read_proteomics_results = function(datain=ms.resfile,zero.to.na=T){
 }
 
 read_maxquant = function(datain,zero.to.na=T, int_type='LFQ',pep_type='Peptides',
-                         sample_pattern="(wt|BTT[12]-[SL]L|(25|58))"){
+                         sample_pattern=""){ #(wt|BTT[12]-[SL]L|(25|58))
   MAXQ = rio::import(datain,showProgress=T)
   cat(sprintf("Total number of proteins hits: %s\n",nrow(MAXQ)))
   COLS = colnames(MAXQ)
@@ -136,7 +136,7 @@ read_maxquant = function(datain,zero.to.na=T, int_type='LFQ',pep_type='Peptides'
   # LFQ: 
   # iBAQ: Σ intensity/#theoretical peptides
   sample_names =  stringr::str_subset( COLS, "^Identification type") %>% str_replace('Identification type ' ,"")
-  col_int = stringr::str_subset(COLS,int_type,negate=F)
+  col_int = paste0(int_type," ") %>% purrr::map(.f = stringr::str_subset, string=COLS, negate=F) %>% unlist
   col_pep = stringr::str_subset( COLS, paste0(peptide_type," "))
 
   nsel = sum( stringr::str_count(sample_names,sample_pattern) )
@@ -193,14 +193,33 @@ filter_hits = function(MS0=ms0,id='majority_protein_i_ds',np=2,verbose=T){
 }
 #ms1=filter_hits(ms0)
 
-get_intensities = function(MS,col_int=INTENSITIES,col_id='uniprot'){
-  intensities = MS %>% dplyr::select(uniprot,matches(INTENSITIES)) %>% column_to_rownames(col_id)
+get_intensities = function(MS, regex_int, col_id, uppercase=T, remove_prefix=T){
+  
+  intensities = MS %>% column_to_rownames({{col_id}}) %>% dplyr::select(matches(regex_int))
+  if(remove_prefix){ intensities = intensities %>% rename_with(.fn = str_replace, pattern=regex_int, replacement='') }
+  if(uppercase){ intensities = intensities %>% rename_with(.fn = str_to_upper) }
   return(intensities)
 }
 #int_all = get_intensities(ms1)
 
-get_long_intensities = function(intensities,int.col='lfq_intensity_',use_log10=T){
+make_intensities_long = function(MS, regex_int, col_id, uppercase=T, remove_prefix=T){
+  
+  int_wide = get_intensities(MS, regex_int, col_id, uppercase, remove_prefix) %>% 
+             rownames_to_column('id')
+   
+  
+  int_long = pivot_longer(int_wide, cols=-id, 
+                          names_to=c('sample'), names_prefix = int_prefix, values_to = 'int') %>% 
+    mutate(log10_int = log10(int), log2_int = log2(int)) %>%
+    # Calculate number of missing values per id
+    group_by(id) %>% mutate( n_na_sample=sum(is.na(int)), f_na_sample=mean(is.na(int)) )
+  
+  return(int_long)
+}
+    
 
+get_long_intensities = function(intensities,int.col='lfq_intensity_',use_log10=T){
+  
   long_int_all = intensities %>% 
     pivot_longer(cols=-uniprot,names_to=c('strain','bio','tech'), 
                  names_prefix = int.col, names_sep = '_',values_to = 'int') %>% 
@@ -289,6 +308,7 @@ remove_NA_rows = function(INT,ns=3,nm=2){
 
 ## 2 Normalize intensities --------------------------------------------------------------
 
+
 center_intensities = function(int.raw, center='median', tolog2=T ){
 
   if( tolog2 ){
@@ -319,14 +339,15 @@ center_intensities = function(int.raw, center='median', tolog2=T ){
 normalize_intensities = function(int,design=df.group){
 
   library(NormalyzerDE)
-  m.int = int %>% mutate(across(everything(),as.numeric)) %>% as.matrix() # remove_rownames() 
+  m.int = int %>% mutate(across(everything(),as.numeric)) %>% as.matrix() #%>% remove_rownames() 
   experiment <- SummarizedExperiment::SummarizedExperiment(
     assays=list(raw = m.int ),
-    rowData = data.frame(uniprot=rownames(int)),
-    colData = design,
-    metadata = list(sample='sample',group='strain'),checkDimnames=F
+    rowData = rownames(int),
+    colData = DataFrame( design, row.names = NULL),
+    metadata = list(sample='sample',group='strain'),
+    checkDimnames=F
   )  
-  #source("https://raw.githubusercontent.com/ByrumLab/proteiNorm/master/normFunctions.R")
+  #source("https://raw.githubusercontent.com/ByrmLab/proteiNorm/master/normFunctions.R")
   
   norm <- getVerifiedNormalyzerObject('normalized_data', experiment)
   norm_res <- normMethods(norm)
@@ -341,6 +362,27 @@ normalize_intensities = function(int,design=df.group){
   # annotDf <- generateAnnotatedMatrix(nst)
   # generateStatsReport(nst,jobDir = '.',jobName = 'loess_strain')
   return(norm_res_eval)
+}
+
+sum_intensities = function(exp_mat,int_prefix=''){
+  tot_int = pivot_longer(exp_mat, where(is.numeric),
+                         names_to = c('sample','strain','bio','tech','day'),
+                         names_pattern = "(([^_]+)_([^_]+)_([^_]+)_([^_]+))",
+                         names_prefix = int_prefix,
+                         values_to='int') %>% 
+    group_by(sample,strain,bio,tech,day) %>% 
+    summarize(total_intensity=sum_(as.numeric(int))) 
+  return(tot_int)
+}
+
+draw_barplot_sumint = function(tot_int, y_label = 'Total intensity (raw)' ){
+  
+  bp= ggplot( tot_int, aes(x=sample,y=total_intensity,fill=strain,label=sample)) + 
+    geom_col() + 
+    geom_text(angle=90,check_overlap = T,hjust=-0.1,y=0,size=2) + 
+    ylab('Total intensity (lfq)') +
+    theme(axis.text.x = element_blank(),axis.ticks = element_blank(), legend.position='none')
+  return(bp)
 }
 
 # 3 Variations of intensities --------------------------------------------------
