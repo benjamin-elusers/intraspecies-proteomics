@@ -207,7 +207,7 @@ make_intensities_long = function(MS, regex_int, col_id, uppercase=T, remove_pref
   int_wide = get_intensities(MS, regex_int, col_id, uppercase, remove_prefix) %>% 
              rownames_to_column('id')
    
-  
+  int_prefix=hutils::longest_prefix(colnames(int_wide))
   int_long = pivot_longer(int_wide, cols=-id, 
                           names_to=c('sample'), names_prefix = int_prefix, values_to = 'int') %>% 
     mutate(log10_int = log10(int), log2_int = log2(int)) %>%
