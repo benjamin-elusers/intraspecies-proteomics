@@ -22,7 +22,7 @@ long_int_all = get_long_intensities(intensities) %>% mutate(int2use = log10_int)
 tot_int_raw  = sum_intensities(int_raw)
 tot_int_lfq  = sum_intensities(int_lfq,'lfq_intensity')
 tot_int_norm = sum_intensities(int_md_norm)
-tot_int_imp = sum_intensities(int_bpca)
+tot_int_imp  = sum_intensities(int_bpca)
 
 b1=draw_barplot_sumint(tot_int_raw,'Total intensity (raw)')
 b2=draw_barplot_sumint(tot_int_lfq,'Total intensity (lfq)')
