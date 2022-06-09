@@ -48,9 +48,8 @@ individual protein ratios.
 int_raw= get_intensities(ms1, regex_int='^intensity_', col_id=keys_cols[1], remove_prefix=T)
 int_lfq= get_intensities(ms1, regex_int='^lfq_intensity_', col_id=keys_cols[1], remove_prefix=T)
 
-longint_raw = make_intensities_long(ms1, regex_int='^intensity_', col_id=keys_cols[1], remove_prefix=T)
+longint_raw = make_intensities_long(ms1, regex_int='^intensity_',col_id=keys_cols[1], remove_prefix=T)
 longint_lfq = make_intensities_long(ms1, regex_int='^lfq_intensity_', col_id=keys_cols[1], remove_prefix=T)
-
 
 ```
 
@@ -91,7 +90,7 @@ a Bayesian PCA method (see @MSCoreUtils).
 
 ```{r impute-na}
 library(MsCoreUtils)
-int_bpca = MsCoreUtils::impute_bpca(int_norm) %>% as_tibble() %>% add_column(uniprot = int_norm_ids$uniprot)
+int_bpca = MsCoreUtils::impute_bpca(int_norm) %>% as_tibble() %>% add_column(uniprot = int_norm_ids)
 ```
 
 We also convert expression matrix to long tabular format with intensities across
