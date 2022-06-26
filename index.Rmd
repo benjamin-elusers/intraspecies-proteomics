@@ -144,6 +144,8 @@ evo_fungi = read_delim(here('data','evolution-fungi-protein.tsv.gz'),delim='\t')
 evo_snp = read_delim(here('data','evolution-snp-protein.tsv.gz'),delim='\t') 
 evo_yeast = read_rds(here('data','evolution-yeast-protein.rds')) %>% 
             left_join(yeast_orf_snp, by = c('orf'='id') )
+gene_feature = read_rds(here('data',"PREDICTORS-fungi_orthologs-nomiss.rds"))
+
 ```
 
 ```{r save-yeast-data, echo=F}

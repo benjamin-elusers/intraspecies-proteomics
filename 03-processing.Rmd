@@ -67,7 +67,7 @@ median and adding the absolute minimum value across all samples. The hits that
 contain missing values for either strains or replicates are discarded then.
 
 ```{r normalize-intensities}
-int_md_norm = center_intensities(int_lfq, center='median', tolog2=T)
+int_md_norm = center_intensities(int_lfq, center='median', tolog2=T) %>% as.data.frame()
 int_norm = int_md_norm
 int_norm_nona = int_norm %>% drop_na()
 int_norm_ids = rownames(int_norm)

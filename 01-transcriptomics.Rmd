@@ -378,7 +378,6 @@ ggplot(ctrl_tree_len,aes(x=num,y=V1, col= type))+
 
 
 control_tree_length = ctrl_tree_len
-gene_feature = read_rds(here('data',"PREDICTORS-fungi_orthologs-nomiss.rds"))
 a=gene_feature[,(sapply(gene_feature, class)=='logical')]
 a =as.data.frame(a)
 rownames(a)=gene_feature$ORF

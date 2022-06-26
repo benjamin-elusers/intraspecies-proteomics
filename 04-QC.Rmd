@@ -18,7 +18,6 @@ long_int_all = get_long_intensities(intensities) %>% mutate(int2use = log10_int)
 
 ```{r tot_int,echo=F, fig.cap='Total intensities per sample',out.width='100%'}
 # Sum of intensities per samples
-
 tot_int_raw  = sum_intensities(int_raw)
 tot_int_lfq  = sum_intensities(int_lfq,'lfq_intensity')
 tot_int_norm = sum_intensities(int_md_norm)

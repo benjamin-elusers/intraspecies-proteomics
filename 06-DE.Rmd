@@ -28,7 +28,7 @@ volcPlot(INPUT=int_bpca, IMPUTED=df_imputed, MIN_LFC=2, MIN_PVAL=0.01, WHICH='bo
 
 ```{r dfe-gene }
 # Without NA
-volcano_data =  get_volcano_data(input_data=int_norm_nona, min_lfc=2, min_pval=0.01, topn = 50) %>%
+volcano_data =  get_volcano_data(input_data=int_bpca, min_lfc=2, min_pval=0.01, topn = 50) %>%
                 bind_rows() %>% as_tibble()
 dfe_nona = subset(volcano_data,sig!='Non significant')
 N_DFE_NONA = nrow(dfe_nona)
@@ -38,6 +38,92 @@ R_NONA = N_DFE_NONA/NPROT_DFE_NONA %>% round(0)
 dfe = get_dfe(INPUT=int_bpca, WHICH='both',MIN_LFC=2, MIN_PVAL=0.01, TOPN = 20, 
               count_up=T, count_down=T)
 
+gene_diffexp = unique(dfe$ID)
+gene_sameexp = unique(setdiff(volcano_data$ID,dfe$ID) )
+
+int_bpca = int_bpca %>% mutate(is_regulated = uniprot %in% gene_diffexp)
+
+sc_abundance = load.abundance()
+strain_exp= int_bpca %>%  group_by(uniprot) %>% mutate(mean_strains = mean(c_across(all_of(toupper(samples)))) )
+
+DD = volcano_data %>% group_by(ID) %>% 
+      summarize(var_lfc = var(EffectSize), mean_lfc = mean(EffectSize)) %>%
+      left_join(evo_yeast, by=c('ID'='UNIPROT')) %>% 
+      dplyr::left_join(sc_abundance, by=c('orf')) %>% 
+      left_join(strain_exp,by=c('ID'='uniprot')) %>%
+      mutate(sig = ID %in% dfe_nona$ID) %>% 
+      mutate(f_snp.nt.y8 = n_snp.nt.y8/len.nt,
+             f_snp.nt.yk11 = n_snp.nt.yk11/len.nt,
+              f_snp.aa.y8 = n_snp.aa.y8/len.aa,
+              f_snp.aa.yk11 = n_snp.aa.yk11/len.aa
+             ) %>%
+      left_join(gene_feature,by=c('ID'='UNIPROTKB'))
+gene_numfeat =  DD %>% dplyr::select(1:5, where(is.numeric)) %>% relocate(where(is.character))
+
+spearman(DD$var_lfc,DD$mean_strains)
+spearman(DD$var_lfc,DD$f_snp)
+spearman(DD$var_lfc,DD$r4s.fungi)
+
+ggboxplot(DD,x="is_regulated",y="MPC") + stat_compare_means()
+ggboxplot(DD,x="is_regulated",y="r4s.fungi") + stat_compare_means()
+ggboxplot(DD,x="is_regulated",y="mean_strains") + stat_compare_means()
+ggboxplot(DD,x="is_regulated",y="f_snp") + stat_compare_means()
+ggboxplot(DD,x="is_regulated",y="f_snp.nt.y8") + stat_compare_means()
+ggboxplot(DD,x="is_regulated",y="f_snp.nt.yk11") + stat_compare_means()
+ggboxplot(DD,x="is_regulated",y="f_snp.aa.y8") + stat_compare_means()
+ggboxplot(DD,x="is_regulated",y="f_snp.aa.yk11") + stat_compare_means()
+
+
+give.n <- function(x){
+  return(c(y = median(x)*1.1, label = length(x))) 
+  # experiment with the multiplier to find the perfect position
+}
+plots_POS_REG = list()
+plots_NEG_REG = list()
+for(i in 7:ncol(gene_numfeat)){
+  feat = colnames(gene_numfeat)[i]
+  s1 = DD[DD$is_regulated,feat] %>% drop_na %>% pull(feat) %>% as.numeric
+  s2 = DD[!DD$is_regulated,feat]%>% drop_na %>%  pull(feat) %>% as.numeric
+  w = wilcox.test(x=s1,y=s2)
+  if(w$p.value<0.01){
+    if(median(s1) < median(s2)){
+       plots_POS_REG[[feat]] = ggboxplot(DD,x="is_regulated",y=feat) + stat_compare_means() +
+                               stat_summary(fun.data = give.n, geom = "text", fun.y = median)
+    }else{
+      plots_NEG_REG[[feat]] = ggboxplot(DD,x="is_regulated",y=feat) + stat_compare_means() + 
+                              stat_summary(fun.data = give.n, geom = "text", fun.y = median)
+    }
+  }
+}
+
+length(plots_NEG_REG)
+length(plots_POS_REG)
+
+names(plots_NEG_REG)
+names(plots_POS_REG)
+
+library(gridExtra)
+pdf("~/Desktop/plots-features-negative_regulated.pdf", onefile = TRUE)
+for (i in seq(length(plots_NEG_REG))) {
+  plot(plots_NEG_REG[[i]])  
+}
+dev.off()
+
+
+library(gridExtra)
+pdf("~/Desktop/plots-features-positve_regulated.pdf", onefile = TRUE)
+for (i in seq(length(plots_POS_REG))) {
+  plot(plots_POS_REG[[i]])  
+}
+dev.off()
+
+tmp[,c("f_snp",'f_snp.aa.yk11')]
+spearman(tmp_sig$mean_strains,tmp_sig$r4s.fungi)
+quantile(tmp$EffectSize)
+
+cor(tmp$var_lfc[tmp$sig])
+
+  ints(tmp$var_lfc[tmp$sig!=])
 N_DFE_IMPUTE = nrow(dfe)
 NPROT_DFE_IMPUTE =  n_distinct(dfe$ID)
 R_IMPUTE= N_DFE_IMPUTE/NPROT_DFE_IMPUTE %>% round(0)
