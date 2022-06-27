@@ -1,3 +1,8 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 ```{r load-data-DE, echo=F}
 chap_cur=07
 #load(here::here('output',sprintf("%02d-differential-expression.rdata",chap_cur-1)))
@@ -50,25 +55,34 @@ genes_proteomics_uni = all_genes$ID
 genes_dfe_uni = dfe_lfc$ID
 genes_dfe_list_uni = df_dfe_annot %>% group_by(uniprot) %>% summarize( mean_lfc = mean(EffectSize)) %>% arrange(desc(mean_lfc)) %>% pull(mean_lfc,uniprot)
 
-kk2 <- gseKEGG(geneList = genes_dfe_list_uni, organism  = 'sce', minGSSize = 20,
-               keyType = 'uniprot', pvalueCutoff = 0.05)
+# kk2 <- gseKEGG(geneList = genes_dfe_list_uni, organism  = 'sce', minGSSize = 20,
+               # keyType = 'uniprot', pvalueCutoff = 0.05)
+
+kk2 = clusterProfiler::enrichKEGG(genes_dfe_uni,organism = 'sce', keyType = 'uniprot', pvalueCutoff = 0.05, universe =genes_proteomics_uni)
 dotplot(kk2)
 heatplot(kk2, foldChange=genes_dfe_list_uni)
+
+go2 = clusterProfiler::enrichGO(genes_dfe,universe =genes_proteomics, 
+                                OrgDb = org.Sc.sgd.db, keyType = 'ORF',
+                                ont = 'ALL', pool = F,pvalueCutoff = 0.05)
+dotplot(go2)
+heatplot(go2,foldChange = genes_dfe_list)
 
 ```
 
 ## GO enrichment for clusters of differentially expressed genes
 
 ```{r func-enrich-clust, fig.path='plot/', warning=F, out.width='100%', fig.height=10}
-genes_dfe_cluster = split(dfe_lfc$ORF,cl_prot)
-genes_dfe_cluster_uni = split(dfe_lfc$ID,cl_prot)
+dfe_lfc$cluster = cl_prot
+genes_dfe_cluster = dfe_lfc %>% drop_na(ORF) %>% group_split(as.factor(cluster))
+genes_dfe_cluster_uni = split(dfe_lfc$ID,dfe_lfc$cluster)
 
 ck_go <- compareCluster(geneCluster = genes_dfe_cluster, fun = enrichGO, universe=genes_proteomics,
                      OrgDb= org.Sc.sgd.db, keyType= "ORF", ont='ALL', pool=F,
                      pAdjustMethod = "BH", pvalueCutoff  = 0.05)
 
 dotplot(ck_go)
-
+heatplot(ck_go@geneClusters)
 ```
 
 

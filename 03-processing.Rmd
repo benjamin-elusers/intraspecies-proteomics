@@ -90,14 +90,16 @@ a Bayesian PCA method (see @MSCoreUtils).
 
 ```{r impute-na}
 library(MsCoreUtils)
-int_bpca = MsCoreUtils::impute_bpca(int_norm) %>% as_tibble() %>% add_column(uniprot = int_norm_ids)
+int_bpca = MsCoreUtils::impute_bpca(int_norm) %>% as.data.frame()
+df_int_bpca = int_bpca %>% as_tibble() %>% add_column(uniprot = int_norm_ids)
+df_int_norm = int_norm %>% add_column(uniprot = int_norm_ids)
 ```
 
 We also convert expression matrix to long tabular format with intensities across
 samples and/or strains for further quality controls and plots.
 
 ```{r int-strains}
-long_int_norm = pivot_longer(int_bpca  , cols=-uniprot, values_to='int2use',
+long_int_norm = pivot_longer(df_int_bpca  , cols=-uniprot, values_to='int2use',
                              names_to = c('strain','bio','tech','day'),
                              names_pattern = "([^_]+)_([^_]+)_([^_]+)_([^_]+)") %>%
                 group_by(strain,uniprot) %>% mutate(na_rep = sum.na(int2use))
@@ -115,7 +117,7 @@ df_strains= left_join(int_by_strain,na_by_strain) %>%
             rowwise %>%
             mutate( na_strains = sum.na(c_across(cols = starts_with('lfq_int'))) )
 
-int_all = int_bpca  %>% column_to_rownames('uniprot') %>% as.data.frame()
+int_all = int_bpca 
 
 # Removing hits with missing values for more than one strain (using average intensities over replicates)
 ms2= df_strains %>% filter(na_strains < 1)
@@ -123,5 +125,10 @@ int_filt_strains = ms2 %>% dplyr::select(-starts_with('na')) %>% column_to_rowna
 ```
 
 ```{r 02-save-data, echo=F}
+saveRDS(int_raw,here::here('output','int_raw.rds'))
+saveRDS(int_lfq,here::here('output','int_lfq.rds'))
+saveRDS(int_md_norm,here::here('output','log2-int_lfq-norm_median.rds'))
+saveRDS(int_bpca,here::here('output','log2-int_lfq-na_imputed-norm_median.rds'))
+saveRDS(int_by_strain,here::here('output','log2-int_lfq_bystrains-na_imputed-norm_median.rds'))
 save.image(here('output',sprintf("%02d-processed-data.rdata",chap_cur)))
 ```
