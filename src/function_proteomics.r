@@ -926,3 +926,14 @@ draw_umap_DE = function(EXP,DE){
   #plot(U)
   return(U)
 }
+
+# 7 functional enrichment -------------------------------------------------
+has_enriched = function(enr){ 
+  if( class(enr) == "compareClusterResult" ){
+    sum(enr@compareClusterResul$p.adjust<0.05) > 0 
+  }else if(class(enr) == "enrichResult" ){
+    sum(enr@result$p.adjust<0.05) > 0  
+  }else{
+    return(FALSE)
+  }
+}
