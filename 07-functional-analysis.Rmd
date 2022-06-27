@@ -85,7 +85,7 @@ if( has_enriched(dfe_bp) ){
   dotplot(dfe_bp,title='GO enrichment - Biological Process',color='p.adjust',label_format=WRAPPING,font.size=FONT_SIZE)
 }
 if( has_enriched(dfe_cc) ){
-  dotplot(dfe_cc,title='GO enrichment - Cellular Component',color='p.adjust',label_format=WRAPPING,font.size=FONT_SIZE,)
+  dotplot(dfe_cc,title='GO enrichment - Cellular Component',color='p.adjust',label_format=WRAPPING,font.size=FONT_SIZE)
 }
 ```
 
@@ -96,12 +96,6 @@ dfe_lfc$cluster = as.factor(cl_prot)
 dfe_cluster = dfe_lfc %>% drop_na(ORF)
 genes_dfe_cluster = split(dfe_cluster$ORF,dfe_cluster$cluster)
 genes_dfe_cluster_uni = split(dfe_lfc$ID,dfe_lfc$cluster)
-
-# cl_go <- compareCluster(geneCluster = genes_dfe_cluster, fun = enrichGO, universe=genes_proteomics,
-#                      OrgDb= org.Sc.sgd.db, keyType= "ORF", ont='ALL', pool=F,
-#                      pAdjustMethod = "BH", pvalueCutoff  = 0.05)
-# dotplot(cl_go,split='ONTOLOGY',color='p.adjust',label_format=WRAPPING,font.size=FONT_SIZE)
-# 
 
 cl_cc <- compareCluster(geneCluster = genes_dfe_cluster, fun = enrichGO, universe=genes_proteomics,
                      OrgDb= org.Sc.sgd.db, keyType= "ORF", ont='CC', pool=F,
