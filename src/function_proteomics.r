@@ -1,6 +1,10 @@
-library(tidyverse)
-library(rio)
-library(openxlsx)
+bioc.pkg = c('limma','NormalyzerDE','MsCoreUtils','pcaMethods')
+BiocManager::install(bioc.pkg,update=F,ask = F)
+library(xfun)
+pkg = c('tidyverse','plotly','rio','ggplotify','cowplot','geomtextpath','GGally',
+  'openxlsx','corrr','umap',bioc.pkg)
+xfun::pkg_attach(pkg,install=T)
+
 # WORKING DIRECTORY is current document path
 if(interactive()){
   WD = dirname( .rs.api.getActiveDocumentContext()$path )
@@ -375,13 +379,18 @@ sum_intensities = function(exp_mat,int_prefix=''){
   return(tot_int)
 }
 
-draw_barplot_sumint = function(tot_int, y_label = 'Total intensity (raw)' ){
+draw_barplot_sumint = function(tot_int,  y_label = NULL , hide_x = T){
   
-  bp= ggplot( tot_int, aes(x=sample,y=total_intensity,fill=strain,label=sample)) + 
+  bp= ggplot( tot_int, aes(x=sample, group=strain, y=total_intensity,fill=strain,label=sample)) + 
     geom_col() + 
     geom_text(angle=90,check_overlap = T,hjust=-0.1,y=0,size=2) + 
-    ylab('Total intensity (lfq)') +
-    theme(axis.text.x = element_blank(),axis.ticks = element_blank(), legend.position='none')
+    ylab(y_label) +
+    facet_grid(~strain, scales = "free", switch = "x", space = "free_x") + 
+    theme(strip.placement = "outside", aspect.ratio = NULL)
+  
+  if(hide_x){
+    bp = bp + theme(axis.text.x = element_blank(),axis.ticks = element_blank(), legend.position='none')
+  }
   return(bp)
 }
 

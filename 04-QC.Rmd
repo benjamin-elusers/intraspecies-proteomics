@@ -1,3 +1,8 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
 ```{r load-data-processed, echo=F}
 chap_cur=04
 #load(here('output',sprintf("%02d-processed-data.rdata",chap_cur-1)))
@@ -16,18 +21,20 @@ long_int_all = get_long_intensities(intensities) %>% mutate(int2use = log10_int)
 
 ## Total sample intensities
 
-```{r tot_int,echo=F, fig.cap='Total intensities per sample',out.width='100%'}
+```{r tot_int, echo=F, fig.cap='Total intensities per sample',out.width='100%', fig.dim=c(20,10)}
 # Sum of intensities per samples
 tot_int_raw  = sum_intensities(int_raw)
 tot_int_lfq  = sum_intensities(int_lfq,'lfq_intensity')
 tot_int_norm = sum_intensities(int_md_norm)
 tot_int_imp  = sum_intensities(int_bpca)
 
-b1=draw_barplot_sumint(tot_int_raw,'Total intensity (raw)')
-b2=draw_barplot_sumint(tot_int_lfq,'Total intensity (lfq)')
-b3=draw_barplot_sumint(tot_int_norm,'Total intensity (normalized)')
-b4=draw_barplot_sumint(tot_int_imp,'Total intensity (imputed)')
-plot( (b1| b2) / (b3 | b4) )
+b1=draw_barplot_sumint(tot_int_raw,'Total intensity (raw)')+ scale_fill_metro()
+b2=draw_barplot_sumint(tot_int_lfq,'Total intensity (lfq)')+ scale_fill_metro()
+b3=draw_barplot_sumint(tot_int_norm,'Total intensity (normalized)') + scale_fill_metro()
+b4=draw_barplot_sumint(tot_int_imp,'Total intensity (imputed)') + scale_fill_metro()
+QC1 = plot( (b1| b2) / (b3 | b4) )
+
+ggsave(QC1,filename =  here::here('plot','QC-total-intensities.png'), scale = 2)
 
 ```
 
@@ -63,6 +70,8 @@ bp=ggplot(data=long_intensities,mapping=aes(y=int2use,x=toupper(strain))) +
   theme_pubclean() + grids(axis = 'y') + theme(axis.text = element_text(size=12)) +
   scale_color_canva(palette = "Pool party",limits=rev)
 plot(bp)
+
+ggsave(bp,filename =  here::here('plot','QC-strain-norm_log10_intensities.png'), scale = 0.9)
 
 BY_STRAINS = group_by(long_intensities,strain=toupper(strain)) %>% 
              summarize(median_exp=median_(int2use)) %>%
