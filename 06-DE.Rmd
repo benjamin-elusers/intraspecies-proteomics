@@ -22,6 +22,7 @@ df_imputed = tibble( uniprot = int_norm_ids,
                      is_imputed = (rowSums( is.na(int_norm))>0)* 1, 
                      imputed = factor(is_imputed, levels = c(0,1), labels = c("not", "is_imputed")))
 volcPlot(INPUT=int_bpca, IMPUTED=df_imputed, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20, plot = F, use_plotly = T)
+
 ```
 
 ## Differentially expressed genes

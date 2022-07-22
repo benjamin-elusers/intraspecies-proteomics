@@ -1,3 +1,4 @@
+
 ```{r load-data-proteomics, echo=F}
 chap_cur=03
 #load(here('output',sprintf('%02d-proteomics.rdata',chap_cur-1)))
@@ -99,6 +100,12 @@ We also convert expression matrix to long tabular format with intensities across
 samples and/or strains for further quality controls and plots.
 
 ```{r int-strains}
+long_int = pivot_longer(df_int_norm , cols=-uniprot, values_to='int2use',
+                             names_to = c('strain','bio','tech','day'),
+                             names_pattern = "([^_]+)_([^_]+)_([^_]+)_([^_]+)") %>%
+                group_by(strain,uniprot) %>% mutate(na_rep = sum.na(int2use))
+
+
 long_int_norm = pivot_longer(df_int_bpca  , cols=-uniprot, values_to='int2use',
                              names_to = c('strain','bio','tech','day'),
                              names_pattern = "([^_]+)_([^_]+)_([^_]+)_([^_]+)") %>%

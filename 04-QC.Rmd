@@ -1,8 +1,3 @@
----
-output: html_document
-editor_options: 
-  chunk_output_type: console
----
 ```{r load-data-processed, echo=F}
 chap_cur=04
 #load(here('output',sprintf("%02d-processed-data.rdata",chap_cur-1)))
@@ -28,13 +23,14 @@ tot_int_lfq  = sum_intensities(int_lfq,'lfq_intensity')
 tot_int_norm = sum_intensities(int_md_norm)
 tot_int_imp  = sum_intensities(int_bpca)
 
-b1=draw_barplot_sumint(tot_int_raw,'Total intensity (raw)')+ scale_fill_metro()
-b2=draw_barplot_sumint(tot_int_lfq,'Total intensity (lfq)')+ scale_fill_metro()
-b3=draw_barplot_sumint(tot_int_norm,'Total intensity (normalized)') + scale_fill_metro()
-b4=draw_barplot_sumint(tot_int_imp,'Total intensity (imputed)') + scale_fill_metro()
-QC1 = plot( (b1| b2) / (b3 | b4) )
+axis16 = theme(axis.title = element_text(size=24))
+b1=draw_barplot_sumint(tot_int_raw,'Total intensity (raw)')+ scale_fill_metro() + axis16
+b2=draw_barplot_sumint(tot_int_lfq,'Total intensity (lfq)')+ scale_fill_metro()+ axis16
+b3=draw_barplot_sumint(tot_int_norm,'Total intensity (normalized)') + scale_fill_metro()+ axis16
+b4=draw_barplot_sumint(tot_int_imp,'Total intensity (imputed)') + scale_fill_metro()+ axis16
+QC1 = plot( (b1| b2) / (b3 | b4) ) 
 
-ggsave(QC1,filename =  here::here('plot','QC-total-intensities.png'), scale = 2)
+ggsave(QC1,filename =  here::here('plot','QC-total-intensities.png'), scale = 1.5)
 
 ```
 
@@ -231,19 +227,28 @@ or across biological replicates, before and after normalization.
 
 ```{r boxplot-cv, echo=F, fig.cap='Coefficient of variations (%) across samples for each normalization method', fig.height=10, fig.width=10}
 
-# CV_raw = calculate_cv(long_int_all,by_bio = F)
-# box_cv_raw = draw_boxcv(CV_raw,by_bio = F)
+CV_raw = calculate_cv(long_int_all,by_bio = F) 
+box_cv_raw = draw_boxcv(CV_raw,by_bio = F)
+box_cv_raw
 #CV_norm = calculate_cv(long_int_norm,by_bio = F)
 # box_cv_norm = draw_boxcv(CV_norm,by_bio = F)
 # plot(box_cv_raw / box_cv_norm)
 
 CV_norm = INT_NORM@ner@avgcvmem %>% as_tibble() %>%
-          pivot_longer(everything(), names_to = 'normalization', values_to='CV' )
+          add_column(strain=unique(df.group$strain) ) %>%
+          group_by(strain) %>%
+          pivot_longer(-strain, names_to = 'normalization', values_to='CV' ) %>% 
+          group_by(normalization) %>% 
+          mutate(outlier = ifelse(is.outlier(CV,thr = 0.25,coef = 1.5), strain, NA))
+
 
 box_cv_norm = ggplot(CV_norm, aes(x=fct_relevel(normalization,'log2'),y=CV)) + 
-  geom_boxplot(fill='gray') + xlab('Normalization method') + ylab('%CV samples')
+  geom_boxplot(fill='gray',outlier.shape=21, outlier.size=0.5, outlier.fill = NA) + xlab('Normalization method') + ylab('%CV samples')  +
+  geom_text(aes(label = outlier), na.rm = TRUE, vjust = -0.5, size=2.5)
 box_cv_norm
 
+ggsave(box_cv_norm,
+       filename = here::here('plot','QC-boxplot-normalization.png'),scale=1.1)
 #show_table_cv(CV_raw,by_bio = F)
 #show_table_cv(CV_raw,by_bio = T)
 #show_table_cv(CV_norm,by_bio = F)
@@ -258,7 +263,104 @@ expression before and after normalization using each of the following normalizat
 `r TAB_NORM`
 
 ```{r exp_density,fig.height=8, fig.width=5}
-draw_normalization_density(int_raw,int_lfq,df.group)
+dd=draw_normalization_density(int_raw,int_lfq,df.group)
+ggsave(dd, filename=here::here('plot','QC-normalization-density.png'), scale = 1.5)
+```
+
+
+### Distribution of imputed missing values
+
+Missing values imputed with Bayesian PCA estimator are not modifying the distribution
+of normalized protein expression across strains. 
+
+The difference of average protein expression of imputed versus normalized intensities is well centered on 0 for most strains.
+
+The outliers strains in overall protein expression (CMP and CQC) that contained
+more missing values are slighlty shifted to negative values (i.e. lower expression).
+
+
+```{r imp_vs_norm, fig.height=4, fig.width=12}
+long_bpca = int_bpca %>% 
+          rownames_to_column('uniprot') %>% 
+          pivot_longer(-uniprot, 
+                       names_to = c('strain','bio','tech','day'),
+                       names_pattern = "([^_]+)_([^_]+)_([^_]+)_([^_]+)",
+                       values_to = 'int_imp') %>% 
+          group_by(uniprot,strain) %>% mutate(avg_imp = mean_(int_imp)) 
+
+
+long_int = pivot_longer(df_int_norm , cols=-uniprot, values_to='int2use',
+                             names_to = c('strain','bio','tech','day'),
+                             names_pattern = "([^_]+)_([^_]+)_([^_]+)_([^_]+)") %>%
+                group_by(strain,uniprot) %>%
+                mutate(na_rep = sum.na(int2use),  avg_norm = mean_(int2use)) %>%
+                dplyr::rename(int_norm = int2use)
+
+
+df_exp = left_join(long_bpca,long_int) %>% 
+         mutate(is_imputed = na_rep > 0) %>% 
+         filter(is_imputed) %>% 
+         mutate(delta_imp = avg_imp - avg_norm) 
+n_exp = left_join(long_bpca,long_int) %>% 
+        mutate(is_imputed = na_rep > 0) %>%
+        group_by(strain) %>%  
+        summarize(
+           n_uni = n_distinct(uniprot[!is_imputed]),
+           n_imp = n_distinct(uniprot[is_imputed]),
+           n_toshow = sprintf("N=%s\nNA=%s",n_uni,n_imp)
+        )
+
+th_strip = theme(strip.background = element_blank(), strip.text = element_blank(),
+                 panel.border = element_blank(), 
+                 panel.grid.major = element_line(size=0.5), 
+                 panel.grid.minor = element_line(size=0.25,linetype = '32'),
+                 legend.position = 'none') 
+
+p_imp = ggplot(df_exp) + 
+  geom_density(aes(x=int_imp,color=strain,fill=strain),bw=0.2) +
+  geom_density(aes(x=int_norm),alpha=0.6,col=NA,fill='white',bw=0.2) +
+  geom_rug(aes(x=int_imp,color=strain),alpha=.1) +
+  geom_text(data=n_exp,aes(label=n_toshow,color=strain),x=Inf,y=Inf,size=3.5,
+            hjust=1.1,vjust=1.2) +
+  geom_text(data=n_exp,aes(label=strain,color=strain),x=-Inf,y=Inf,size=4,
+            fontface='bold', hjust=-0.1,vjust=1.5) +
+  scale_color_metro() +  scale_fill_metro() + 
+  xlab("Distribution of average intensities") +
+  facet_wrap(~strain,nrow = 2) + 
+  th_strip
+
+ggsave(p_imp, filename = here::here('plot','density-imputed-vs-norm.png'),scale=1.2)
+ggsave(p_imp, filename = here::here('plot','density-imputed-vs-norm.pdf'),scale=1.2)
+p_imp
+```
+
+### Difference of imputed and normalized intensities
+
+```{r delta_imp_norm, fig.height=10, fig.width=4}
+d_exp = df_exp %>%
+        group_by(strain) %>%  
+        summarize( mu = mean_(delta_imp), sigma = sd_(delta_imp))
+
+p_delta = ggplot(df_exp) + 
+  geom_density(aes(x=delta_imp,color=strain,fill=strain),bw=0.2,col=NA,alpha=0.6) +
+  geom_rug(aes(x=delta_imp,color=strain),alpha=.1) +
+  geom_text(data=n_exp,aes(label=n_toshow,color=strain),x=Inf,y=Inf,size=3.5,
+            hjust=1.1,vjust=1.2) +
+  geom_text(data=n_exp,aes(label=strain,color=strain),x=-Inf,y=Inf,size=4,
+            fontface='bold', hjust=-0.1,vjust=1.5) +
+  geom_linerange(d_exp, mapping=aes(y=0.7,xmin = mu-sigma, xmax = mu+sigma),color='black') + 
+  geom_segment(d_exp, mapping=aes(x = mu, xend = mu, y=0,yend=Inf),color='black') + 
+  scale_color_metro() +  scale_fill_metro() + 
+  xlab("Distribution of (imputed-normalized) intensities") +
+  facet_wrap(~strain,nrow = 4) + 
+  th_strip
+
+
+ggsave(p_delta, filename = here::here('plot','density-delta-imputed-vs-norm.png'),scale=1.2)
+ggsave(p_delta, filename = here::here('plot','density-delta-imputed-vs-norm.pdf'),scale=1.2)
+
+
+p_delta
 ```
 
 ## Compare all-vs-all expression

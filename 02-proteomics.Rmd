@@ -97,8 +97,10 @@ col.group = list(
   # strain = c('AMH'="#D53E4F", 'BAN'="#F46D43", 'BED'="#FDAE61", 'BPL'="#FEE08B",
               # 'BTT'="#E6F598", 'CMP'="#ABDDA4", 'CPI'="#66C2A5", 'CQC'="#3288BD"),
   # Set1 palette
-  strain = c('AMH'="#E41A1C", 'BAN'="#377EB8", 'BED'="#4DAF4A", 'BPL'="#984EA3",
-             'BTT'="#FF7F00", 'CMP'="#FFFF33", 'CPI'="#A65628", 'CQC'="#F781BF"),
+  # strain = c('AMH'="#E41A1C", 'BAN'="#377EB8", 'BED'="#4DAF4A", 'BPL'="#984EA3",
+  #            'BTT'="#FF7F00", 'CMP'="#FFFF33", 'CPI'="#A65628", 'CQC'="#F781BF"),
+  strain = set_names(see::palette_metro()(8), all_strains),
+  
   biorep = c('R1'="#002BDC",'R2'="#00A6E7"),
   techrep = c('r1'="#1C7947",'r2'="#39A388"),
   dayrun = c('10_04_22'='white','12_04_22'='black') 
