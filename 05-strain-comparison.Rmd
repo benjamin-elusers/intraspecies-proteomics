@@ -21,10 +21,11 @@ We then compute spearman rank correlations of intensities between all samples.
 
 ```{r heatmap-strains}
 # heatmap correlation
-cs_strains=compute_samples_correlation(int_filt_strains)
-COR_RANGE = range( cs_strains[row(cs_strains) == (col(cs_strains) - 1)] )
-
-hm_strains=draw_heatmap_samples(mcor = cs_strains,df.group=df.group[,'strain',drop=F],col.group = col.group)
+cs_strains=compute_samples_correlation(int_filt_strains) %>% as.matrix
+COR_RANGE = range( cs_strains[ upper.tri(cs_strains) ] )
+by_strains= df.group[,c('strain'),drop=F] %>% distinct() %>% as.data.frame()
+rownames(by_strains) = by_strains$strain
+hm_strains=draw_heatmap_samples(mcor = cs_strains, df.group=by_strains, col.group = col.group,k=3)
 ```
 
 The heatmap correlations show the high correlation of expression between strains:
