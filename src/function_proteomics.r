@@ -496,12 +496,14 @@ draw_heatmap_samples = function(mcor,df.group,col.group,k=2){
   library(cowplot)
   #graphics.off()
   p <- as.ggplot(
-        pheatmap::pheatmap(mcor,display_numbers = T,
-                           annotation_row = df.group, annotation_col=df.group, annotation_colors =  col.group,
+        pheatmap::pheatmap( mcor, display_numbers = T,
+                           annotation_row = df.group,
+                           annotation_col = df.group,
+                           annotation_colors =  col.group,
+                           #cluster_rows = F, cluster_cols = F)
                            cutree_rows = k,gaps_row = k)
   )
 
-  grp_col = c('strain','biorep')
   #save_plot(p,filename=here::here('plot','QC-heatmap-norm.intensities.pdf'),base_aspect_ratio = 0.8)
   # pheatmap::pheatmap(mcor,display_numbers = T, cutree_rows = 2,gaps_row = 2,
   #                    annotation_row = df.group[,grp_col], annotation_col=df.group[,grp_col], annotation_colors =  col.group,
