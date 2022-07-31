@@ -13,7 +13,7 @@ mail:
 created: "24/04/2022"
 date: "`r format(Sys.time(), '%d-%b-%Y %R %p')`"
 site: bookdown::bookdown_site
-# output: bookdown::gitbook
+#   output: bookdown::gitbook
 documentclass: book
 bibliography:
 - book.bib
@@ -106,10 +106,10 @@ suppressPackageStartupMessages({
   source("https://raw.githubusercontent.com/benjamin-elusers/yeastomics/main/src/__setup_yeastomics__.r")
   library(xfun)
   #remotes::install_github("TimTeaFan/dplyover")
-  dep.pkg = c( "ggtree", "gtools", "pbapply", "dplyr", "performance", "ggfortify",
-               "tidyverse", "gplots", 'dplyover', "data.table", "ggcorrplot", "ggsignif",
-               "ape","kableExtra","org.Sc.sgd.db","formattable","DT","sessioninfo")
-  gr.pkg = c('ggplot2',"d3Tree","ggpubr", "plotly","gridExtra",'see','ggthemes','paletteer',
+  dep.pkg = c("tidyverse", "pbapply", "dplyr", 'dplyover', "performance", "ggfortify",
+               'statmod',"ggtree", "gtools","ggsignif","ape","org.Sc.sgd.db","sessioninfo")
+  gr.pkg = c('ggplot2',"gplots","d3Tree","ggpubr", "plotly","gridExtra","circlize",
+             'see','ggthemes','paletteer', "formattable","data.table","DT","kableExtra",
              "dendextend","treemap","GGally","enrichplot","corrplot", "clusterProfiler",
              "ggcorrplot",'ggpackets','ggblanket','gghighlight','ggforce','ggdist',
              'ggiraph','esquisse','ggeasy','ggtext')
