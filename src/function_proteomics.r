@@ -2,14 +2,21 @@ bioc.pkg = c('limma','NormalyzerDE','MsCoreUtils','pcaMethods')
 BiocManager::install(bioc.pkg,update=F,ask = F)
 library(xfun)
 pkg = c('tidyverse','plotly','rio','ggplotify','cowplot','geomtextpath','GGally',
-  'openxlsx','corrr','umap',bioc.pkg)
-xfun::pkg_attach(pkg,install=T)
+  'openxlsx','corrr','umap')
+xfun::pkg_attach2(pkg)
+xfun::pkg_attach(bioc.pkg,install = F)
 
 # WORKING DIRECTORY is current document path
 if(interactive()){
   WD = dirname( .rs.api.getActiveDocumentContext()$path )
-  setwd(WD)
+  try_silent(setwd(WD))
 }
+
+th_strip = theme(strip.background = element_blank(), strip.text = element_blank(),
+                 panel.border = element_blank(),
+                 panel.grid.major = element_line(size=0.5),
+                 panel.grid.minor = element_line(size=0.25,linetype = '32'),
+                 legend.position = 'none')
 
 load.annotation = function(){
   # Preloaded uniprot data can be generated in 5min with:
@@ -386,7 +393,7 @@ draw_barplot_sumint = function(tot_int,  y_label = NULL , hide_x = T){
     geom_text(angle=90,check_overlap = T,hjust=-0.1,y=0,size=2) +
     ylab(y_label) +
     facet_grid(~strain, scales = "free", switch = "x", space = "free_x") +
-    theme(strip.placement = "outside", aspect.ratio = NULL)
+    th_strip + theme( aspect.ratio = NULL)
 
   if(hide_x){
     bp = bp + theme(axis.text.x = element_blank(),axis.ticks = element_blank(), legend.position='none')
@@ -589,7 +596,10 @@ draw_normalization_density = function(RAW = int_raw, INT=int_lfq, DESIGN = df.gr
     #                 col='black',show.legend = F, size=3,
      #                fontface = 2,size=0.2, hjust = 0.2, vjust = 1.5) +
     geom_density(aes(col=strain),show.legend = T) +
-    facet_wrap(~norm,nrow=2,ncol=4)
+    facet_wrap(~norm,nrow=2,ncol=4) +
+    scale_color_metro() +
+    xlab('Normalized protein intensity (log2)') +
+    th_strip
 
   return(dens_plot)
 
@@ -646,21 +656,25 @@ make_pca = function(x,with_labels=F,col_by_group=2){
 
 # 6 Differential expression ----------------------------------------------------
 library(limma)
-pairwise_condition = function(conditions = all_strains,to_pair=T){
+pairwise_condition = function(conditions = all_strains,to_pair=T,only_unique=T){
   cond_pair = expand.grid(S1=conditions,S2=conditions)
-  true.pairs <- t(apply(cond_pair[,1:2], 1, sort))
-  dup.pairs <- duplicated(true.pairs)
-  unique.pairs <- true.pairs[!dup.pairs & true.pairs[,1]!=true.pairs[,2],] %>%
-    as_tibble() %>% rename(cond1=V1,cond2=V2)
+  same = cond_pair[,1]==cond_pair[,2]
+  all_pairs = cond_pair[!same,2:1]
+  if(only_unique){
+    sorted.pairs <- t(apply(all_pairs[,1:2], 1, sort))
+    dup.pairs <- duplicated(sorted.pairs)
+    all_pairs <- sorted.pairs[!dup.pairs & !same ,] %>%
+      as_tibble() %>% rename(cond1=V1,cond2=V2)
+  }
 
   if(to_pair){
-    return( apply(unique.pairs,1,paste0,collapse='-') )
+    return( apply(all_pairs,1,paste0,collapse='-') )
   }
-  return(unique.pairs)
+  return(all_pairs)
 }
 
 compare_conditions = function(input, id_col = "uniprot",
-                              comparison = pairwise_condition(all_strains,to_pair=T),
+                              comparison = pairwise_condition(all_strains,to_pair=T,all_pair=T),
                               col_group=1){
 
   if( id_col %in% colnames(input)){
@@ -685,9 +699,9 @@ compare_conditions = function(input, id_col = "uniprot",
 }
 
 get_volcano_data = function(input_data=int_norm,
-                            min_lfc=2, min_pval=0.01, which=c('both','up','down'), topn = 20){
+                            min_lfc=2, min_pval=0.01, which=c('both','up','down'), topn = 20,all_pair=T){
   datList <- list()
-  combination <- pairwise_condition(to_pair=T)
+  combination <- pairwise_condition(to_pair=T,only_unique = !all_pair)
   if(missing(topn)){
     cat('selecting top 50 differentially expressed genes...\n')
     topn = 50
@@ -702,14 +716,28 @@ get_volcano_data = function(input_data=int_norm,
 
     fit2 <- compare_conditions(input=input_data, id_col = 'uniprot', comparison=combination, col_group = 1)
 
-    d.out <- data.frame(ID = names(fit2$coefficients[,i]),
+    d.out <- tibble(ID = names(fit2$coefficients[,i]),
                         pValue = fit2$p.value[,i],
                         qValue = p.adjust(fit2$p.value[,i], "fdr"),
                         EffectSize = fit2$coefficients[,i],
-                        comparison = combination[i])
+                        comparison = combination[i],
+                        S1 = str_split_fixed(combination[i],pattern = '-',2)[,1],
+                        S2 = str_split_fixed(combination[i],pattern = '-',2)[,2],
+                        S1.avg = fit2$Amean[i],
+                        S2.avg = S1.avg - EffectSize,
+                        id = paste0(ID,'\n',comparison) )
     d.out <- mutate(d.out,
-                    sig = ifelse(d.out$EffectSize > min_lfc & round(d.out$qValue, 3) < min_pval, "Upregulated",
-                                 ifelse(d.out$EffectSize < (min_lfc * -1) & round(d.out$qValue, 3) < min_pval, "Downregulated", "Non significant")))
+                    sig = case_when(
+                      EffectSize > min_lfc & qValue<min_pval ~ 'Upregulated',
+                      EffectSize < (-1*min_lfc) & qValue<min_pval ~ 'Downregulated',
+                      TRUE ~ "Non significant"
+                    )) %>%
+            group_by(comparison) %>%
+            mutate( n_up = sum(sig == 'Upregulated'),
+                    n_down = sum(sig == 'Downregulated'),
+                    n_reg = n_up + n_down,
+                    n_ns = sum(sig =="Non significant")
+            )
 
     if (which == 'up') {
         d.up = d.out %>%
@@ -754,8 +782,10 @@ get_dfe = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN 
                  down_CMP = str_count(strains_down,'CMP-'),
                  down_CPI = str_count(strains_down,'CPI-'),
                  down_CQC = str_count(strains_down,'CQC-'))
-    dfe = left_join(dfe,down)
-    dfe[ grep(x=colnames(dfe),'^down_')] = 0
+    dfe = left_join(dfe,down) %>% rowwise() %>%
+      mutate( across(starts_with('down_'), .fns = ~replace_na(.,0)),
+              nstrains_down = sum_(c_across(starts_with('down_'))>0) )
+    #dfe[ grep(x=colnames(dfe),'^down_')] = 0
   }
 
   if(count_up){
@@ -769,23 +799,27 @@ get_dfe = function(INPUT=int_norm, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN 
                  up_CMP = str_count(strains_up,'CMP-'),
                  up_CPI = str_count(strains_up,'CPI-'),
                  up_CQC = str_count(strains_up,'CQC-'))
-    dfe = left_join(dfe,up)
+    dfe = left_join(dfe,up) %>% rowwise() %>%
+      mutate( across(starts_with('up_'), .fns = ~replace_na(.,0)),
+              nstrains_up = sum_(c_across(starts_with('up_'))>0) )
     dfe[ grep(x=colnames(dfe),'^up_')] = 0
   }
+
   return(dfe)
 }
 
-draw_volcano = function(data2plot,plot_title){
+draw_volcano = function(data2plot,plot_title,label_col='ID',
+                        show_label=T,repel_label=F,label_size=3,hide_ns=T){
   sig_count = table(data2plot$sig)
   down = sig_count[1]
   up = last(sig_count)
 
   data_sig = subset(data2plot,sig!='Non significant')
+  if(hide_ns){ data2plot = data_sig }
   p <- ggplot(data2plot,
-              aes(x=EffectSize, y=-log10(qValue), fill = sig)) +
-       geom_point(pch = 21, colour = "black", alpha = 0.5, size = 1.5)
-  p <- p + scale_fill_manual(aesthetics = c('colour','fill'),
-                             values=c("Non significant" = 'gray',
+              aes(x=EffectSize, y=-log10(qValue), col=sig)) +
+       see::geom_point2(shape=16,alpha = 0.5, size = 1.5)
+  p <- p + scale_color_manual(values=c("Non significant" = 'gray',
                                       "Downregulated" = 'red',
                                       "Upregulated" = 'blue',
                                       'is_imputed'='purple')) +
@@ -797,11 +831,16 @@ draw_volcano = function(data2plot,plot_title){
   p <- p +
        theme_classic(base_size = 14) +
        theme(legend.position = 'top',
-             plot.title = element_text(face  = 1, hjust =0, size = 18),
+             plot.title = element_text(face  = 1, hjust =0, size = 14),
              axis.title = element_text(size = 10)
              )
-
-  p <- p + geom_text_repel(data=data_sig,aes(label = ID,col=sig), show.legend = FALSE)
+  if(show_label){
+    if(repel_label){
+      p <- p + geom_text_repel(data=data_sig,aes(label = {{label_col}}), size=label_size, show.legend = FALSE)
+    }else{
+      p <- p + geom_text(data=data_sig,aes(label = {{label_col}}), vjust='outward',size=label_size, show.legend = FALSE)
+    }
+  }
   return(p)
 }
 
@@ -816,7 +855,7 @@ volcPlot = function(INPUT=int_norm, IMPUTED, MIN_LFC=2, MIN_PVAL=0.01, WHICH='bo
                       imputed = factor(is_imputed,levels = c(0,1), labels = c('not','is_imputed')))
   }
   #dlist <- get_volcano_data(input_data=INPUT, min_lfc=MIN_LFC, min_pval=MIN_PVAL, WHICH, topn = TOPN, id_col=use_label)
-  all_data = get_volcano_data(INPUT, MIN_LFC, MIN_PVAL,  WHICH,TOPN) %>% bind_rows %>%
+  all_data = get_volcano_data(INPUT, min_lfc=MIN_LFC, min_pval=MIN_PVAL,  which=WHICH, topn=TOPN) %>% bind_rows %>%
     mutate(log10_qvalue=-log10(qValue)) %>%
     dplyr::left_join(sc_identifiers, by=c('ID'='UNIPROT'), keep=T ) %>%
     dplyr::left_join(IMPUTED,by=c('ID'='uniprot'))
@@ -912,26 +951,23 @@ volcPlot = function(INPUT=int_norm, IMPUTED, MIN_LFC=2, MIN_PVAL=0.01, WHICH='bo
   return(plotList)
 }
 
-draw_umap_DE = function(EXP,DE){
+draw_umap_DE = function(EXP,color_by){
 
   library(umap)
   set.seed(142)
   umap_fit <- EXP %>%
-    select(where(is.numeric)) %>%
-    column_to_rownames("ID") %>%
+    dplyr::select(where(is.numeric)) %>%
     scale() %>%
     umap()
 
   umap_df <- umap_fit$layout %>%
     as.data.frame()%>%
-    rename(UMAP1="V1", UMAP2="V2") %>%
-    mutate(ID=row_number()) #%>%
+    rename(UMAP1="V1", UMAP2="V2")
     #inner_join(penguins_meta, by="ID")
 
   U = umap_df %>%
     ggplot(aes(x = UMAP1,
-               y = UMAP2,
-               color = species)) +
+               y = UMAP2, color={{color_by}})) +
     geom_point(size=3, alpha=0.5)+
     #facet_wrap(~island)+
     labs(x = "UMAP1", y = "UMAP2", subtitle="UMAP plot")+
@@ -943,7 +979,9 @@ draw_umap_DE = function(EXP,DE){
 
 # 7 functional enrichment -------------------------------------------------
 has_enriched = function(enr){
-  if( class(enr) == "compareClusterResult" ){
+  if( class(enr) == "gseaResult" ){
+    sum(enr@result$p.adjust<0.05) > 0
+  }else if( class(enr) == "compareClusterResult" ){
     sum(enr@compareClusterResult$p.adjust<0.05) > 0
   }else if(class(enr) == "enrichResult" ){
     sum(enr@result$p.adjust<0.05) > 0
