@@ -127,12 +127,12 @@ nDE_byreg = nDE %>% pivot_longer(cols=c(n_up,n_down,Np_up,Np_down),
 
 nprot_DE = nDE %>% dplyr::select(S1,S2,Np_up,tot_up,tot_down,tot_reg,Np_down,Np_reg,starts_with('s2',ignore.case = F)) %>% distinct() 
 
-nprot_DE2 = nprot_DE %>% 
-  filter(S2 == 'CQC') %>% 
-  dplyr::select(c('S1','S2'),starts_with('s2')) %>%   
-  dplyr::rename_with(.cols=starts_with('s2'), .fn = str_remove, pattern='s2') %>% 
-  dplyr::rename(S1=S2, S2=S1) %>% 
-  bind_rows(nprot_DE %>% dplyr::select(-starts_with('s2')))
+nprot_DE2 = nprot_DE # %>% 
+  #filter(S2 == 'CQC') %>% 
+  #dplyr::select(c('S1','S2'),starts_with('s2')) %>%   
+  #dplyr::rename_with(.cols=starts_with('s2'), .fn = str_remove, pattern='s2') %>% 
+  #dplyr::rename(S1=S2, S2=S1) %>% 
+  #bind_rows(nprot_DE %>% dplyr::select(-starts_with('s2')))
 
 
 pDE =ggplot(nprot_DE2) + 
@@ -146,7 +146,7 @@ pDE =ggplot(nprot_DE2) +
                      sec.axis = sec_axis(name='# Downregulated', trans = ~ .*-1 )) + 
   scale_color_manual(values=c("Downregulated" = 'red',"Upregulated" = 'blue')) + 
   scale_fill_metro() +
-  ylab('Number of Proteins')+
+  ylab('Number of Proteins')+ xlab('Strains') +
   theme(legend.position='none',
         panel.grid.major.y =  element_line(size=0.75),
         panel.grid.minor.y =  element_line(linetype = '32',size=0.5),
@@ -163,17 +163,17 @@ plot(pDE)
 ```
 
 
-```{r dfe-gene, out.width='100%' }
+```{r dfe-gene, fig.path='plot/', fig.show='hold', warning=F, out.width='100%' }
 ## Differentially expressed genes
 
 dfe = get_dfe(INPUT=int_bpca, WHICH='both',MIN_LFC=CUTOFF_LFC, MIN_PVAL=CUTOFF_PV, TOPN = 20, 
               count_up=T, count_down=T) %>% 
-      group_by(ID) %>%
+      group_by(S1,ID) %>%
       mutate( mean_FC = mean(EffectSize), 
               mean_FC_down = mean(EffectSize[sig =='Downregulated']),
               mean_FC_up = mean(EffectSize[sig =='Upregulated']),
               total_sig = n(), total_up = sum(sig =='Upregulated'), total_down = sum(sig =='Downregulated')) %>% 
-      group_by(ID,sig) %>% mutate(n_sig = n()) %>% 
+      group_by(S1,ID,sig) %>% mutate(n_sig = n()) %>% 
       left_join(sc_identifiers,by=c('ID'='UNIPROT')) %>%
       rowwise() %>% 
       mutate( GENENAME = replace_na(GENENAME,ID))  %>%
@@ -216,7 +216,7 @@ plot(DE)
 ```
 
 
-```{r}
+```{r dfe-features, fig.path='plot/', fig.show='hold', warning=F, out.width='100%'}
 # Without NA
 volcano_nona =  get_volcano_data(input_data=df_int_norm, min_lfc=2, min_pval=0.01, topn = 50) %>%
                 bind_rows() %>% as_tibble()
@@ -230,17 +230,19 @@ gene_diffexp = unique(dfe$ID)
 
 df_int_bpca = df_int_bpca %>% mutate(is_regulated = uniprot %in% gene_diffexp)
 
-sc_abundance = load.abundance()
-strain_exp= df_int_bpca %>%  group_by(uniprot) %>% mutate(mean_strains = mean(c_across(all_of(toupper(samples)))) )
+sc_abundance = load.abundance() %>% 
+                dplyr::rename_with(.cols=-orf, .fns = Pxx, px="cat_expression", s='.'), by=c('orf'))
+strain_exp= df_int_bpca %>%  group_by(uniprot) %>%
+  mutate(mean_strains = mean(c_across(all_of(toupper(samples)))) )
 
-evo_yeast %>% 
-  dplyr::rename_with(.cols=-c(orf,UNIPROT,GENENAME,SGD,OG), .fn=Pxx, px="cat_evolution")
-
+# evo_yeast %>% 
+#   dplyr::rename_with(.cols=-c(orf,UNIPROT,GENENAME,SGD,OG), .fn=Pxx, px="cat_evolution")
 
 DD = volcano_data %>% group_by(ID) %>% 
-      summarize(cat_expression.var_lfc = var(EffectSize), cat_expression.mean_lfc = mean(EffectSize)) %>%
-      left_join(, by=c('ID'='UNIPROT')) %>% 
-      dplyr::left_join(sc_abundance  %>% dplyr::rename_with(.cols=-orf, .fns = Pxx, px="cat_expression", s='.'), by=c('orf')) %>% 
+      summarize(cat_expression.var_lfc = var(EffectSize), 
+                cat_expression.mean_lfc = mean(EffectSize)) %>%
+      #left_join(, by=c('ID'='UNIPROT')) %>% 
+      dplyr::left_join(sc_abundance) %>% 
       left_join(strain_exp,by=c('ID'='uniprot')) %>%
       mutate(sig = ID %in% dfe_nona$ID) %>% 
       mutate(cat_evolution.y8.f_snp_nt = n_snp.nt.y8/len.nt,
@@ -265,54 +267,54 @@ colnames(gene_numfeat) %>% str_subset(pattern="^cat_",negate = T)
 # ggboxplot(DD,x="is_regulated",y="f_snp.aa.y8") + stat_compare_means()
 # ggboxplot(DD,x="is_regulated",y="f_snp.aa.yk11") + stat_compare_means()
 
-give.n <- function(x){
-  return(c(y = median(x)*1.1, label = length(x))) 
-  # experiment with the multiplier to find the perfect position
-}
-plots_POS_REG = list()
-plots_NEG_REG = list()
-
-feat_list = list()
-x=0
-for(i in 7:ncol(gene_numfeat)){
-  x=x+1
-  feat = colnames(gene_numfeat)[i]
-  dd = DD %>% dplyr::select(all_of(c('ID','orf','GNAME','HAS_ORTHOLOG','len_ref','is_regulated',feat,'MPC','r4s.yk11','r4s.fungi',toupper(samples))))
-  s1 = dd[dd$is_regulated,feat] %>% drop_na %>% pull(feat) %>% as.numeric
-  s2 = dd[!dd$is_regulated,feat]%>% drop_na %>%  pull(feat) %>% as.numeric
-  w = wilcox.test(x=s1,y=s2)
-  feat_list[[x]] = tibble(var = feat, 
-                       med.regulated= median(s1),
-                       med.unregulated = median(s2), 
-                       diff_med  = median(s1)-median(s2), 
-                       wilcox.pv  = w$p.value)
-
-  if(w$p.value<0.01){
-    if(median(s1) > median(s2)){
-       plots_POS_REG[[feat]] = ggboxplot(dd,x="is_regulated",y=feat,add = c('boxplot','jitter')) + stat_compare_means() +
-                               stat_summary(fun.data = give.n, geom = "text", fun.y = median)
-    }else{
-      plots_NEG_REG[[feat]] = ggboxplot(dd,x="is_regulated",y=feat,add = c('boxplot','jitter')) + stat_compare_means() + 
-                              stat_summary(fun.data = give.n, geom = "text", fun.y = median)
-    }
-  }
-}
-df_feat = feat_list %>% bind_rows() %>% arrange(diff_med) %>% 
-  separate(col=var, into=c('category','source','variable'), sep = '\\.')
-length(plots_NEG_REG)
-length(plots_POS_REG)
-plots_NEG_REG[[12]]
-names(plots_NEG_REG)
-names(plots_POS_REG)
-
-ggplot(df_feat) + geom_col(aes(x=var,y=diff_med))
-
-library(gridExtra)
-pdf("~/Desktop/plots-features-negative_regulated.pdf", onefile = TRUE)
-for (i in seq(length(plots_NEG_REG))) {
-  plot(plots_NEG_REG[[i]])
-}
-dev.off()
+# give.n <- function(x){
+#   return(c(y = median(x)*1.1, label = length(x))) 
+#   # experiment with the multiplier to find the perfect position
+# }
+# plots_POS_REG = list()
+# plots_NEG_REG = list()
+# 
+# feat_list = list()
+# x=0
+# for(i in 7:ncol(gene_numfeat)){
+#   x=x+1
+#   feat = colnames(gene_numfeat)[i]
+#   dd = DD %>% dplyr::select(all_of(c('ID','orf','GNAME','HAS_ORTHOLOG','len_ref','is_regulated',feat,'MPC','r4s.yk11','r4s.fungi',toupper(samples))))
+#   s1 = dd[dd$is_regulated,feat] %>% drop_na %>% pull(feat) %>% as.numeric
+#   s2 = dd[!dd$is_regulated,feat]%>% drop_na %>%  pull(feat) %>% as.numeric
+#   w = wilcox.test(x=s1,y=s2)
+#   feat_list[[x]] = tibble(var = feat, 
+#                        med.regulated= median(s1),
+#                        med.unregulated = median(s2), 
+#                        diff_med  = median(s1)-median(s2), 
+#                        wilcox.pv  = w$p.value)
+# 
+#   if(w$p.value<0.01){
+#     if(median(s1) > median(s2)){
+#        plots_POS_REG[[feat]] = ggboxplot(dd,x="is_regulated",y=feat,add = c('boxplot','jitter')) + stat_compare_means() +
+#                                stat_summary(fun.data = give.n, geom = "text", fun.y = median)
+#     }else{
+#       plots_NEG_REG[[feat]] = ggboxplot(dd,x="is_regulated",y=feat,add = c('boxplot','jitter')) + stat_compare_means() + 
+#                               stat_summary(fun.data = give.n, geom = "text", fun.y = median)
+#     }
+#   }
+# }
+# df_feat = feat_list %>% bind_rows() %>% arrange(diff_med) %>% 
+#   separate(col=var, into=c('category','source','variable'), sep = '\\.')
+# length(plots_NEG_REG)
+# length(plots_POS_REG)
+# plots_NEG_REG[[12]]
+# names(plots_NEG_REG)
+# names(plots_POS_REG)
+# 
+# ggplot(df_feat) + geom_col(aes(x=var,y=diff_med))
+# 
+# library(gridExtra)
+# pdf("~/Desktop/plots-features-negative_regulated.pdf", onefile = TRUE)
+# for (i in seq(length(plots_NEG_REG))) {
+#   plot(plots_NEG_REG[[i]])
+# }
+# dev.off()
 
 
 # library(gridExtra)

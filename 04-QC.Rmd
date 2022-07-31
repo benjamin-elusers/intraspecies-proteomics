@@ -385,7 +385,7 @@ knitr::include_graphics(here('plot','scatterplot-samples-intensities.pdf'),auto_
 ```{r heatmap-all, fig.path='plot/', fig.show='hold', warning=F, fig.height=15, fig.width=15, out.width='100%' }
 # heatmap correlation
 cs_all=compute_samples_correlation(int_all)
-COR_RANGE = range( cs_all[ upper.tri(COR_RANGE) ] )
+COR_RANGE = range( cs_all[ upper.tri(cs_all) ] )
 
 by_sample = df.group %>% column_to_rownames("sample")
 hm_all=draw_heatmap_samples(mcor = cs_all,df.group=by_sample,col.group = col.group)
