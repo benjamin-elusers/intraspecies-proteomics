@@ -16,51 +16,242 @@ normalized protein expression.
 First, we can look at the volcano plots (log-foldchange vs qvalue) for each unique
 pairwise comparison.
 
-```{r volcano-plots, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
+```{r volcano-plotly, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
 #ind_na_rows  = find_na_rows(int_norm,as.indices = T)
+
+CUTOFF_PV = 1e-2
+CUTOFF_LFC = 2
+
 df_imputed = tibble( uniprot = int_norm_ids,
                      is_imputed = (rowSums( is.na(int_norm))>0)* 1, 
-                     imputed = factor(is_imputed, levels = c(0,1), labels = c("not", "is_imputed")))
-volcPlot(INPUT=int_bpca, IMPUTED=df_imputed, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20, plot = F, use_plotly = T)
+                     imputed = factor(is_imputed, levels = c(0,1),
+                                      labels = c("not", "is_imputed")))
+volcPlot(INPUT=int_bpca, IMPUTED=df_imputed, 
+         MIN_LFC=CUTOFF_LFC, MIN_PVAL=CUTOFF_PV, WHICH='both',
+         TOPN = 50, plot = F, use_plotly = T)
 
 ```
 
+We can tile the volcano plots on a grid to have a global view at the proteome
+expression regulation.
+
+```{r volcano-plots, fig.path='plot/', fig.show='hold', out.width='100%'}
+
+df_avg  = left_join(long_bpca,long_int) %>%  
+          mutate(is_imputed = na_rep > 0) %>% 
+          group_by(uniprot,strain) %>% mutate(imputed = sum(is_imputed)>0) %>%
+          dplyr::select(-bio,-tech,-day,-int_imp,-int_norm,-na_rep,-is_imputed) %>%
+          distinct() %>% 
+          pivot_wider(id_cols=c(uniprot), 
+                      names_from = 'strain',values_from=c('avg_imp','avg_norm'))
+ 
+volcano_imp =  get_volcano_data(input_data=df_int_bpca, 
+                                min_lfc=CUTOFF_LFC, min_pval=CUTOFF_PV, 
+                                topn = 50,all_pair = T) %>%
+                bind_rows() %>% as_tibble() %>% 
+                group_by(ID) %>%
+                mutate( mean_FC = mean(EffectSize)) %>% 
+                group_by(ID,sig) %>% mutate(n_sig = n()) %>% 
+                ungroup() %>% left_join(sc_identifiers,by=c('ID'='UNIPROT')) %>%
+                rowwise() %>% 
+                mutate( GENENAME = replace_na(GENENAME,ID) ) %>% ungroup() %>% 
+                group_by(S1) %>%
+                mutate(Np_up = n_distinct(ID[sig == 'Upregulated']),
+                   Np_down = n_distinct(ID[sig == 'Downregulated']),
+                   Np_reg = Np_up + Np_down,
+                   Np_ns = n_distinct(ID[sig =="Non significant"]),
+                   tot_up = sum(sig == 'Upregulated'),
+                   tot_down = sum(sig == 'Downregulated'),
+                   tot_reg = tot_up + tot_down,
+                   tot_ns = sum(sig =="Non significant")
+                ) %>%
+                group_by(S2) %>%
+                mutate(s2Np_up = n_distinct(ID[sig == 'Upregulated']),
+                   s2Np_down = n_distinct(ID[sig == 'Downregulated']),
+                   s2Np_reg = s2Np_up + s2Np_down,
+                   s2Np_ns = n_distinct(ID[sig =="Non significant"]),
+                   s2tot_up = sum(sig == 'Upregulated'),
+                   s2tot_down = sum(sig == 'Downregulated'),
+                   s2tot_reg = s2tot_up + s2tot_down,
+                   s2tot_ns = sum(sig =="Non significant")
+                )
+
+NPROT_DE = n_distinct(volcano_imp$ID[volcano_imp$sig != 'Non significant'])
+VOLCANO_TITLE = sprintf('Volcano plots of the %s pairwise comparison between strains',n_distinct(volcano_imp$comparison))
+VOLCANO_SUB = sprintf('|LFC| > %s & q-value < %.e : %s proteins differentially expressed',
+                       CUTOFF_LFC,CUTOFF_PV, NPROT_DE)
+
+nDE = volcano_imp %>% 
+      dplyr::select(comparison,n_reg,n_up,n_down,S1,S2,
+                    tot_up,tot_down,tot_reg,
+                    Np_up,Np_down,Np_reg,
+                    starts_with('s2',ignore.case = F),
+                    -ends_with('ns')) %>%
+  distinct() 
+VP = draw_volcano(volcano_imp,label_col=GENENAME,hide_ns=F, 
+                  show_label = F, repel_label = F, label_size = 2,
+                  plot_title = paste0(VOLCANO_TITLE,"\n",VOLCANO_SUB)) +
+  geom_vline(xintercept = -1*CUTOFF_LFC,col='red',linetype='22',size=0.25) + 
+  geom_vline(xintercept = CUTOFF_LFC,col='blue',linetype='22',size=0.25) + 
+  geom_hline(yintercept = -1*log10(CUTOFF_PV),linetype='22',size=0.25) + 
+  facet_grid(S2~S1,switch = 'y',drop = T) + ylim(0,18) +
+  geom_text(data=nDE,aes(label=n_reg),x=0,y=Inf, hjust=0.5,vjust=1.2,size=4,inherit.aes = F) +
+  geom_text(data=nDE,aes(label=n_up),x=Inf,y=Inf, hjust='inward',vjust=1.2,color='blue',size=4,inherit.aes = F) +
+  geom_text(data=nDE,aes(label=n_down),x=-Inf,y=Inf, hjust='inward',vjust=1.2,color='red',size=4,inherit.aes = F) +
+  theme(panel.border = element_blank(), panel.grid.major = element_line(size=0.5),
+        strip.background = element_blank(), strip.placement = 'outside',
+        panel.grid.minor = element_line(size=0.25,linetype = '32'), legend.position = 'none')
+ggsave(plot = VP, width=12,height=12, 
+       path=here::here('plot'), filename='volcano-plots-imputed.png')
+ggsave(plot = VP, width=12,height=12, 
+       path=here::here('plot'), filename='volcano-plots-imputed_median.pdf')
+plot(VP)
+
+nDE_byreg = nDE %>% pivot_longer(cols=c(n_up,n_down,Np_up,Np_down),
+                    names_to= c('regulated'), names_prefix = c('n_'),
+                    values_to = c('n'))
+
+# ggplot(nDE_byreg, aes(col=S1)) + 
+#   geom_col(data=subset(nDE_byreg, regulated=='up'),aes(x=S1,y=n, fill=regulated))+
+#   geom_col(data=subset(nDE_byreg, regulated=='down'),aes(x=S1,y=-n, fill=regulated))
+# library(scales)
+# 
+# 
+# count_dfe = get_dfe(int_bpca, MIN_LFC=2, MIN_PVAL=0.001,  WHICH='both', TOPN = 20) %>%
+#             remove_rownames()  %>% 
+#             mutate(fstrains_reg = (nstrains_up - nstrains_down)/16,
+#                    nstrains_reg = (nstrains_up + nstrains_down)/16)
+# 
+# count_dfe %>% group_by(S1,S2) %>% 
+#   summarize(nid =  n_distinct(ID)) 
+
+nprot_DE = nDE %>% dplyr::select(S1,S2,Np_up,tot_up,tot_down,tot_reg,Np_down,Np_reg,starts_with('s2',ignore.case = F)) %>% distinct() 
+
+nprot_DE2 = nprot_DE %>% 
+  filter(S2 == 'CQC') %>% 
+  dplyr::select(c('S1','S2'),starts_with('s2')) %>%   
+  dplyr::rename_with(.cols=starts_with('s2'), .fn = str_remove, pattern='s2') %>% 
+  dplyr::rename(S1=S2, S2=S1) %>% 
+  bind_rows(nprot_DE %>% dplyr::select(-starts_with('s2')))
+
+
+pDE =ggplot(nprot_DE2) + 
+  geom_hline(yintercept = 0, size=0.5) +
+  geom_col(aes(x=S1,y=Np_up, fill=S1, col='Upregulated'),position='dodge',width=0.3,linetype='32') + 
+  geom_col(aes(x=S1,y=-Np_down, fill=S1,col='Downregulated'),position='dodge',width=0.3,linetype='32') +
+  geom_text(aes(x=S1,label=Np_up,y=Np_up,col='Upregulated'),check_overlap = T,vjust=-0.2)+
+  geom_text(aes(x=S1,label=Np_down,y=-Np_down,col='Downregulated'),check_overlap = T,vjust=1.2)+
+  geom_text(aes(x=S1,label=Np_reg),check_overlap = T,y=0,vjust=0.5,size=4,angle=-90,col='white') + 
+  scale_y_continuous("# Upregulated", position = 'left',expand = c(0.15,0.15),
+                     sec.axis = sec_axis(name='# Downregulated', trans = ~ .*-1 )) + 
+  scale_color_manual(values=c("Downregulated" = 'red',"Upregulated" = 'blue')) + 
+  scale_fill_metro() +
+  ylab('Number of Proteins')+
+  theme(legend.position='none',
+        panel.grid.major.y =  element_line(size=0.75),
+        panel.grid.minor.y =  element_line(linetype = '32',size=0.5),
+        panel.grid.major.x =  element_blank(),
+        axis.line.y = element_line(size=0.5),
+        panel.border = element_blank())
+
+ggsave(pDE,path=here::here('plot'),
+       filename='barplot_DE_prot_count.pdf', scale=0.9)
+ggsave(pDE,path=here::here('plot'),
+       filename='barplot_DE_prot_count.png', scale=0.9)
+plot(pDE)
+
+```
+
+
+```{r dfe-gene, out.width='100%' }
 ## Differentially expressed genes
 
-```{r dfe-gene }
+dfe = get_dfe(INPUT=int_bpca, WHICH='both',MIN_LFC=CUTOFF_LFC, MIN_PVAL=CUTOFF_PV, TOPN = 20, 
+              count_up=T, count_down=T) %>% 
+      group_by(ID) %>%
+      mutate( mean_FC = mean(EffectSize), 
+              mean_FC_down = mean(EffectSize[sig =='Downregulated']),
+              mean_FC_up = mean(EffectSize[sig =='Upregulated']),
+              total_sig = n(), total_up = sum(sig =='Upregulated'), total_down = sum(sig =='Downregulated')) %>% 
+      group_by(ID,sig) %>% mutate(n_sig = n()) %>% 
+      left_join(sc_identifiers,by=c('ID'='UNIPROT')) %>%
+      rowwise() %>% 
+      mutate( GENENAME = replace_na(GENENAME,ID))  %>%
+      mutate(nstrains_de = nstrains_up+nstrains_down) %>%
+      ungroup()
+
+df_dfe = dfe %>% 
+         dplyr::select(ID,ORF,GENENAME,starts_with(c('mean_FC','nstrains_','total_'))) %>% 
+         distinct() %>% arrange(GENENAME,ID) %>% 
+        mutate( ratio_strains = nstrains_up - nstrains_down,
+                ratio_de = (total_up/total_sig)-(total_down/total_sig) )
+
+nprot = df_dfe %>% ungroup() %>% 
+  summarize( nde = n_distinct(ID),
+             nup=sum(ratio_de>0.125), 
+             ndown=sum(ratio_de<0.125), 
+             nboth=sum(between(ratio_de,c(-0.125,0.125))), 
+             counts = sprintf("DE=%s\nUp %s\nDown %s\nBoth %s",nde,nup,ndown,nboth),
+             ) %>% bind_cols(spearman.toplot(df_dfe$mean_FC,df_dfe$ratio_de))
+
+library(scales)
+ratio_scales <- math_format(frac(.x,8))
+
+DE = ggplot(df_dfe , aes(x=ratio_strains, y=mean_FC, size=nstrains_de/16, col=ratio_de )) + 
+   geom_vline(xintercept=c(-1,1),linetype=2) +
+  geom_point(col='black',size=0.5) + 
+  geom_text_repel(aes(label=GENENAME),check_overlap = F,max.overlaps = 50,max.time = 10,min.segment.length = 0.5) + 
+  geom_text(data=nprot,aes(label=toshow),x=-Inf,y=Inf,hjust=-0.1,vjust=1.1,inherit.aes = F,size=7) +
+  geom_text(data=nprot,aes(label=counts),x=Inf,y=-Inf,hjust=1.1,vjust=-.1,inherit.aes = F,size=7) +
+  scale_size(range = c(2,5)) +
+  scale_color_gradient2(low = 'red',high='blue',mid = 'purple') +
+  scale_x_continuous(labels = ratio_scales, breaks = seq(-4,5,by=1),limits=c(-3,5)) +
+  guides(size='none', color='none') +
+  xlab('f(up strains) - f(down strains)')  + ylab('Average log2-FC (across all pairs)') 
+ggsave(plot = DE, width=12,height=12, 
+       path=here::here('plot'), filename='diffexp-gene-imputed.png')
+ggsave(plot = DE, width=12,height=12, 
+       path=here::here('plot'), filename='diffexp-gene-imputed-pv2.pdf')
+plot(DE)
+```
+
+
+```{r}
 # Without NA
-volcano_data =  get_volcano_data(input_data=df_int_bpca, min_lfc=2, min_pval=0.01, topn = 50) %>%
+volcano_nona =  get_volcano_data(input_data=df_int_norm, min_lfc=2, min_pval=0.01, topn = 50) %>%
                 bind_rows() %>% as_tibble()
-dfe_nona = subset(volcano_data,sig!='Non significant')
+dfe_nona = subset(volcano_nona,sig!='Non significant')
 N_DFE_NONA = nrow(dfe_nona)
 NPROT_DFE_NONA =  n_distinct(dfe_nona$ID)
 R_NONA = N_DFE_NONA/NPROT_DFE_NONA %>% round(0)
-# With imputed expression to replace NA
-dfe = get_dfe(INPUT=df_int_bpca, WHICH='both',MIN_LFC=2, MIN_PVAL=0.01, TOPN = 20, 
-              count_up=T, count_down=T)
 
+# With imputed expression to replace NA
 gene_diffexp = unique(dfe$ID)
-gene_sameexp = unique(setdiff(volcano_data$ID,dfe$ID) )
 
 df_int_bpca = df_int_bpca %>% mutate(is_regulated = uniprot %in% gene_diffexp)
 
 sc_abundance = load.abundance()
 strain_exp= df_int_bpca %>%  group_by(uniprot) %>% mutate(mean_strains = mean(c_across(all_of(toupper(samples)))) )
 
+evo_yeast %>% 
+  dplyr::rename_with(.cols=-c(orf,UNIPROT,GENENAME,SGD,OG), .fn=Pxx, px="cat_evolution")
+
+
 DD = volcano_data %>% group_by(ID) %>% 
-      summarize(var_lfc = var(EffectSize), mean_lfc = mean(EffectSize)) %>%
-      left_join(evo_yeast, by=c('ID'='UNIPROT')) %>% 
-      dplyr::left_join(sc_abundance, by=c('orf')) %>% 
+      summarize(cat_expression.var_lfc = var(EffectSize), cat_expression.mean_lfc = mean(EffectSize)) %>%
+      left_join(, by=c('ID'='UNIPROT')) %>% 
+      dplyr::left_join(sc_abundance  %>% dplyr::rename_with(.cols=-orf, .fns = Pxx, px="cat_expression", s='.'), by=c('orf')) %>% 
       left_join(strain_exp,by=c('ID'='uniprot')) %>%
       mutate(sig = ID %in% dfe_nona$ID) %>% 
-      mutate(f_snp.nt.y8 = n_snp.nt.y8/len.nt,
-             f_snp.nt.yk11 = n_snp.nt.yk11/len.nt,
-              f_snp.aa.y8 = n_snp.aa.y8/len.aa,
-              f_snp.aa.yk11 = n_snp.aa.yk11/len.aa
+      mutate(cat_evolution.y8.f_snp_nt = n_snp.nt.y8/len.nt,
+             cat_evolution.yk11.f_snp_nt = n_snp.nt.yk11/len.nt,
+             cat_evolution.y8.f_snp_aa = n_snp.aa.y8/len.aa,
+             cat_evolution.yk11.f_snp_aa = n_snp.aa.yk11/len.aa
              ) %>%
       left_join(gene_feature,by=c('ID'='UNIPROTKB'))
-gene_numfeat =  DD %>% dplyr::select(1:5, where(is.numeric)) %>% relocate(where(is.character))
+gene_numfeat =  DD %>% dplyr::select(1:5, where(is.numeric), -starts_with(all_strains)) %>% relocate(where(is.character))
 
+colnames(gene_numfeat) %>% str_subset(pattern="^cat_",negate = T)
 # spearman(DD$var_lfc,DD$mean_strains)
 # spearman(DD$var_lfc,DD$f_snp)
 # spearman(DD$var_lfc,DD$r4s.fungi)
@@ -80,35 +271,48 @@ give.n <- function(x){
 }
 plots_POS_REG = list()
 plots_NEG_REG = list()
+
+feat_list = list()
+x=0
 for(i in 7:ncol(gene_numfeat)){
+  x=x+1
   feat = colnames(gene_numfeat)[i]
   dd = DD %>% dplyr::select(all_of(c('ID','orf','GNAME','HAS_ORTHOLOG','len_ref','is_regulated',feat,'MPC','r4s.yk11','r4s.fungi',toupper(samples))))
   s1 = dd[dd$is_regulated,feat] %>% drop_na %>% pull(feat) %>% as.numeric
   s2 = dd[!dd$is_regulated,feat]%>% drop_na %>%  pull(feat) %>% as.numeric
   w = wilcox.test(x=s1,y=s2)
+  feat_list[[x]] = tibble(var = feat, 
+                       med.regulated= median(s1),
+                       med.unregulated = median(s2), 
+                       diff_med  = median(s1)-median(s2), 
+                       wilcox.pv  = w$p.value)
+
   if(w$p.value<0.01){
-    if(median(s1) < median(s2)){
-       plots_POS_REG[[feat]] = ggboxplot(dd,x="is_regulated",y=feat) + stat_compare_means() +
+    if(median(s1) > median(s2)){
+       plots_POS_REG[[feat]] = ggboxplot(dd,x="is_regulated",y=feat,add = c('boxplot','jitter')) + stat_compare_means() +
                                stat_summary(fun.data = give.n, geom = "text", fun.y = median)
     }else{
-      plots_NEG_REG[[feat]] = ggboxplot(dd,x="is_regulated",y=feat) + stat_compare_means() + 
+      plots_NEG_REG[[feat]] = ggboxplot(dd,x="is_regulated",y=feat,add = c('boxplot','jitter')) + stat_compare_means() + 
                               stat_summary(fun.data = give.n, geom = "text", fun.y = median)
     }
   }
 }
+df_feat = feat_list %>% bind_rows() %>% arrange(diff_med) %>% 
+  separate(col=var, into=c('category','source','variable'), sep = '\\.')
+length(plots_NEG_REG)
+length(plots_POS_REG)
+plots_NEG_REG[[12]]
+names(plots_NEG_REG)
+names(plots_POS_REG)
 
-# length(plots_NEG_REG)
-# length(plots_POS_REG)
+ggplot(df_feat) + geom_col(aes(x=var,y=diff_med))
 
-# names(plots_NEG_REG)
-# names(plots_POS_REG)
-
-# library(gridExtra)
-# pdf("~/Desktop/plots-features-negative_regulated.pdf", onefile = TRUE)
-# for (i in seq(length(plots_NEG_REG))) {
-#   plot(plots_NEG_REG[[i]])  
-# }
-# dev.off()
+library(gridExtra)
+pdf("~/Desktop/plots-features-negative_regulated.pdf", onefile = TRUE)
+for (i in seq(length(plots_NEG_REG))) {
+  plot(plots_NEG_REG[[i]])
+}
+dev.off()
 
 
 # library(gridExtra)
@@ -133,20 +337,20 @@ R_IMPUTE= N_DFE_IMPUTE/NPROT_DFE_IMPUTE %>% round(0)
 #   dplyr::left_join(sc_identifiers, by=c('ID'='UNIPROT'))
 
 # Number of times a hit is differentially expressed
-df_dfe = dfe %>% 
+DFE = dfe %>% 
          left_join(janitor::tabyl(dfe,ID,sig)) %>%
          rename(uniprot=ID) %>% 
          group_by(uniprot,comparison) %>% 
           mutate( n_strains_up = sum(c_across(starts_with('up_')) !=0 ),
                 n_strains_down = sum(c_across(starts_with('down_'))!=0)) %>%
         replace_na(list(n_strains_up=0,n_strains_down=0)) %>%
-        left_join(evo_yeast, by=c('uniprot'='UNIPROT')) %>% 
-        relocate(uniprot,GENENAME,sig,pValue,qValue,EffectSize,comparison,
-                 Downregulated,Upregulated,n_strains_up,n_strains_down,orf)
+        left_join(evo_yeast, by=c('uniprot'='UNIPROT','ORF'='orf','GENENAME','SGD')) %>% 
+        relocate(uniprot,GENENAME,ORF,sig,pValue,qValue,EffectSize,comparison,
+                 Downregulated,Upregulated,n_strains_up,n_strains_down,)
   
 
-df_dfe_annot = df_dfe %>%
-          left_join(sc_annotation_orf,by=c('uniprot'='UNIPROT')) %>%
+df_dfe_annot = DFE %>%
+          left_join(sc_annotation_orf,by=c('uniprot'='UNIPROT','ORF')) %>%
   mutate(uniprot_link = paste0("<a href='https://www.uniprot.org/uniprot/",uniprot,"'>",uniprot,"</a>"),
          sgd_link = paste0("<a href='https://www.yeastgenome.org/locus/",SGD,"'>",SGD,"</a>"),
          regulated = Downregulated+Upregulated) %>% 
@@ -213,16 +417,19 @@ ft_dt
 
 dat_scaled = int_scaled_strains %>% as.data.frame() %>% rownames_to_column('uniprot') 
 
-dfe_exp = dat_scaled %>% dplyr::filter( uniprot %in% dfe$ID) %>% 
+dfe_exp = dat_scaled %>% dplyr::filter( uniprot %in% DFE$uniprot) %>% 
           left_join(sc_identifiers,by=c('uniprot'='UNIPROT'))  %>% 
           dplyr::filter(!duplicated(GENENAME)) %>%
           mutate(GENENAME=if_na(GENENAME,uniprot))%>%
           column_to_rownames(var = 'GENENAME') %>%
           dplyr::select(-ORF,-uniprot,-SGD)
 
-p_dfe_exp=pheatmap::pheatmap(dfe_exp,
-                             fontsize = 5,cellwidth = 5,cellheight =5,border_color = NA,treeheight_col = 10,
-                             filename = here('plot','heatmap-exp.png'))
+
+
+p_dfe_exp=pheatmap::pheatmap(dfe_exp,border_color = NA,
+                             #fontsize = 5,cellwidth = 5,cellheight =5,
+                             treeheight_col = 10,
+                             filename = here('plot','heatmap-exp.pdf'))
 knitr::include_graphics('plot/heatmap-exp.png',auto_pdf = T)
 ```
 
@@ -231,19 +438,23 @@ knitr::include_graphics('plot/heatmap-exp.png',auto_pdf = T)
 
 ```{r heatmap-diffexp, fig.height=25, fig.path='plot/', fig.show='hold', warning=F, lightbox=T, gallery=T, out.width='100%'}
 
-dfe_lfc = get_volcano_data(input_data=int_bpca, which='both',min_lfc=2, min_pval=0.01, topn = 20) %>% 
+dfe_lfc = volcano_imp %>% 
           bind_rows %>% as_tibble() %>%
           pivot_wider(id_cols=ID, names_from = 'comparison', values_from = 'EffectSize') %>% 
-          dplyr::filter(ID %in% dfe$ID) %>% 
+          dplyr::filter(ID %in% DFE$uniprot) %>% 
           left_join(sc_identifiers,by=c('ID'='UNIPROT')) %>%
           dplyr::filter(!duplicated(GENENAME)) %>%
           mutate(GENENAME=if_na(GENENAME,ID))%>%
           column_to_rownames('GENENAME')
 
 dfe_lfc_mat = dfe_lfc %>% dplyr::select(-ORF,-ID,-SGD)
+
+
 # Heatmap of differentially expressed genes
-pheatmap::pheatmap(dfe_lfc_mat,fontsize = 5,cutree_rows = 10,cellwidth = 5,cellheight =5,border_color = NA,
-                          treeheight_col = 10, filename = here('plot','heatmap-lfc.png')  )
+pheatmap::pheatmap(dfe_lfc_mat,scale = 'row',
+                   fontsize = 5, cutree_rows = 10,#cellwidth = 5,cellheight
+                   border_color = NA, cluster_cols = T, #kmeans_k = 10,
+                   filename = here('plot','heatmap-lfc.pdf')  )
 knitr::include_graphics('plot/heatmap-lfc.png',auto_pdf = T)
 ```
 
@@ -253,10 +464,17 @@ knitr::include_graphics('plot/heatmap-lfc.png',auto_pdf = T)
 # Transpose the matrix to calculate distance between experiments row-wise
 d_strain <- dfe_lfc_mat %>% t() %>% dist(.,method = "euclidean", diag = FALSE, upper = FALSE)
 # Calculate the distance between proteins row-wise 
-d_prot <- dfe_lfc_mat %>% dist(.,method = "euclidean", diag = FALSE, upper= FALSE)
+d_prot <- dfe_lfc_mat %>% scale() %>% dist(.,method = "euclidean", diag = FALSE, upper= FALSE)
 
-hc_prot = hclust(d_prot,method='ward.D2')
-cl_prot = hc_prot %>% cutree(k=10)
+cl_prot = M3C::M3C(t( dfe_lfc_mat ) %>% scale() ),seed = '260722')
+
+
+cl_prot = dfe_lfc_mat %>% t() %>% scale() %>%
+          t() %>% dist() %>%
+          hclust(method='ward.D2') %>% 
+          cutree(k=10) 
+table(cl_prot)
+
 library(dendextend)
 dend_prot = as.dendrogram(hc_prot)
 dend_prot = rotate(dend_prot,seq_along(cl_prot))

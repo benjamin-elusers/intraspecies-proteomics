@@ -1,6 +1,14 @@
 ```{r load-data-proteomics, echo=F}
 chap_cur=03
 #load(here('output',sprintf('%02d-proteomics.rdata',chap_cur-1)))
+
+# dub = load.dubreuil2019.data(1)
+# dim(dub)
+# 
+# sum(ms0$protein_i_ds %in% dub$UNIPROT)
+# sum(ms1$protein_i_ds %in% dub$UNIPROT[dub$isMB])
+# sum(ms1$protein_i_ds %in% dub$UNIPROT[!dub$isMB])
+
 ```
 
 # Data processing
@@ -77,6 +85,8 @@ INT_NORM = normalize_intensities(int = int_lfq, design = df.group)
 NORM_METHODS = names(INT_NORM@normalizations)
 df_all_norm <- INT_NORM@normalizations %>% 
                map2_df(.y = NORM_METHODS,~mutate(id=rownames(.x),as_tibble(.x),method=.y))
+
+#int_norm = INT_NORM@normalizations$median %>% as.data.frame()
 
 TAB_NORM = kbl(NORM_METHODS,row.names = T,col.names = 'Normalizations:',position = 'left') %>% 
             kable_paper("striped", full_width = F) %>% 

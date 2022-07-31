@@ -1,6 +1,12 @@
 ```{r load-data-processed, echo=F}
 chap_cur=04
 #load(here('output',sprintf("%02d-processed-data.rdata",chap_cur-1)))
+th_strip = theme(strip.background = element_blank(), strip.text = element_blank(),
+                 panel.border = element_blank(),
+                 panel.grid.major = element_line(size=0.5),
+                 panel.grid.minor = element_line(size=0.25,linetype = '32'),
+                 legend.position = 'none')
+
 ```
 
 # Quality control {#qc}
@@ -16,11 +22,11 @@ long_int_all = get_long_intensities(intensities) %>% mutate(int2use = log10_int)
 
 ## Total sample intensities
 
-```{r tot_int, echo=F, fig.cap='Total intensities per sample',out.width='100%', fig.dim=c(20,10)}
+```{r tot_int, echo=F, fig.cap='Total intensities per sample',out.width='100%'}
 # Sum of intensities per samples
 tot_int_raw  = sum_intensities(int_raw)
 tot_int_lfq  = sum_intensities(int_lfq,'lfq_intensity')
-tot_int_norm = sum_intensities(int_md_norm)
+tot_int_norm = sum_intensities(int_norm)
 tot_int_imp  = sum_intensities(int_bpca)
 
 axis16 = theme(axis.title = element_text(size=24))
@@ -28,7 +34,8 @@ b1=draw_barplot_sumint(tot_int_raw,'Total intensity (raw)')+ scale_fill_metro() 
 b2=draw_barplot_sumint(tot_int_lfq,'Total intensity (lfq)')+ scale_fill_metro()+ axis16
 b3=draw_barplot_sumint(tot_int_norm,'Total intensity (normalized)') + scale_fill_metro()+ axis16
 b4=draw_barplot_sumint(tot_int_imp,'Total intensity (imputed)') + scale_fill_metro()+ axis16
-QC1 = plot( (b1| b2) / (b3 | b4) ) 
+QC1 = (b1| b2) / (b3 | b4) 
+plot(QC1)
 
 ggsave(QC1,filename =  here::here('plot','QC-total-intensities.png'), scale = 1.5)
 
@@ -112,15 +119,18 @@ mean_na_outliers = mean_(count_NA_samples %>% dplyr::filter(is_outlier) %>% pull
 mean_na = mean_(count_NA_samples %>% dplyr::filter(!is_outlier) %>% pull(n_na)) %>% round()
 
 bp_na = ggplot(count_NA_samples,aes(x=sample,label=sample)) + 
-        geom_col(aes(y=n_na,fill=strain,col=is_outlier)) + 
-        geom_text(data=subset(count_NA_samples,!is_outlier),aes(y=0),angle=90,hjust=-0.1)+
-        geom_text(data=subset(count_NA_samples,is_outlier),aes(y=0),angle=90,hjust=-0.1,col='red')+
-        ylab('# NAs') +
-        theme(axis.text.x = element_blank(),axis.ticks = element_blank()) +
-        geom_hline(yintercept = mean_na_outliers,col='red',linetype=2) + 
-        geom_hline(yintercept = mean_na) + scale_color_manual(values = c('TRUE'='red'))
+  geom_col(aes(y=n_na,fill=strain,col=is_outlier)) + 
+  geom_text(data=subset(count_NA_samples,!is_outlier),aes(y=0),angle=90,hjust=-0.1,size=2.5)+
+  geom_text(data=subset(count_NA_samples,is_outlier),aes(y=0),angle=90,hjust=-0.1,fontface='bold',size=2.5)+
+  ylab('# NAs') +
+#  geom_hline(yintercept = mean_na_outliers,size=1) + 
+  geom_hline(yintercept = mean_na,linetype=2,size=0.5) +
+  scale_fill_metro() +
+  scale_color_manual(values = c('TRUE'='black','FALSE'='white')) + 
+  facet_wrap(~strain,scale='free_x',nrow = 2) +
+  th_strip + 
+  theme(axis.text.x = element_blank(),axis.ticks = element_blank())
 
-  
 plot(bp_na)
 ```
 
@@ -187,7 +197,7 @@ About 86% protein hits were expressed in the majority of the strains (at least 5
 Furthermore, we can check whether the proportion of missing values is equally 
 distributed among all samples.
 
-```{r na-samples, echo=F, fig.cap='Number of quantified intensities across samples', out.width='100%', fig.height=12, fig.width=12}
+```{r na-samples, echo=F, fig.cap='Number of quantified intensities across samples', out.width='100%'}
 # Count hits with NA in samples/groups
 na_int= intensities %>% 
         group_by(uniprot) %>%
@@ -208,14 +218,12 @@ p_upset = ComplexUpset::upset(
   ), themes = ComplexUpset::upset_default_themes(text=element_text(size=26))
 )
 
-p_upset 
+plot(p_upset)
 # w1200px =  unit(1200,'px')
 ggsave(p_upset, path=here('plot'),
         filename = 'upset-samples-combination-nacount.pdf', 
         device = 'pdf',scale = 2, dpi=300,  width = 1200, units='px')
 
- 
-knitr::include_graphics(here('plot','upset-samples-combination-nacount.pdf'),auto_pdf = T)
 ```
 
 
@@ -225,11 +233,11 @@ Coefficient of variations correspond to the percent of variance relative to the 
 The following boxplots show how variable protein expression is, across strains
 or across biological replicates, before and after normalization.
 
-```{r boxplot-cv, echo=F, fig.cap='Coefficient of variations (%) across samples for each normalization method', fig.height=10, fig.width=10}
+```{r boxplot-cv, echo=F, fig.cap='Coefficient of variations (%) across samples for each normalization method'}
 
 CV_raw = calculate_cv(long_int_all,by_bio = F) 
 box_cv_raw = draw_boxcv(CV_raw,by_bio = F)
-box_cv_raw
+plot(box_cv_raw)
 #CV_norm = calculate_cv(long_int_norm,by_bio = F)
 # box_cv_norm = draw_boxcv(CV_norm,by_bio = F)
 # plot(box_cv_raw / box_cv_norm)
@@ -245,7 +253,7 @@ CV_norm = INT_NORM@ner@avgcvmem %>% as_tibble() %>%
 box_cv_norm = ggplot(CV_norm, aes(x=fct_relevel(normalization,'log2'),y=CV)) + 
   geom_boxplot(fill='gray',outlier.shape=21, outlier.size=0.5, outlier.fill = NA) + xlab('Normalization method') + ylab('%CV samples')  +
   geom_text(aes(label = outlier), na.rm = TRUE, vjust = -0.5, size=2.5)
-box_cv_norm
+plot(box_cv_norm)
 
 ggsave(box_cv_norm,
        filename = here::here('plot','QC-boxplot-normalization.png'),scale=1.1)
@@ -263,7 +271,8 @@ expression before and after normalization using each of the following normalizat
 `r TAB_NORM`
 
 ```{r exp_density,fig.height=8, fig.width=5}
-dd=draw_normalization_density(int_raw,int_lfq,df.group)
+dd=draw_normalization_density(int_raw,int_lfq,df.group) 
+plot(dd)
 ggsave(dd, filename=here::here('plot','QC-normalization-density.png'), scale = 1.5)
 ```
 
@@ -279,7 +288,7 @@ The outliers strains in overall protein expression (CMP and CQC) that contained
 more missing values are slighlty shifted to negative values (i.e. lower expression).
 
 
-```{r imp_vs_norm, fig.height=4, fig.width=12}
+```{r imp_vs_norm, fig.height=6, fig.width=12,out.width='100%'}
 long_bpca = int_bpca %>% 
           rownames_to_column('uniprot') %>% 
           pivot_longer(-uniprot, 
@@ -310,11 +319,6 @@ n_exp = left_join(long_bpca,long_int) %>%
            n_toshow = sprintf("N=%s\nNA=%s",n_uni,n_imp)
         )
 
-th_strip = theme(strip.background = element_blank(), strip.text = element_blank(),
-                 panel.border = element_blank(), 
-                 panel.grid.major = element_line(size=0.5), 
-                 panel.grid.minor = element_line(size=0.25,linetype = '32'),
-                 legend.position = 'none') 
 
 p_imp = ggplot(df_exp) + 
   geom_density(aes(x=int_imp,color=strain,fill=strain),bw=0.2) +
@@ -331,12 +335,12 @@ p_imp = ggplot(df_exp) +
 
 ggsave(p_imp, filename = here::here('plot','density-imputed-vs-norm.png'),scale=1.2)
 ggsave(p_imp, filename = here::here('plot','density-imputed-vs-norm.pdf'),scale=1.2)
-p_imp
+plot(p_imp)
 ```
 
 ### Difference of imputed and normalized intensities
 
-```{r delta_imp_norm, fig.height=10, fig.width=4}
+```{r delta_imp_norm, out.width='100%'}
 d_exp = df_exp %>%
         group_by(strain) %>%  
         summarize( mu = mean_(delta_imp), sigma = sd_(delta_imp))
@@ -359,8 +363,7 @@ p_delta = ggplot(df_exp) +
 ggsave(p_delta, filename = here::here('plot','density-delta-imputed-vs-norm.png'),scale=1.2)
 ggsave(p_delta, filename = here::here('plot','density-delta-imputed-vs-norm.pdf'),scale=1.2)
 
-
-p_delta
+plot(p_delta)
 ```
 
 ## Compare all-vs-all expression
@@ -382,7 +385,7 @@ knitr::include_graphics(here('plot','scatterplot-samples-intensities.pdf'),auto_
 ```{r heatmap-all, fig.path='plot/', fig.show='hold', warning=F, fig.height=15, fig.width=15, out.width='100%' }
 # heatmap correlation
 cs_all=compute_samples_correlation(int_all)
-COR_RANGE = range( cs_all[row(cs_all) == (col(cs_all) - 1)] )
+COR_RANGE = range( cs_all[ upper.tri(COR_RANGE) ] )
 
 by_sample = df.group %>% column_to_rownames("sample")
 hm_all=draw_heatmap_samples(mcor = cs_all,df.group=by_sample,col.group = col.group)

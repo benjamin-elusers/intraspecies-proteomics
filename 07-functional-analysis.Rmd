@@ -22,6 +22,20 @@ library(enrichplot)
 library(clusterProfiler)
 library(org.Sc.sgd.db)
 
+genes_proteomics = all_genes$ORF
+
+UP    = df_dfe$ORF[ df_dfe$ratio_strains > 1 ]
+DOWN  = df_dfe$ORF[ df_dfe$ratio_strains < -1 ]
+BOTH  = df_dfe$ORF[ between(df_dfe$ratio_strains,c(-1,1)) ]
+GRP = list(upregulated=UP,downregulated=DOWN,both=BOTH)
+
+
+GO = gprofiler2::gost(GRP, organism = 'scerevisiae', significant = T, 
+                 user_threshold = 0.01, custom_bg = genes_proteomics)
+GG = gprofiler2::gostplot(GO,interactive = T)
+pp <- publish_gostplot(GG, highlight_terms = GO$result,height = 12,width=14, filename=here::here('plot','GO-gprofiler2-up_down_both-pv5.pdf'))
+
+
 all_genes = int_scaled_strains %>%
   as.data.frame() %>%
   rownames_to_column('ID') %>% 
@@ -34,26 +48,52 @@ all_genes = int_scaled_strains %>%
 FONT_SIZE=7
 WRAPPING=20
 
-genes_proteomics = all_genes$ORF
 genes_dfe = dfe_lfc$ORF
 genes_dfe_list = df_dfe_annot %>% group_by(ORF) %>% summarize( mean_lfc = mean(EffectSize)) %>% arrange(desc(mean_lfc)) %>% pull(mean_lfc,ORF) 
 
 gs_cc <- gseGO(geneList= genes_dfe_list, OrgDb = org.Sc.sgd.db, keyType = "ORF", 
-              ont = "CC", minGSSize = 20, maxGSSize = 500, pvalueCutoff = 0.05)
+              ont = "CC", minGSSize = 20, maxGSSize = 500, pvalueCutoff = 1e-2)
 gs_mf <- gseGO(geneList= genes_dfe_list, OrgDb = org.Sc.sgd.db, keyType = "ORF", 
-              ont = "MF", minGSSize = 20, maxGSSize = 500, pvalueCutoff = 0.05)
+              ont = "MF", minGSSize = 20, maxGSSize = 500, pvalueCutoff = 1e-2)
 gs_bp <- gseGO(geneList= genes_dfe_list, OrgDb = org.Sc.sgd.db, keyType = "ORF", 
-              ont = "BP", minGSSize = 20, maxGSSize = 500, pvalueCutoff = 0.05)
+              ont = "BP", minGSSize = 20, maxGSSize = 500, pvalueCutoff = 1e-2)
+
+# gs_all <- gseGO(geneList= genes_dfe_list, OrgDb = org.Sc.sgd.db, keyType = "ORF", 
+#               ont = "ALL", minGSSize = 20, maxGSSize = 500, pvalueCutoff = 1e-2) 
 
 if( has_enriched(gs_mf) ){
-  dotplot(gs_mf,title='GeneSet enrichment - Molecular Function',color='p.adjust',label_format=WRAPPING,font.size=FONT_SIZE)
+  g1 = dotplot(gs_mf,color='p.adjust',
+                 label_format=WRAPPING,font.size=FONT_SIZE,
+                 title='GeneSet enrichment - Molecular Function') 
 }
 if( has_enriched(gs_bp) ){
-  dotplot(gs_bp,title='GeneSet enrichment - Biological Process',color='p.adjust',label_format=WRAPPING,font.size=FONT_SIZE)
+  g2 = dotplot(gs_bp, color='p.adjust',
+               label_format=WRAPPING,font.size=FONT_SIZE,
+               title='GeneSet enrichment - Biological Process')
 }
 if( has_enriched(gs_cc) ){
-  dotplot(gs_cc,title='GeneSet enrichment - Cellular Component',color='p.adjust',label_format=WRAPPING,font.size=FONT_SIZE)
+  g3 =  dotplot(gs_cc,color='p.adjust',
+                label_format=WRAPPING,font.size=FONT_SIZE,
+                title='GeneSet enrichment - Cellular Component')
 }
+
+# gall =  dotplot(gs_all,color='p.adjust',
+                # label_format=WRAPPING,font.size=FONT_SIZE,
+                # title='GeneSet enrichment - All ontologies')
+g1 | g2 | g3
+
+library(gprofiler2)
+
+gostres <- gost(query = names(genes_dfe_list), 
+                organism = "scerevisiae", ordered_query = FALSE, 
+                multi_query = FALSE, significant = TRUE, exclude_iea = FALSE, 
+                measure_underrepresentation = FALSE, evcodes = FALSE, 
+                user_threshold = 0.01, correction_method = "g_SCS", 
+                domain_scope = "custom", custom_bg = genes_proteomics, 
+                numeric_ns = "", sources = NULL, as_short_link = FALSE)
+gostplot(gostres, capped = TRUE, interactive = T)
+
+library(simplifyEnrichment)
 ```
 
 ## KEGG pathway enrichment
@@ -106,6 +146,15 @@ cl_bp <- compareCluster(geneCluster = genes_dfe_cluster, fun = enrichGO, univers
 cl_mf <- compareCluster(geneCluster = genes_dfe_cluster, fun = enrichGO, universe=genes_proteomics,
                      OrgDb= org.Sc.sgd.db, keyType= "ORF", ont='MF', pool=F,
                      pAdjustMethod = "BH", pvalueCutoff  = 0.05)
+
+gostres <- gost(query =genes_dfe_cluster, 
+                organism = "scerevisiae", ordered_query = FALSE, 
+                multi_query = FALSE, significant = TRUE, exclude_iea = FALSE, 
+                measure_underrepresentation = FALSE, evcodes = FALSE, 
+                user_threshold = 0.01, correction_method = "g_SCS", 
+                domain_scope = "custom", custom_bg = genes_proteomics, 
+                numeric_ns = "", sources = NULL, as_short_link = FALSE)
+gostplot(gostres, capped = TRUE, interactive = F)
 
 if( has_enriched(cl_mf)  ){
 dotplot(cl_mf,title='Cluster enrichment - Molecular Function',color='p.adjust',label_format=WRAPPING,font.size=FONT_SIZE)
