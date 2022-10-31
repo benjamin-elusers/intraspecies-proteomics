@@ -64,9 +64,16 @@ collaboration with the Riken institute in Japan.
 ```{r load-rna-ribo-data}
 ## Our dataset
 isolates = c('CPI','CMP','AMH','CQC','BPL','BTT','BED','BAN') %>% sort
-RNA_seq_data = readRDS(here("data",'RNA_seq.RDS')) %>% relocate(all_of(isolates))
-Ribo_seq_data = readRDS(here("data",'Ribo_seq.RDS')) %>% relocate(all_of(isolates))
-n = nrow(RNA_seq_data)
+exp_order = c('RNA','Ribo','Prot')
+
+RNA_data = readRDS(here("data",'RNA_seq.RDS')) %>% relocate(all_of(isolates))
+Ribo_data = readRDS(here("data",'Ribo_seq.RDS')) %>% relocate(all_of(isolates))
+Prot_data = readRDS(here::here('output','log2-int_lfq-na_imputed-norm_median.rds'))
+
+nprot = nrow(Prot_data)
+nrna = nrow(RNA_seq_data)
+nribo = nrow(Ribo_seq_data)
+
 strains = fread(here("data",'strains.csv'),data.table = F)
 strains = strains[strains$`Standardized name`%in%isolates,c(1,2,3,4,9,10,11,16)]
 library(DT)
@@ -83,9 +90,9 @@ the ORF length and we applied a per million factor (total read count /
 
 ```{r corr-rna-ribo}
 
-p1= ggcorr(RNA_seq_data ,method = c("everything", "spearman"), label = T, label_round = 2, midpoint = 0.75, limits = c(0.6,1), size = 2)+
+p1= ggcorr(RNA_data, method = c("everything", "spearman"), label = T, label_round = 2, midpoint = 0.75, limits = c(0.6,1), size = 2)+
   ggtitle('RNA-seq correlation matrix')
-p2=ggcorr(Ribo_seq_data ,method = c("everything", "spearman"), label = T, label_round = 2, midpoint = 0.75, limits = c(0.6,1), size = 2)+
+p2=ggcorr(Ribo_data, method = c("everything", "spearman"), label = T, label_round = 2, midpoint = 0.75, limits = c(0.6,1), size = 2)+
   ggtitle('Ribo-seq correlation matrix')
 
 grid.arrange(p1,p2, ncol=2)
@@ -99,33 +106,33 @@ translation.
 ## Overlap with proteomic
 
 ```{r overlap-proteomics}
-
-proteomic_WIS2 = fread(here::here('output','median-normalized.txt'), data.table = F)
-n = nrow(proteomic_WIS2)
-a = fread(here::here('output','proteomics-normalized-log10_intensities.tsv'))
-rownames(proteomic_WIS2)= a$UNIPROT
+# proteomic_WIS2 = fread(here::here('output','median-normalized.txt'), data.table = F)
+# n = nrow(proteomic_WIS2)
+#a = fread(here::here('output','proteomics-normalized-log10_intensities.tsv'))
+#rownames(proteomic_WIS2)= a$UNIPROT
 
 prot_gene_name = fread(here::here('output','test.csv'), fill = T, data.table = F) %>% 
                   mutate(Chromosome = recode(Chromosome,'(3)'=V8) ) %>% 
-                  dplyr::select(-V8) %>%
+                  dplyr::select(-V8) %>% 
+                  rowwise %>%
+                  mutate( SGD_names = dplyr::na_if(SGD_names,'-')) %>%
                   dplyr::filter(!duplicated(prot_names))
-                  
 
 # Calculate mean of normalized intensity per strain
-int_strains = pivot_longer(proteomic_WIS2 %>% rownames_to_column('uniprot'), 
+int_strains = pivot_longer(Prot_data %>% rownames_to_column('uniprot'), 
              -uniprot, values_to='int2use',
                        names_to = c('strain','bio','tech','day'),
                        names_pattern = "([^_]+)_([^_]+)_([^_]+)_([^_]+)") %>% 
       group_by(uniprot,strain=toupper(strain)) %>% summarize( mean_int = mean_(int2use)) %>%
       pivot_wider(id_cols=uniprot, names_from = strain, names_glue = "{strain}", values_from = mean_int )
 
-proteomic_WIS_mean_filtered = data.frame(int_strains) %>% drop_na %>% 
+Prot_strains = data.frame(int_strains) %>% drop_na %>% 
                       dplyr::filter(uniprot %in% prot_gene_name$prot_names) %>% 
                       left_join(prot_gene_name[,c('prot_names','ID')], by=c('uniprot'='prot_names'))
 
-all_exp = proteomic_WIS_mean_filtered %>% 
-  inner_join(RNA_seq_data %>% rownames_to_column('ID'), by ='ID', suffix=c('_Prot','')) %>% 
-  inner_join(Ribo_seq_data %>% rownames_to_column('ID'), by ='ID', suffix=c('_RNA','_Ribo'))
+all_exp = Prot_strains %>% 
+  inner_join(RNA_data %>% rownames_to_column('ID'), by ='ID', suffix=c('_Prot','')) %>% 
+  inner_join(Ribo_data %>% rownames_to_column('ID'), by ='ID', suffix=c('_RNA','_Ribo'))
 
 log2_all_exp= all_exp %>% column_to_rownames('ID') %>%
               # transform to log2 to RNA and Ribo (already done for normalized proteomics)
@@ -133,55 +140,81 @@ log2_all_exp= all_exp %>% column_to_rownames('ID') %>%
               dplyr::select(where(is.numeric))
 id_exp = rownames(log2_all_exp)
 
-boxplot(log2_all_exp,las=2,ylab='Gene expression (log2)')
 ```
 
-Our proteomic data encompassed **`r n`** genes. The overlap between the two datasets encompassed **`r nrow(log2_all_exp)`** (after several filtration of some missing values). The data between the different data sets needed to be normalized so it can be studied together (see graph above). We therefore performed quantile normalization to obtain equally distributed data (see below)
 
-```{r quantile-norm}
+Our proteomic data encompassed **`r n`** genes. The overlap between the two datasets encompassed **`r nrow(log2_all_exp)`** 
+(after several filtration of some missing values). 
+The different expression datasets were normalized to enable their comparison (see boxplot above).
+We performed _loess_ normalization to obtain equally distributed data (see below)
+
+```{r loess-norm}
+log2_all_exp.loess = normalize.loess(log2_all_exp,log.it=F,verbose = F)
+
+boxplot(log2_all_exp.loess, las=2, 
+        ylab='Normalized gene expression (log2)', 
+        title='LOESS-normalized gene expression across RNA/Ribo/Proteomics')
+
+# Quantile normalization
 index_to_mean <- function(my_index, my_mean){ return(my_mean[my_index]) }
 
 df_rank <- apply(log2_all_exp,2,rank,ties.method="min") 
 df_sorted <- data.frame(apply(log2_all_exp, 2, sort))
 df_mean <- apply(df_sorted, 1, mean)
 
-log2_all_exp_norm <- apply(df_rank, 2, index_to_mean, my_mean=df_mean) %>% as_tibble
-rownames(log2_all_exp_norm) = id_exp 
-boxplot(log2_all_exp_norm,las=2, 
+log2_all_exp.qnorm <- apply(df_rank, 2, index_to_mean, my_mean=df_mean) %>% as_tibble
+rownames(log2_all_exp.qnorm ) = id_exp 
+boxplot(log2_all_exp.qnorm,las=2, 
         ylab='Normalized gene expression (log2)', 
         title='Quantile-normalized gene expression across RNA/Ribo/Proteomics')
 
-prot_norm = dplyr::select(log2_all_exp_norm, ends_with('_Prot')) %>% 
+
+# Set normalized data
+mini_neg = min(log2_all_exp.loess) %>% abs
+mini_pos = min(log2_all_exp.loess[log2_all_exp.loess>0])
+NORM_EXP = log2_all_exp.loess + mini_neg #+ mini_pos  
+N=nrow(NORM_EXP)
+ORF_EXP = rownames(NORM_EXP)
+
+#summary(all_exp.log2.norm)
+
+prot_norm = dplyr::select(NORM_EXP, ends_with('_Prot')) %>% 
             rename_with(.fn=str_remove_all,pattern = "_Prot") 
-rna_norm = dplyr::select(log2_all_exp_norm, ends_with('_RNA')) %>% 
+rna_norm = dplyr::select(NORM_EXP, ends_with('_RNA')) %>% 
           rename_with(.fn=str_remove_all,pattern = "_RNA") 
-ribo_norm = dplyr::select(log2_all_exp_norm, ends_with('_Ribo')) %>% 
+ribo_norm = dplyr::select(NORM_EXP, ends_with('_Ribo')) %>% 
             rename_with(.fn=str_remove_all,pattern = "_Ribo") 
 
 ```
 
 # Post transcriptional buffering {.tabset .tabset-pills}
 
-The post-transcriptional buffering (PTB) is a phenomenon where transcriptional variations tend to be buffered as the expression process progresses (add ref). It has been observed in different situations... To be completed
-
+The post-transcriptional buffering (PTB) is a phenomenon where transcriptional
+variations tend to be buffered as the expression process progresses (add ref).
+It has been observed in different situations... To be completed
 It is possible to detect this phenomenon in different ways:
 
 ## Correlation between isolate
 
-Using the quantile normalized data, we performed Spearman correlation between all the isolate profile in each expression level separately (using the median value of the replicate for the proteomic data)
+Using the quantile normalized data, we performed Spearman correlation between
+all the isolate profile in each expression level separately (using the median
+value of the replicate for the proteomic data)
+Comparing the correlation values, it reveals that the profiles tended to be more
+and more similar as the expression process progresses (increasing of the
+correlation coefficient values), bringing a first proof of the presence of the
+phenomenon across our 8 isolates.
 
-Comparing the correlation values, it reveals that the profiles tended to be more and more similar as the expression process progresses (increasing of the correlation coefficient values), bringing a first proof of the presence of the phenomenon across our 8 isolates. 
-
-```{r PTB1}
+```{r PTB1-cor-gene-exp}
 library(corrr)
 cor_prot= prot_norm %>%  correlate(method = 'sp') %>% column_to_rownames('term')
 cor_rna= rna_norm %>%  correlate(method = 'sp') %>% column_to_rownames('term')
 cor_ribo= ribo_norm %>%  correlate(method = 'sp') %>% column_to_rownames('term')
-get_lower_tri = function(m){ m[lower.tri(m)] }
+
+get_lower_tri = function(x){  m = x %>% as.matrix; return(m[lower.tri(m)]) }
 
 cor_exp= tibble(RNA = get_lower_tri(cor_rna), Ribo = get_lower_tri(cor_ribo), Prot = get_lower_tri(cor_prot))
 df_cor_exp = pivot_longer(cor_exp, everything()) %>% 
-              arrange(name) %>% mutate(experiment = factor(name))
+              arrange(name) %>% mutate(experiment = factor(name,levels = exp_order)) # order RNA->Ribo->Prot
 pair_exp = unique(df_cor_exp$experiment) %>% as.character() %>% combn(m = 2) %>% as_tibble()
 
 ggplot(df_cor_exp,aes(x=experiment, y=value,fill=experiment))+
@@ -195,14 +228,19 @@ ggplot(df_cor_exp,aes(x=experiment, y=value,fill=experiment))+
 
 ## Variation quantification 
 
-It is also possible to explore PTB by quantifying the variation in each pairwise comparison. Basically, for each gene in each isolate pairwise comparison, we use the absolute value of the log2 transformed fold to represent the intensity of the expression variation between the 2 isolates. The more this value increases, the more a gene displays variable regulation between isolate.
+It is also possible to explore PTB by quantifying the variation in each pairwise
+comparison. Basically, for each gene in each isolate pairwise comparison, we use
+the absolute value of the log2 transformed fold to represent the intensity of
+the expression variation between the 2 isolates. The more this value increases,
+the more a gene displays variable regulation between isolate.
+We calculated this value in each pairwise comparison, for each gene and at each
+expression level. We found that the intensities of the variations were
+decreasing as long as the expression process progresses, supporting once again
+the presence of the PTB phenomenon in our dataset.
 
-We calculated this value in each pairwise comparison, for each gene and at each expression level. We found that the intensities of the variations were decreasing as long as the expression process progresses, supporting once again the presence of the PTB phenomenon in our dataset.
-
-```{r PTB2}
+```{r PTB2-fc-gene-exp}
 #remotes::install_github("TimTeaFan/dplyover")
 library(dplyover)
-
 # calculate fold change pairwise for each experiment
 fc_prot = transmute(prot_norm, across2x(everything(), everything(),.fns = ~.x/.y,.comb = 'minimal'),
             experiment='Prot')
@@ -214,7 +252,7 @@ fc_ribo = transmute(ribo_norm, across2x(everything(), everything(),.fns = ~.x/.y
 fc_exp = bind_rows(fc_prot,fc_rna,fc_ribo) %>% 
           pivot_longer(-experiment,names_to='pair',values_to = 'fc') %>%
           arrange(experiment,pair) %>% 
-          mutate(log2fc = abs(log2(fc)))
+          mutate(log2fc = abs(log2(fc)), experiment = factor(experiment,levels=exp_order))
 
 pair_exp=unique(fc_exp$experiment) %>% as.character() %>% combn(m = 2) %>% as_tibble()
 
@@ -230,20 +268,28 @@ ggplot(fc_exp,aes(experiment, log2fc, fill=experiment))+
 
 ## Euclidean distances between the profiles
 
-Euclidean distances can also give information on how variable datasets can be. We once again used the quantile normalized data to calculate Euclidean distances between the profile in each expression level.
+Euclidean distances can also give information on how variable datasets can be.
+We once again used the quantile normalized data to calculate Euclidean distances
+between the profile in each expression level.
+Consistently to the previous results, we found that the distances were lower and
+lower as the expression process progresses, suggesting once again that the
+expression variations were decreased. This also supported the presence of the
+PTB phenomenon
 
-Consistently to the previous results, we found that the distances were lower and lower as the expression process progresses, suggesting once again that the expression variations were decreased. This also supported the presence of the PTB phenomenon
-
-```{r PTB3}
+```{r PTB3-dist-gene-exp}
 # Calculate euclidean distance between normalized strains expression
+get_dist =  function(x){ x %>% as.matrix() %>% t() %>% dist }
+
 dist_exp = tibble( 
-  'Prot'= prot_norm %>% t() %>% dist %>% as.matrix %>% get_lower_tri(),
-  'RNA'= rna_norm %>% t() %>% dist %>% as.matrix %>% get_lower_tri(),
-  'Ribo'= ribo_norm %>% t() %>% dist %>% as.matrix %>% get_lower_tri()
+  'Prot'= prot_norm %>% get_dist ,
+  'RNA'= rna_norm %>% get_dist,
+  'Ribo'= ribo_norm %>% get_dist 
 )
+
+mdist_exp  = sapply(dist_exp,get_lower_tri) %>% as_tibble()
 # convert ot long format
-df_dist_exp = pivot_longer(dist_exp, everything(),names_to='experiment',values_to = 'euclidean') %>%
-              arrange(experiment)
+df_dist_exp = pivot_longer(mdist_exp, everything(),names_to='experiment',values_to = 'euclidean') %>%
+              arrange(experiment) %>% mutate(experiment = factor(experiment,levels=exp_order))
 
 pair_exp=unique(df_dist_exp$experiment) %>% as.character() %>% combn(m = 2) %>% as_tibble()
 
@@ -258,15 +304,19 @@ ggplot(df_dist_exp,aes(x=experiment,y=euclidean, fill=experiment))+
 
 ## Variance comparison
 
-A simple variance calculation can also give a clue on the variation intensity of gene expression. We calculated the variance in all dataset for each gene and found that it tended to be higher at the transcription level, lower at the protein abundance level (with the translation level being in the middle), which was in accordance with the previous exploration
+A simple variance calculation can also give a clue on the variation intensity of
+gene expression. We calculated the variance in all dataset for each gene and
+found that it tended to be higher at the transcription level, lower at the
+protein abundance level (with the translation level being in the middle), which
+was in accordance with the previous exploration
 
-```{r PTB4}
+```{r PTB4-var-gene-exp}
 var_exp = tibble( id = id_exp,
-                  Prot =  apply(prot_norm,1,var),
-                  RNA = apply(rna_norm,1,var),
-                  Ribo =apply(ribo_norm,1,var)) %>% 
+                  Prot = apply(prot_norm,1,var),
+                  RNA  = apply(rna_norm,1,var),
+                  Ribo = apply(ribo_norm,1,var)) %>% 
           pivot_longer(-id, names_to='experiment',values_to='variance') %>%
-          arrange(experiment,id)
+          arrange(experiment,id) %>% mutate(experiment = factor(experiment,levels=exp_order))
 
 pair_exp=unique(var_exp$experiment) %>% as.character() %>% combn(m = 2) %>% as_tibble()
 
@@ -281,129 +331,150 @@ ggplot(var_exp,aes(x=experiment,y=variance, fill=experiment))+
 
 # Expression evolution on the different layers {.tabset .tabset-pills}
 
-Expression evolution can be explored in each layer using several methods. One of them uses the construction of phylogeny trees using the expression data at each expression layer (transcriptome, translatome, proteome). This method has been used previously for expression evolution exploration in mammals ([Wang et al., 2020](https://www.nature.com/articles/s41586-020-2899-z)). We tried to applied this method to our data sets. We used the quantile normalized data (encompassing **`r nrow(log2_all_exp_norm)`** genes).
+Expression evolution can be explored in each layer using several methods. One of
+them uses the construction of phylogeny trees using the expression data at each
+expression layer (transcriptome, translatome, proteome). This method has been
+used previously for expression evolution exploration in mammals ([Wang et al.,
+2020](https://www.nature.com/articles/s41586-020-2899-z)). We tried to applied
+this method to our data sets. We used the quantile normalized data (encompassing
+**`r nrow(NORM_EXP)`** genes).
 
 ## Transcriptome, translatome and proteome trees
 
-```{r tree1}
-par(mfrow= c(1,3))
+```{r bootstrap-tree-exp}
+get_tree_length = function(tr){ sum(tr$edge.length) }
+tree_exp = map_dfc(dist_exp, function(x){ nj(x) %>% get_tree_length() })
 
-tree_exp = tibble( 
-  'Prot'= prot_norm %>% t() %>% dist %>% nj %>% .[['edge.length']] %>% sum,
-  'RNA'= rna_norm %>% t() %>% dist %>% nj %>% .[['edge.length']] %>% sum,
-  'Ribo'= ribo_norm %>%  t() %>% dist %>% nj %>% .[['edge.length']] %>% sum
-)
+NSTEP=1e4
+# Bootstrap tree by shuffling gene expression
+bs_tree =lapply(exp_order, function(exp){
+  bs_TL =lapply(1:NSTEP, function(j){
+    shuffled_rows = sample(x=1:N,N,replace=T)
+    shuffled_exp = NORM_EXP[shuffled_rows,grep(exp,colnames(NORM_EXP))] 
+    bs = shuffled_exp %>% get_dist() %>% nj %>% get_tree_length() %>% unlist
+  }) %>% unlist
+  ci = qnorm(0.975)*sd(bs_TL)/sqrt(length(bs_TL))
+  bs_ci= tibble(length=bs_TL,err=ci, experiment=exp)
+}) %>% 
+  bind_rows() %>% 
+  mutate(experiment = factor(experiment,levels=exp_order))
 
-#test = modelr::bootstrap(log2_all_exp_norm,1000)
-
-a =lapply(c('Prot', 'RNA','Ribo'), function(i){
-  i<<-i
-b = dist(t(log2_all_exp_norm[, grep(i, colnames(log2_all_exp_norm))]))
-a = nj(b)
-c = sum(a$edge.length)
-
-d =lapply(1:1000, function(j){
-  b = dist(t(log2_all_exp_norm[sample(x=1:nrow(log2_all_exp_norm),size = nrow(log2_all_exp_norm),replace = T), grep(i, colnames(log2_all_exp_norm))]))
-  a = nj(b)
-  
-  sum(a$edge.length)
-})
-d= unlist(d)
-c=c(c,qnorm(0.975)*sd(d)/sqrt(length(d)))
-c= setNames(c,c('length', 'err'))
-
-plot(a,type='u', main = i)
-c
-})
-a= do.call(rbind,a)
-rownames(a)= c('Prot', 'RNA','Ribo')
-a= as.data.frame(a)
-a$level=rownames(a)
-a$level=factor(a$level,levels = c('RNA','Ribo','Prot'))
 ```
 
-The measure of the global expression evolution can be achieved using the total length of the tree (see below, error bar correspond the to 95% confidence interval of the tree length using 1000 steps boot-straping)
+The measure of the global expression evolution can be achieved using the total length of the tree 
+(see below, error bar correspond the to 95% confidence interval of the tree length using 1000 steps boot-straping)
 
-```{r tree2}
-
-ggplot(a, aes(level, fill=level, y= length))+
-  geom_bar(stat = 'identity',width = 0.5, alpha= 0.8)+
-  geom_errorbar(aes(x=level, ymin=length-err, ymax=length+err), width=0.1)+
+```{r bootstrap-tree-plot}
+bs_tree %>% group_by(experiment) %>% summarize(l=mean(length),e=mean(err)) %>% 
+  ggplot(aes(x=experiment, fill=experiment, y=l))+
+  geom_bar(stat='identity',width = 0.5, alpha= 0.8)+
+  geom_errorbar(aes(x=experiment, ymin=l-e, ymax=l+e), width=0.1)+
   theme_classic()
 
 ```
 
-Consistently with the detection of the post-transcriptional buffering, the expression evolution seems to be more and more constrained at each step of gene expression (Constraint RNA < Constraint Ribo < Constraint Prot).
+Consistently with the detection of the post-transcriptional buffering, the
+expression evolution seems to be more and more constrained at each step of gene
+expression (Constraint RNA < Constraint Ribo < Constraint Prot).
 
 ## Characteristic influencing gene expression evolution
 
-It is possible to explore how some gene characteristics can influence gene expression evolution by comparing the length of a tree generated using the gene having these characteristics with tree lengths obtain with all or random set of genes. However, it necessary to first check if the number of genes used to generate a tree influence the final tree length. By sub sampling the number of gene to generate the trees (100 iterations with each possible number of gene starting from 10) it is possible to detect an effect on final tree length. It is therefore important to take into account the number of gene tested and compare this to trees generated with the same amount of genes. 
+It is possible to explore how some gene characteristics can influence gene
+expression evolution by comparing the length of a tree generated using the gene
+having these characteristics with tree lengths obtain with all or random set of
+genes. However, it necessary to first check if the number of genes used to
+generate a tree influence the final tree length. By sub sampling the number of
+gene to generate the trees (100 iterations with each possible number of gene
+starting from 10) it is possible to detect an effect on final tree length. It is
+therefore important to take into account the number of gene tested and compare
+this to trees generated with the same amount of genes.
 
-```{r tree3}
+```{r tree-length}
+set.seed(123)
 
-#d=lapply(rep(10:nrow(df_final2),100),function(j){
- # 
-#  temp= df_final2[sample(1:nrow(df_final2),j),]
-#  a =lapply(c('Prot', 'RNA','Ribo'), function(i){
-#    i<<-i
-#    b = dist(t(temp[, grep(i, colnames(temp))]))
-#    a = nj(b)
-#    c = sum(a$edge.length)
-#    
-#  })
-#  a= t(data.frame(length=a))
- # rownames(a)= c('Prot', 'RNA','Ribo')
-#  a= as.data.frame(a)
-  #a$num=j
-#  return(a)
-#})
-#d= do.call(rbind,d)
-#d$type= NA
-#d[grep('Prot', rownames(d)),"type"]='Prot'
-#d[grep('RNA', rownames(d)),"type"]='RNA'
-#d[grep('Ribo', rownames(d)),"type"]='Ribo'
-#d$type=factor(d$type,levels = c('RNA','Ribo','Prot'))
-#write_rds(d,'control_tree_length.RDS')
+TREESIZE = 10:N
+NSTEP=1e4
+
+### LAST CHECKPOINT --  02/10/22 16h45 ###
+### STOPPED HERE REFURBISHING THE CODE ### 
+
+# Compute in parallel the total tree length on bootstrapped data
+# Estimated time (~2mn for 100K bootstrap on 14 cpus)
+
+d=pbmcapply::pbmclapply(mc.cores = 14, X=TREESIZE, FUN = function(ngenes){ 
+ idx_subsample = sample(1:N,size = ngenes, replace = F)
+ df_treesize = map_dfc(set_names(exp_order,exp_order), function(exp){
+   bs_exp = modelr::bootstrap(norm_exp_sub,NSTEP)
+   tl = lapply(1:NSTEP, function(x){ 
+     shuffled_exp = bs_exp$strap[x] %>% as.data.frame()
+     shuffled_exp %>% dplyr::select(ends_with(exp)) %>% get_dist() %>% nj %>% get_tree_length() 
+    }) %>% bind_rows
+  })
+})
+write_rds(d,here('data','control_tree_length.RDS'))
+
 ctrl_tree_len= read_rds(here('data','control_tree_length.RDS'))
+
 ggplot(ctrl_tree_len,aes(x=num,y=V1, col= type))+
   geom_point(alpha=0.6)+
   theme_classic()+
   xlab('Number of genes')+
   ylab("Tree length")
 
+feat_binary = gene_feature %>% 
+  dplyr::select(ORF,where(~ is.logical(.x) && sum(.x) >9 )) %>%
+  filter(ORF %in% ORF_EXP)
 
-control_tree_length = ctrl_tree_len
-a=gene_feature[,(sapply(gene_feature, class)=='logical')]
-a =as.data.frame(a)
-rownames(a)=gene_feature$ORF
-a = a[base::intersect(rownames(a), rownames(log2_all_exp_norm)),]
-a=a[,sapply(a,sum)>9]
+dim(feat_binary) # 2313 genes with 1104 logical features concerning at least 10 genes
+
 ```
 
 
+We'll be using gene characteristics (quantified with Boolean values: TRUE or
+FALSE) generated with several databases (see [Yeastomics](https://github.com/benjamin-elusers/yeastomics)). Not all genes
+were encompassed and therefore we'll be using the gene overlapping between the
+expression datasets and the characteristic database (**`r nrow(feat_binary)`** genes). To
+detect whether or not a characteristic influences the gene expression evolution,
+we compared the length L of a tree obtained with N genes displaying the
+characteristic with lengths obtained with 100 trees generated by randomly select
+N genes. The 100 length being globally normally distributed, it is possible to
+obtain the Cumulative Distribution Function the length L compared to the lengths
+of the 100  random trees. For instance, the characteristic
+_cat_genomics.sgd.chr_A_ (which is: is the gene on the chromosome 1?)
+encompassed **`r sum(feat_binary[,1])`** gene in the our dataset (**`r sum(feat_binary[,1])`** out
+of **`r nrow(feat_binary)`** genes overlapping between our expression data and the
+characteristic database).
 
-We'll be using gene characteristics (quantified with Boolean values: TRUE or FALSE) generated with several databases (see [Yeastomic](https://github.com/benjamin-elusers/yeastomics)). Not all genes were encompassed and therefore we'll be using the gene overlapping between the expression datasets and the characteristic database (**`r nrow(a)`** genes). To detect whether or not a characteristic influences the gene expression evolution, we compared the length L of a tree obtained with N genes displaying the characteristic with lengths obtained with 100 trees generated by randomly select N genes. The 100 length being globally normally distributed, it is possible to obtain the Cumulative Distribution Function the length L compared to the lengths of the 100  random trees. For instance, the characteristic _cat_genomics.sgd.chr_A_ (which is: is the gene on the chromosome 1?) encompassed **`r sum(a[,1])`** gene in the our dataset (**`r sum(a[,1])`** out of **`r nrow(a)`** genes overlapping between our expression data and the characteristic database). 
+
 ```{r tree4}
+chr_A = feat_binary$ORF[feat_binary$cat_genomics.sgd.chr_A]
 
-b = nj(dist(t(log2_all_exp_norm[rownames(log2_all_exp_norm)%in%rownames(a)[a$cat_genomics.sgd.chr_A], grep('RNA', colnames(log2_all_exp_norm))])))
-b=sum(b$edge.length)
-c= pnorm(b,mean = mean(control_tree_length[control_tree_length$num==sum(a[,1])&control_tree_length$type=='RNA',"V1"]),sd =sd(control_tree_length[control_tree_length$num==sum(a[,1])&control_tree_length$type=='RNA',"V1"]) )
+ctrl_rna = ctrl_tree_len$type=='RNA'
+rna_exp_chrA = NORM_EXP[ORF_EXP %in% chr_A, grep('RNA', colnames(NORM_EXP))]
+tl_chrA = rna_exp_chrA  %>% t() %>% dist() %>% nj %>% get_tree_length()
+c= pnorm(tl_chrA,mean = mean(ctrl_tree_len[ctrl_tree_len$num==sum(feat_binary[,1])&ctrl_rna,"V1"]),sd =sd(ctrl_tree_len[ctrl_tree_len$num==sum(feat_binary[,1])& ctrl_rna,"V1"]) )
 ```
-The length of the tree generated with these 30 gene using RNA-seq data is **`r b`**. The probability (not corrected) of getting this length with random trees = **`r c`**
+
+The length of the tree generated with these 30 gene using RNA-seq data is **`r
+b`**. The probability (not corrected) of getting this length with random trees =
+**`r c`**
 
 ```{r tree5}
 par(mfrow=c(1,1))
-plot(density(control_tree_length[control_tree_length$num==sum(a[,1])&control_tree_length$type=='RNA',"V1"]),main = 'Tree length distribution')
+plot(density(ctrl_tree_len[ctrl_tree_len$num==sum(a[,1])&ctrl_tree_len$type=='RNA',"V1"]),main = 'Tree length distribution')
 abline(v=b, col='red')
 ```
 
-We performed this analysis for **`r ncol(a)`** characteristics at each expression level. We corrected the probability values (false discovery rate correction) and using a corrected probability value threshold of 0.01 to select the characteristic impacting gene expression.
+We performed this analysis for **`r ncol(a)`** characteristics at each
+expression level. We corrected the probability values (false discovery rate
+correction) and using a corrected probability value threshold of 0.01 to select
+the characteristic impacting gene expression.
 
 ```{r tree6}
 b= apply(a,2, function(i){
   i<<-i
   b = rownames(a)[i]
-  c = log2_all_exp_norm[b,]
+  c = NORM_EXP[b,]
   d =sapply(c('Prot', 'RNA','Ribo'), function(j){
     j<<-j
     b = dist(t(c[, grep(j, colnames(c))]))
@@ -412,7 +483,7 @@ b= apply(a,2, function(i){
     
     return(e)
   })
-  e =control_tree_length[control_tree_length$num== sum(i),]
+  e =ctrl_tree_len[ctrl_tree_len$num== sum(i),]
   
   e=lapply(c('Prot', 'RNA','Ribo'), function(j){
   c= e[e$type%in%j,"V1"]
@@ -447,6 +518,306 @@ require(knitr)
 colnames(b)=c('P_prot','tree length charac/random (prot)','P_RNA','tree length charac/random (RNA)','P_Ribo','tree length charac/random (Ribo)')
 kable(b, caption = 'Characteristic influecing Gene expression evolution')
 
+```
+
+
+Consistently with previous findings, we found that features related to "interaction" tended to be related to more stringent gene expression evolution. 
+
+```{r tree8}
+c = melt(b[grep('interaction',rownames(b)),c(2,4,6)])[,3]
+
+d = melt(b[-grep('interaction',rownames(b)),c(2,4,6)])[,3]
+
+boxplot(c,d,xaxt = "n", ylab = "Length ratio")
+axis(1, at=1:2,labels=c('Interaction', 'Other'))
+temp = wilcox.test(c,d)
+temp = temp$p.value
+temp = as.numeric(temp)
+
+```
+
+The ratios between the interaction categories' tree lengths and the random tree are lower than the other significant features' ratios (Wilcoxon p-value = **`r temp`**). Using each dataset individually it was still possible to observe these differences. 
+
+```{r tree9}
+c = melt(b[,c(2,4,6)])
+c$Interaction = ifelse(1:nrow(c)%in% grep('interaction',c$Var1),'Interaction','Other')
+
+ggplot(c, aes(y = value, fill = Interaction, x= Var2))+
+  geom_boxplot()+
+  stat_compare_means(method = 'wilcox.test',label = "p.signif", 
+                     symnum.args = list(cutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, 1), 
+                                        symbols = c("****", "***", "**", "*", "ns")))+
+  theme_classic()+
+  scale_fill_brewer()+
+  xlab('')+
+  ylab('')
+```
+
+Another consistent results with previous findings: we found that features related to "metabolism" tended to be related to faster gene expression evolution. 
+```{r tree10}
+
+c = melt(b[grep('metabolism',rownames(b)),c(2,4,6)])[,3]
+
+d = melt(b[-grep('metabolism',rownames(b)),c(2,4,6)])[,3]
+
+boxplot(c,d,xaxt = "n", ylab = "Length ratio")
+axis(1, at=1:2,labels=c('Metabolism', 'Other'))
+temp = wilcox.test(c,d)
+temp = temp$p.value
+temp = as.numeric(temp)
+```
+
+The ratios between the metabolism categories' tree lengths and the random tree are higher than the other significant features' ratios (Wilcoxon p-value = **`r temp`**). Here again, using each dataset individually it was still possible to observe these differences. 
+
+```{r tree11}
+
+c = melt(b[,c(2,4,6)])
+c$metabolism = ifelse(1:nrow(c)%in% grep('metabolism',c$Var1),'metabolism','Other')
+
+ggplot(c, aes(y = value, fill = metabolism, x= Var2))+
+  geom_boxplot()+
+  stat_compare_means(method = 'wilcox.test',label = "p.signif", 
+                     symnum.args = list(cutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, 1), 
+                                        symbols = c("****", "***", "**", "*", "ns")))+
+  theme_classic()+
+  scale_fill_brewer()+
+  xlab('')+
+  ylab('')
+
+```
+
+
+More generally it seem that gene expression evolution was slower at the proteomic level (consistently with the previous results)
+
+```{r tree12}
+
+a= b[,c(4,6,2)]
+a = melt(a)
+
+c = combn(as.character(unique(a$Var2)),2)
+c = apply(c,2,function(i){
+  return(list(i[1],i[2]))
+})
+lapply(1:length(c),function(i){
+  c[[i]]<<-unlist(c[[i]])
+})
+
+ggplot(a, aes(x= Var2, y = value))+
+  geom_violin(aes(fill = Var2))+
+  geom_boxplot(width= 0.1)+
+  theme_classic()+
+  xlab('')+
+  ylab('Tree ratio')+
+  theme(legend.position = 'none')+
+  stat_compare_means(comparisons = c)
+```
+
+When looking individually at the features linked either to fast gene expression evolution (mean tree Tree ratio across dataset > 1) or slow gene expression evolution (mean tree Tree ratio across dataset < 1), it was possible confirm the previous finding.
+
+```{r, tree13, fig.show="hold", out.width="50%"}
+
+a= b[,c(4,6,2)]
+
+a=a[rowMeans(a)<1,]
+
+
+c=a
+colnames(c)= colnames(a)
+c = as.data.frame(c)
+
+c = melt(c)
+d = combn(as.character(unique(c$variable)),2)
+d = apply(d,2,function(i){
+  return(list(i[1],i[2]))
+})
+lapply(1:length(d),function(i){
+  d[[i]]<<-unlist(d[[i]])
+})
+
+ggplot(c, aes(variable, value))+
+  geom_violin(aes(fill= variable))+
+  geom_boxplot(width= 0.1)+
+  theme_classic()+
+  xlab('')+
+  scale_y_continuous(limits = c(0, 3.5))+
+  stat_compare_means(comparisons = d)+
+  theme(legend.position = 'none')
+  
+
+
+a= b[,c(4,6,2)]
+
+a=a[rowMeans(a)>1,]
+
+c=a
+colnames(c)= colnames(a)
+c = as.data.frame(c)
+
+c = melt(c)
+
+ggplot(c, aes(variable, value))+
+  geom_violin(aes(fill= variable))+
+  geom_boxplot(width= 0.1)+
+  theme_classic()+
+  xlab('')+
+  scale_y_continuous(limits = c(0, 3.5))+
+  stat_compare_means(comparisons = d)+
+  theme(legend.position = 'none')
+```
+
+## Continuous factors influencing expression variation on the different layers 
+
+We then sought to also focus on continuous gene characteristics (see [Yeastomic](https://github.com/benjamin-elusers/yeastomics)), and we used this time a step wise linear regression approach. The goal is to construct a model that explains as good as possible a measure of gene expression evolution. We used the mean |log2(FC)| for each gene. As observed previously, this value decreases as the expression process progresses
+
+```{r SLR1}
+#|log2(FC)|
+a = combn(isolates,2)
+
+b = pbapply(a,2,function(i){
+  i<<-i
+  d = list()
+  e = df_final2[,grep(pattern = paste(i,collapse = '|'),colnames(df_final2))]
+  
+  c = e[,1:2]
+  c= c[,1]/c[,2]
+  c= abs(log2(c))
+  
+  d[['Prot']] = c
+  
+  c = e[,3:4]
+  c= c[,1]/c[,2]
+  c= abs(log2(c))
+  
+  d[['RNA']] = c
+  
+  c = e[,5:6]
+  c= c[,1]/c[,2]
+  c= abs(log2(c))
+  
+  d[['Ribo']] = c
+  c =lapply(d,function(j){
+    j<<-j
+    setNames(j,rownames(df_final2))
+  })
+  return(c)
+})
+
+pblapply(1:length(b), function(i){
+  i<<-i
+  b[[i]] <<- as.data.frame(b[[i]])
+  return('')
+})
+
+a = do.call(cbind, b)
+c= list()
+c[['Prot']]=rowMeans(a[,grep('Prot',colnames(a))])
+c[['RNA']]=rowMeans(a[,grep('RNA',colnames(a))])
+c[['Ribo']]=rowMeans(a[,grep('Ribo',colnames(a))])
+
+c= as.data.frame(c)
+
+log2FC_all_gene = c
+
+c = melt(log2FC_all_gene)
+c$variable=factor(c$variable,levels = c('RNA','Ribo','Prot'))
+
+ggplot(c,aes(value, col= variable))+
+  geom_density(size=2)+
+  scale_x_log10()+
+  theme_classic()+
+  xlab('|log2(FC)|')
+
+a=gene_feature[,(sapply(gene_feature, class)=='numeric')]
+a =as.data.frame(a)
+rownames(a)=gene_feature$ORF
+a = a[intersect(rownames(a), rownames(df_final2)),]
+
+```
+
+However, the |log2(FC)| is affected by the expression level on the gene. To counter this bias, we corrected |log2(FC)| by expression level (see exemple below for RNA-seq data
+
+```{r SLR1.1, fig.show="hold", out.width="50%"}
+e = df_final2[, grep('RNA',colnames(df_final2))]
+
+plot(log2FC_all_gene$RNA,rowMeans(e), log = 'xy', xlab = 'Mean RNA |log2(FC)|', ylab = 'RNA mean expression') 
+plot(log2FC_all_gene$RNA*rowMeans(e),rowMeans(e), log = 'xy', xlab = 'Mean RNA |log2(FC)| Corrected', ylab = 'RNA mean expression') 
+```
+
+The corrected |log2(FC)| value was highly correlated to expression variance
+
+```{r SLR1.2}
+plot(log2FC_all_gene$RNA*rowMeans(e),apply(e,1,var), xlab = "Mean RNA |log2(FC)| Corrected", ylab="RNA Gene expression variance")
+```
+
+We had a total of **`r ncol(a)`** numeric features encompassing **`r nrow(a)`** genes. Before performing the step wise regression, we pre selected the features with a minimal impact of gene expression variation. To do so, we performed individually a linear regression using each feature against |log2(FC)| at each expression level. We selected the feature which results in a regression with R-squared > 0.01 in at least one expression layer. We also removed characteristics related to gene expression levels.
+
+```{r SLR2}
+d = lapply(colnames(a), function(i){
+  i<<-i
+  b = lapply(c('RNA','Ribo','Prot'), function(j){
+    c = log2FC_all_gene[rownames(a),grep(j, colnames(log2FC_all_gene))]*rowMeans(df_final2[rownames(a),grep(colnames(df_final2),pattern = j)])
+    c=summary(lm((c)~(a[,i])))
+    c$r.squared
+  })  
+  return(unlist(b))
+})
+d = do.call(rbind,d)
+d = apply(d,1, function(i){
+  i<<-i
+  if((T %in% (i>0.01))){
+    return(T)
+  }
+  if(!(T %in% (i>0.01))){
+    return(F)
+  }
+})
+a = a[,unlist(d)]
+a = a[,-grep(pattern = 'exp',colnames(a))]
+```
+
+This resulted in the selection of **`r ncol(a)`** feature. We performed the step wise regression using the _stepAIC()_ function in _R_. The factors which had a _Pr(>|t|)_<0.001 were kept and considered as influencing gene expression variation
+
+```{r SLR3}
+b=pblapply(c('RNA','Ribo','prot'), function(i){
+  i<<-i
+  c = log2FC_all_gene[rownames(a),grep(i, colnames(log2FC_all_gene),ignore.case = T)]*rowMeans(df_final2[rownames(a),grep(colnames(df_final2),pattern = i,ignore.case = T)])
+  c= cbind(c,a)
+  d = lm(c~., data=c)
+  d = stepAIC(d, direction = "both", 
+              trace = F)
+  return(d)
+})
+
+#write_rds(b, "Step_Regression.rds")
+#b = readRDS("Step_Regression.rds")
+names(b)= c('RNA','Ribo','Prot')
+for( i in 1: length(b)){
+  a = b[[i]]
+  a = summary(a)
+  a= a$coefficients
+  a=a[a[,4]<0.001,]
+  rownames(a)[2:length(rownames(a))] = substr(rownames(a)[2:length(rownames(a))],5,100)
+  b[[i]] = a
+}
+
+```
+
+We detected *`r nrow(b$RNA)`* features affecting the transcription layer:
+
+```{r SLR4}
+knitr::kable(b$RNA)
+```
+
+We detected *`r nrow(b$Ribo)`* features affecting the translation layer:
+
+```{r SLR5}
+knitr::kable(b$Ribo)
+```
+
+We detected *`r nrow(b$Prot)`* features affecting the proteome layer:
+
+```{r SLR6}
+knitr::kable(b$Prot)
 ```
 
 ```{r save-transcriptomics, echo=F}
