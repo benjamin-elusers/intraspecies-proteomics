@@ -22,13 +22,24 @@ pairwise comparison.
 CUTOFF_PV = 1e-2
 CUTOFF_LFC = 2
 
+pairwise_strains = pairwise_condition(all_strains,as_pair = T,rm.duplicated = T,rm.identical = T)
+pairwise_all_strains = pairwise_condition(all_strains,as_pair = T,rm.duplicated = F,rm.identical = T)
+
 df_imputed = tibble( uniprot = int_norm_ids,
                      is_imputed = (rowSums( is.na(int_norm))>0)* 1, 
                      imputed = factor(is_imputed, levels = c(0,1),
                                       labels = c("not", "is_imputed")))
 volcPlot(INPUT=int_bpca, IMPUTED=df_imputed, 
+         combination =
          MIN_LFC=CUTOFF_LFC, MIN_PVAL=CUTOFF_PV, WHICH='both',
          TOPN = 50, plot = F, use_plotly = T)
+
+
+DE_all = c(ARP3 = "P47117", CDC33 = "P07260", OYE2 = "Q03558", 
+           PMI40 = "P29952", TIF3 = "P34167", DED1 = "P06634", 
+           ILV5 = "P06168", NIP1 = "P32497",  PGK1 = "P00560", ERG13 = "P54839")
+sc_annotation %>% filter(UNIPROT %in% DE_all) %>% DT::datatable()
+pheatmap::pheatmap(int_bpca[DE_all,], labels_row = names(DE_all))
 
 ```
 
@@ -45,9 +56,30 @@ df_avg  = left_join(long_bpca,long_int) %>%
           pivot_wider(id_cols=c(uniprot), 
                       names_from = 'strain',values_from=c('avg_imp','avg_norm'))
  
+
+
+limma_all = compare_conditions(input = df_int_bpca, id_col = "uniprot",comparison = pairwise_all_strains,col_group = 1)
+nde_all=sapply(pairwise_all_strains,
+           function(x){ topTable(limma_all, coef=x, number = Inf, lfc = 2, p.value = 1e-5, adjust.method = 'BH') %>% nrow }
+)
+
+limma_p = compare_conditions(input = df_int_bpca, id_col = "uniprot",comparison = pairwise_strains,col_group = 1)
+nde_p=sapply(pairwise_strains,
+           function(x){ topTable(limma_p, coef=x, number = Inf, lfc = 2, p.value = 1e-5, adjust.method = 'BH') %>% nrow }
+)
+
+limma_one = compare_conditions(input = df_int_bpca, id_col = "uniprot",comparison = all_strains,col_group = 1)
+nde_one=sapply(all_strains,
+           function(x){ topTreat(limma_one, coef=x, number = Inf, lfc = 2, p.value = 1e-5, adjust.method = 'BH') %>% nrow }
+)
+
+sum(nde_one)
+sum(nde_p)
+topTreat(limma_one, coef = 1, number=Inf, lfc=2, p.value=1e-5)
+
 volcano_imp =  get_volcano_data(input_data=df_int_bpca, 
                                 min_lfc=CUTOFF_LFC, min_pval=CUTOFF_PV, 
-                                topn = 50,all_pair = T) %>%
+                                topn = 50,combination = pairwise_all_strains) %>%
                 bind_rows() %>% as_tibble() %>% 
                 group_by(ID) %>%
                 mutate( mean_FC = mean(EffectSize)) %>% 
