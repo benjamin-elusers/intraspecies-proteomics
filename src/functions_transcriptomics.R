@@ -1,13 +1,11 @@
-
 workspace.size <- function() {
   ws <- sum(sapply(ls(envir=globalenv()), function(x)object.size(get(x))))
   class(ws) <- "object_size"
   ws
 }
 
-
 stat_box_data <- function(y, upper_limit = max(y) +sd(y)) { #can be modified if needed#
-  return( 
+  return(
     data.frame(
       y = 1.15 * upper_limit,
       label = paste('count =', length(y), '\n',
@@ -42,7 +40,7 @@ tri.to.squ<-function(x)
 }
 
 give.n <- function(x){
-  return(c(y = max(x)+sd(x), label = length(x))) 
+  return(c(y = max(x)+sd(x), label = length(x)))
   # experiment with the multiplier to find the perfect position
 }
 get_plot_limits <- function(plot) {
@@ -79,7 +77,7 @@ lmp <- function (modelobject) {
 }
 dist_point_line <- function(a, slope, intercept) {
   b = c(1, intercept+slope)
-  c = c(-intercept/slope,0)       
+  c = c(-intercept/slope,0)
   v1 <- b - c
   v2 <- a - b
   m <- cbind(v1,v2)
@@ -93,9 +91,9 @@ library(ggsci)
 library(ggthemes)
 
 theme_black = function(base_size = 12, base_family = "") {
-  
+
   theme_grey(base_size = base_size, base_family = base_family) %+replace%
-    
+
     theme(
       # Specify axis options
       axis.line = element_blank(),
@@ -132,9 +130,9 @@ theme_black = function(base_size = 12, base_family = "") {
       plot.background = element_rect(color = "black", fill = "black"),
       plot.title = element_text(size = base_size*1.2, color = "white"),
       plot.margin = unit(rep(1, 4), "lines")
-      
+
     )
-  
+
 }
 
 mytheme = theme_clean(base_size = 14) +
