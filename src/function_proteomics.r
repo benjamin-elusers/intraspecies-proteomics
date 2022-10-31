@@ -1,8 +1,8 @@
-bioc.pkg = c('limma','NormalyzerDE','MsCoreUtils','pcaMethods')
+bioc.pkg = c('limma','NormalyzerDE','MsCoreUtils','pcaMethods',"affy")
 BiocManager::install(bioc.pkg,update=F,ask = F)
 library(xfun)
 pkg = c('tidyverse','plotly','rio','ggplotify','cowplot','geomtextpath','GGally',
-  'openxlsx','corrr','umap')
+  'openxlsx','corrr','umap',"org.Sc.sgd.db","clusterProfiler","enrichplot")
 xfun::pkg_attach2(pkg)
 xfun::pkg_attach(bioc.pkg,install = F)
 
@@ -656,25 +656,34 @@ make_pca = function(x,with_labels=F,col_by_group=2){
 
 # 6 Differential expression ----------------------------------------------------
 library(limma)
-pairwise_condition = function(conditions = all_strains,to_pair=T,only_unique=T){
-  cond_pair = expand.grid(S1=conditions,S2=conditions)
-  same = cond_pair[,1]==cond_pair[,2]
-  all_pairs = cond_pair[!same,2:1]
-  if(only_unique){
-    sorted.pairs <- t(apply(all_pairs[,1:2], 1, sort))
-    dup.pairs <- duplicated(sorted.pairs)
-    all_pairs <- sorted.pairs[!dup.pairs & !same ,] %>%
-      as_tibble() %>% rename(cond1=V1,cond2=V2)
-  }
 
-  if(to_pair){
-    return( apply(all_pairs,1,paste0,collapse='-') )
+find_duplicate_pairs <- function(vec1, vec2){
+  library(tidyverse)
+  purrr::map2(vec1, vec2, ~ sort(c(.x, .y))) %>% duplicated()
+}
+
+pairwise_condition = function(conditions = all_strains, as_pair=T, rm.duplicated=T, rm.identical=T){
+
+  pair_strains = expand_grid(S1 = all_strains, S2 = all_strains) |>
+                 mutate(is_identical = S1 == S2,
+                        is_duplicated = find_duplicate_pairs(S1, S2),
+                        pair = paste0(S1,'-',S2))
+
+
+  if(rm.identical){ pair_strains = pair_strains %>% filter(!is_identical) }
+
+  if(rm.duplicated){ pair_strains = pair_strains %>% filter(!is_duplicated) }
+
+  if(as_pair){
+    return( pair_strains %>% dplyr::pull(pair) )
+  }else{
+    return( pair_strains %>% dplyr::select(S1,S2) )
   }
-  return(all_pairs)
+  return(pair_strains)
 }
 
 compare_conditions = function(input, id_col = "uniprot",
-                              comparison = pairwise_condition(all_strains,to_pair=T,all_pair=T),
+                              comparison = pairwise_condition(all_strains,as_pair=T,rm.duplicated=F),
                               col_group=1){
 
   if( id_col %in% colnames(input)){
@@ -684,24 +693,35 @@ compare_conditions = function(input, id_col = "uniprot",
   }
 
   samples=colnames(processed_data)
-
   GROUP = get_group(sample_names = colnames(processed_data),sep="_",grp_num = col_group)
-
   f.df <- factor(GROUP)
   design <- model.matrix(~0+f.df)
   colnames(design) <- levels(f.df)
   fit <- lmFit(processed_data, design)
 
+  # Contrasts for calculating expression differences
+  ncomp = length(comparison)
+  one.vs.all = identical(comparison,levels(f.df))
+  cat(sprintf("perform %s comparisons: ",ncomp))
   cont.matrix <- makeContrasts(contrasts = comparison, levels = design)
-  fit2 <- contrasts.fit(fit, cont.matrix)
-  fit3 <- eBayes(fit2,trend=T,robust=T)
+
+  if( !one.vs.all ){
+    cat("pairwise or grouped\n")
+    fit2 <- contrasts.fit(fit, cont.matrix)
+    fit3 <- eBayes(fit2,trend=T,robust=T)
+  }else{
+    cat("one-vs-all\n")
+    cont.matrix[cont.matrix==0] = -1/nlevels(f.df)
+    fit2 <- contrasts.fit(fit, cont.matrix)
+    fit3 <- treat(fit2,lfc=1, trend = T, robust = T)
+  }
   return(fit3)
 }
 
-get_volcano_data = function(input_data=int_norm,
-                            min_lfc=2, min_pval=0.01, which=c('both','up','down'), topn = 20,all_pair=T){
+get_volcano_data = function(input_data=int_bpca,
+                            combination = pairwise_condition(as_pair=T,rm.duplicated = T,rm.identical = T),
+                            min_lfc=2, min_pval=0.01, which=c('both','up','down'), topn = 20){
   datList <- list()
-  combination <- pairwise_condition(to_pair=T,only_unique = !all_pair)
   if(missing(topn)){
     cat('selecting top 50 differentially expressed genes...\n')
     topn = 50
@@ -711,11 +731,9 @@ get_volcano_data = function(input_data=int_norm,
     cat('selecting both up and down regulated genes...\n')
     which = 'both'
   }
+  fit2 <- compare_conditions(input=input_data, id_col = 'uniprot', comparison=combination, col_group = 1)
 
   for (i in 1:length(combination)) {
-
-    fit2 <- compare_conditions(input=input_data, id_col = 'uniprot', comparison=combination, col_group = 1)
-
     d.out <- tibble(ID = names(fit2$coefficients[,i]),
                         pValue = fit2$p.value[,i],
                         qValue = p.adjust(fit2$p.value[,i], "fdr"),
@@ -845,6 +863,7 @@ draw_volcano = function(data2plot,plot_title,label_col='ID',
 }
 
 volcPlot = function(INPUT=int_norm, IMPUTED, MIN_LFC=2, MIN_PVAL=0.01, WHICH='both', TOPN = 20,
+                    combination = pairwise_condition(to_pair=T,only_unique = T),
                     plot=F, use_plotly=T, use_label='genename'){
 
   plotList <- list()
@@ -855,7 +874,7 @@ volcPlot = function(INPUT=int_norm, IMPUTED, MIN_LFC=2, MIN_PVAL=0.01, WHICH='bo
                       imputed = factor(is_imputed,levels = c(0,1), labels = c('not','is_imputed')))
   }
   #dlist <- get_volcano_data(input_data=INPUT, min_lfc=MIN_LFC, min_pval=MIN_PVAL, WHICH, topn = TOPN, id_col=use_label)
-  all_data = get_volcano_data(INPUT, min_lfc=MIN_LFC, min_pval=MIN_PVAL,  which=WHICH, topn=TOPN) %>% bind_rows %>%
+  all_data = get_volcano_data(INPUT, combination, min_lfc=MIN_LFC, min_pval=MIN_PVAL,  which=WHICH, topn=TOPN) %>% bind_rows %>%
     mutate(log10_qvalue=-log10(qValue)) %>%
     dplyr::left_join(sc_identifiers, by=c('ID'='UNIPROT'), keep=T ) %>%
     dplyr::left_join(IMPUTED,by=c('ID'='uniprot'))
